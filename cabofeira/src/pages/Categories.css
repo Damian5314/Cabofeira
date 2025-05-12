@@ -1,0 +1,34 @@
+.categories-container {
+    padding: 50px;
+    background-color: #f4f4f4;
+  }
+  
+  .category-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+  }
+  
+  .category-group {
+    flex: 1 1 200px;
+  }
+  
+  .category-group h3 {
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .category-group ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .category-group li a {
+    text-decoration: none;
+    color: #0077cc;
+  }
+  
+  .category-group li a:hover {
+    text-decoration: underline;
+  }
+  
