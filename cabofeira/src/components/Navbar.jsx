@@ -12,7 +12,7 @@ function Navbar() {
         <Link to="/faq">FAQ</Link>
       </div>
       <div className="navbar-right">
-        <button className="post-ad">+ Post an Ad</button>
+        <button className="post-ad"><Link to="/postad">+ Post an Ad</Link></button>
         <button className="signup">Signup</button>
         <button className="login">Login</button>
       </div>
