@@ -4,6 +4,8 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Categories from "./pages/Categories";
 import PostAd from "./pages/PostAd";
+import Footer from "./components/Footer";
+
 
 function App() {
   return (
@@ -16,6 +18,7 @@ function App() {
 
         {/* Meer routes komen hier later */}
       </Routes>
+      <Footer />
     </Router>
   );
 }
