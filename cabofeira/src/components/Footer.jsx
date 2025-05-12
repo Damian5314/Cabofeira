@@ -29,7 +29,7 @@ function Footer() {
         </div>
       </div>
       <div className="footer-bottom">
-        <p>© 2025 CaboFeira | All Rights Reserved</p>
+        <p>© {new Date().getFullYear()} CaboFeira | All Rights Reserved</p>
         <div className="footer-links">
           <a href="#">Start</a>
           <a href="#">Categories</a>
