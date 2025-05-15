@@ -12,9 +12,9 @@ function Footer() {
         <div className="footer-column">
           <h4>Information</h4>
           <ul>
-            <li><a href="#">About us</a></li>
-            <li><a href="#">Contact</a></li>
-            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="/aboutus">About us</a></li>
+            <li><a href="/contact">Contact</a></li>
+            <li><a href="privacypolicy">Privacy Policy</a></li>
           </ul>
         </div>
         <div className="footer-column">
@@ -31,10 +31,10 @@ function Footer() {
       <div className="footer-bottom">
         <p>© {new Date().getFullYear()} CaboFeira | All Rights Reserved</p>
         <div className="footer-links">
-          <a href="#">Start</a>
-          <a href="#">Categories</a>
-          <a href="#">Help</a>
-          <a href="#">FAQ</a>
+          <a href="/">Start</a>
+          <a href="/categories">Categories</a>
+          <a href="/help">Help</a>
+          <a href="/faq">FAQ</a>
         </div>
       </div>
     </footer>
