@@ -5,7 +5,7 @@ import { LogoMark } from "../assets/logo";
 import "./Navbar.css";
 
 function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -89,6 +89,12 @@ function Navbar() {
                   <Link to="/profile/ads" onClick={() => setMenuOpen(false)}>📋 My Ads</Link>
                   <Link to="/favorites" onClick={() => setMenuOpen(false)}>❤️ Favorites</Link>
                   <Link to="/messages" onClick={() => setMenuOpen(false)}>💬 Messages</Link>
+                  {isAdmin && (
+                    <>
+                      <hr />
+                      <Link to="/admin" onClick={() => setMenuOpen(false)}>👑 Admin panel</Link>
+                    </>
+                  )}
                   <hr />
                   <button
                     onClick={() => {

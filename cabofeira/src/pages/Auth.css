@@ -50,6 +50,39 @@
   margin-bottom: 16px;
 }
 
+.demo-hint {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.demo-hint strong {
+  color: var(--cf-blue);
+}
+
+.demo-hint button {
+  background: white;
+  border: 1px solid var(--cf-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  cursor: pointer;
+  color: var(--cf-text);
+}
+
+.demo-hint button:hover {
+  background: var(--cf-bg);
+  border-color: var(--cf-accent);
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;

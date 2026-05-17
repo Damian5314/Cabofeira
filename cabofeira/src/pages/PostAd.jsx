@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useProducts } from "../context/ProductsContext";
+import { usePricing } from "../context/PricingContext";
 import { categories, getCategoryById } from "../data/categories";
 import { islands } from "../data/locations";
 import { formatPrice } from "../utils/format";
@@ -29,6 +30,7 @@ function PostAd() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { addProduct, getProduct, updateProduct } = useProducts();
+  const { getPrice, featuredPrice } = usePricing();
   const isEdit = Boolean(id);
   const existing = isEdit ? getProduct(id) : null;
 
@@ -76,6 +78,9 @@ function PostAd() {
 
   const categoryObj = getCategoryById(form.category);
   const islandObj = islands.find((i) => i.name === form.island);
+
+  const postingCost = form.category ? getPrice(form.category) : 0;
+  const totalCost = postingCost + (form.featured ? featuredPrice : 0);
 
   const handleFiles = (files) => {
     const arr = Array.from(files).slice(0, 6);
@@ -217,6 +222,13 @@ function PostAd() {
                     ))}
                   </select>
                   {errors.subcategory && <span className="error">{errors.subcategory}</span>}
+
+                  <div className="cost-banner">
+                    <span>Posting cost in {categoryObj.name}:</span>
+                    <strong>
+                      {postingCost === 0 ? "Free" : `${postingCost.toLocaleString("pt-CV")} CVE`}
+                    </strong>
+                  </div>
                 </>
               )}
             </>
@@ -404,6 +416,26 @@ function PostAd() {
                     Contact: {form.contactName} • {form.contactPhone} • {form.contactEmail}
                   </p>
                   {form.featured && <span className="badge badge-featured">★ Featured</span>}
+                </div>
+              </div>
+
+              <div className="cost-summary">
+                <h4>Cost summary</h4>
+                <div className="cost-line">
+                  <span>Listing in {categoryObj?.name}</span>
+                  <span>{postingCost === 0 ? "Free" : `${postingCost.toLocaleString("pt-CV")} CVE`}</span>
+                </div>
+                {form.featured && (
+                  <div className="cost-line">
+                    <span>⭐ Featured surcharge</span>
+                    <span>{featuredPrice.toLocaleString("pt-CV")} CVE</span>
+                  </div>
+                )}
+                <div className="cost-line cost-total">
+                  <span>Total</span>
+                  <span>
+                    {totalCost === 0 ? "Free" : `${totalCost.toLocaleString("pt-CV")} CVE`}
+                  </span>
                 </div>
               </div>
             </>

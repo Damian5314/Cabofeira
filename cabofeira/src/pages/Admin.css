@@ -1,0 +1,236 @@
+.admin-page {
+  background: var(--cf-bg);
+}
+
+.admin-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.admin-head .page-title {
+  margin: 0 0 4px;
+}
+
+.flash {
+  background: #dcfce7;
+  color: #14532d;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  animation: fade-out 1.5s ease forwards;
+}
+
+@keyframes fade-out {
+  0%, 60% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid var(--cf-border);
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.admin-tabs button {
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--cf-text-muted);
+  cursor: pointer;
+  margin-bottom: -2px;
+  border-bottom: 2px solid transparent;
+}
+
+.admin-tabs button:hover {
+  color: var(--cf-text);
+}
+
+.admin-tabs button.is-active {
+  color: var(--cf-blue);
+  border-bottom-color: var(--cf-blue);
+}
+
+.admin-card {
+  background: var(--cf-bg-alt);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  padding: 22px;
+}
+
+.admin-card > h2 {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+}
+
+.row-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.table-wrap {
+  margin-top: 14px;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--cf-border);
+}
+
+.admin-table th {
+  background: var(--cf-bg);
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--cf-text-muted);
+}
+
+.admin-table tbody tr:hover {
+  background: var(--cf-bg);
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar-tiny {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--cf-blue);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.role-admin {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.role-user {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.price-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.price-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--cf-bg);
+  border-radius: 8px;
+  border: 1px solid var(--cf-border);
+}
+
+.featured-row {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.price-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cat-emoji {
+  font-size: 1.6rem;
+  width: 38px;
+  text-align: center;
+}
+
+.price-input-wrap {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--cf-border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
+.price-input-wrap input {
+  border: none;
+  padding: 8px 12px;
+  width: 100px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  text-align: right;
+}
+
+.price-input-wrap span {
+  background: var(--cf-bg);
+  color: var(--cf-text-muted);
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-left: 1px solid var(--cf-border);
+}
+
+.truncate {
+  display: inline-block;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.btn-sm {
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
