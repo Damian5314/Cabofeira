@@ -1,67 +1,141 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 import "./Messages.css";
 
-const STORAGE_KEY = "cabofeira_messages";
-
-function loadThreads() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-  } catch {
-    return {};
-  }
-}
-
-function saveThreads(threads) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(threads));
-}
+const placeholderImg = "https://picsum.photos/seed/cabofeira/120/120";
 
 function Messages() {
   const { user } = useAuth();
-  const [threads, setThreads] = useState({});
+  const [conversations, setConversations] = useState([]);
   const [activeId, setActiveId] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState("");
 
-  useEffect(() => {
-    setThreads(loadThreads());
+  const loadConversations = useCallback(async () => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from("conversations")
+      .select(
+        `id, product_id, buyer_id, seller_id, last_message_at,
+         buyer:profiles!conversations_buyer_id_fkey(id, name),
+         seller:profiles!conversations_seller_id_fkey(id, name),
+         product:products!conversations_product_id_fkey(id, title, images)`
+      )
+      .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+      .order("last_message_at", { ascending: false });
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error("[messages] load conversations:", error);
+      return;
+    }
+    setConversations(data || []);
+  }, [user]);
+
+  const loadMessages = useCallback(async (convId) => {
+    if (!convId) {
+      setMessages([]);
+      return;
+    }
+    const { data, error } = await supabase
+      .from("messages")
+      .select("id, sender_id, body, created_at")
+      .eq("conversation_id", convId)
+      .order("created_at", { ascending: true });
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error("[messages] load messages:", error);
+      return;
+    }
+    setMessages(data || []);
   }, []);
+
+  useEffect(() => {
+    loadConversations();
+  }, [loadConversations]);
+
+  useEffect(() => {
+    loadMessages(activeId);
+  }, [activeId, loadMessages]);
+
+  // Realtime: live updates for the active conversation.
+  useEffect(() => {
+    if (!activeId) return;
+    const channel = supabase
+      .channel(`messages-${activeId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${activeId}`,
+        },
+        (payload) => {
+          setMessages((prev) =>
+            prev.some((m) => m.id === payload.new.id) ? prev : [...prev, payload.new]
+          );
+          loadConversations();
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [activeId, loadConversations]);
+
+  // Realtime: pick up new conversations involving the current user (e.g. a buyer just messaged us).
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`conv-list-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "conversations" },
+        () => loadConversations()
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, loadConversations]);
 
   if (!user) return <Navigate to="/login?redirect=/messages" replace />;
 
-  const threadList = Object.entries(threads).map(([id, t]) => ({ id, ...t }));
-  const active = activeId ? threads[activeId] : null;
+  const otherOf = (c) => (c.buyer_id === user.id ? c.seller : c.buyer);
+  const active = conversations.find((c) => c.id === activeId);
+  const other = active ? otherOf(active) : null;
 
-  const send = () => {
-    if (!draft.trim() || !activeId) return;
-    const updated = { ...threads };
-    updated[activeId] = {
-      ...updated[activeId],
-      messages: [
-        ...updated[activeId].messages,
-        { from: user.id, text: draft.trim(), at: new Date().toISOString() },
-      ],
+  const send = async (e) => {
+    e?.preventDefault();
+    const text = draft.trim();
+    if (!text || !activeId) return;
+
+    const tempId = `temp-${Date.now()}`;
+    const optimistic = {
+      id: tempId,
+      sender_id: user.id,
+      body: text,
+      created_at: new Date().toISOString(),
     };
-    setThreads(updated);
-    saveThreads(updated);
+    setMessages((prev) => [...prev, optimistic]);
     setDraft("");
-    // Auto-reply after a short delay so the page feels alive.
-    setTimeout(() => {
-      const withReply = { ...updated };
-      withReply[activeId] = {
-        ...withReply[activeId],
-        messages: [
-          ...withReply[activeId].messages,
-          {
-            from: withReply[activeId].withUserId,
-            text: "Thanks for your interest, I'll get back to you shortly!",
-            at: new Date().toISOString(),
-          },
-        ],
-      };
-      setThreads(withReply);
-      saveThreads(withReply);
-    }, 1200);
+
+    const { data, error } = await supabase
+      .from("messages")
+      .insert({ conversation_id: activeId, sender_id: user.id, body: text })
+      .select()
+      .single();
+
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error("[messages] send:", error);
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setDraft(text);
+      return;
+    }
+    setMessages((prev) => prev.map((m) => (m.id === tempId ? data : m)));
   };
 
   return (
@@ -69,7 +143,7 @@ function Messages() {
       <div className="container">
         <h1 className="page-title">💬 Messages</h1>
 
-        {threadList.length === 0 ? (
+        {conversations.length === 0 ? (
           <div className="empty">
             <h3>No conversations yet</h3>
             <p className="muted">When you message a seller, the conversation will appear here.</p>
@@ -78,56 +152,70 @@ function Messages() {
         ) : (
           <div className="messages-grid">
             <aside className="thread-list">
-              {threadList.map((t) => (
-                <button
-                  key={t.id}
-                  className={`thread-item ${activeId === t.id ? "is-active" : ""}`}
-                  onClick={() => setActiveId(t.id)}
-                >
-                  <img src={t.productImage} alt={t.productTitle} />
-                  <div className="thread-info">
-                    <div className="thread-with">{t.withUser}</div>
-                    <div className="thread-product">{t.productTitle}</div>
-                    <div className="thread-last muted small">
-                      {t.messages[t.messages.length - 1]?.text}
+              {conversations.map((c) => {
+                const partner = otherOf(c);
+                const lastMessage =
+                  c.id === activeId ? messages[messages.length - 1]?.body : null;
+                return (
+                  <button
+                    key={c.id}
+                    className={`thread-item ${activeId === c.id ? "is-active" : ""}`}
+                    onClick={() => setActiveId(c.id)}
+                  >
+                    <img
+                      src={c.product?.images?.[0] || placeholderImg}
+                      alt={c.product?.title || "Listing"}
+                    />
+                    <div className="thread-info">
+                      <div className="thread-with">{partner?.name || "Unknown user"}</div>
+                      <div className="thread-product">
+                        {c.product?.title || "(listing removed)"}
+                      </div>
+                      <div className="thread-last muted small">
+                        {lastMessage || "Open to view messages"}
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </aside>
 
             <main className="thread-view">
               {active ? (
                 <>
                   <header className="thread-header">
-                    <img src={active.productImage} alt={active.productTitle} />
+                    <img
+                      src={active.product?.images?.[0] || placeholderImg}
+                      alt={active.product?.title || "Listing"}
+                    />
                     <div>
-                      <div className="thread-with">{active.withUser}</div>
-                      <Link to={`/product/${active.productId}`} className="small">
-                        About: {active.productTitle}
-                      </Link>
+                      <div className="thread-with">{other?.name || "Unknown user"}</div>
+                      {active.product ? (
+                        <Link to={`/product/${active.product_id}`} className="small">
+                          About: {active.product.title}
+                        </Link>
+                      ) : (
+                        <span className="muted small">Listing removed</span>
+                      )}
                     </div>
                   </header>
                   <div className="thread-messages">
-                    {active.messages.map((m, i) => (
+                    {messages.map((m) => (
                       <div
-                        key={i}
-                        className={`bubble ${m.from === user.id ? "mine" : "theirs"}`}
+                        key={m.id}
+                        className={`bubble ${m.sender_id === user.id ? "mine" : "theirs"}`}
                       >
-                        <div>{m.text}</div>
+                        <div>{m.body}</div>
                         <div className="bubble-time">
-                          {new Date(m.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(m.created_at).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </div>
                       </div>
                     ))}
                   </div>
-                  <form
-                    className="thread-input"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      send();
-                    }}
-                  >
+                  <form className="thread-input" onSubmit={send}>
                     <input
                       type="text"
                       placeholder="Type a message..."

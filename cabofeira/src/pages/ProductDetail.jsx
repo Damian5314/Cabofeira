@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { useProducts } from "../context/ProductsContext";
 import { useAuth } from "../context/AuthContext";
 import { getCategoryById, CategoryIcon } from "../data/categories";
+import { supabase } from "../lib/supabase";
 import { formatPrice, timeAgo } from "../utils/format";
 import ProductCard from "../components/ProductCard";
 import "./ProductDetail.css";
@@ -46,31 +47,56 @@ function ProductDetail() {
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!user) {
       navigate(`/login?redirect=/product/${product.id}`);
       return;
     }
-    if (!messageText.trim()) return;
-    // Persist locally so the Messages page can display the conversation.
-    const key = "cabofeira_messages";
-    const all = JSON.parse(localStorage.getItem(key) || "{}");
-    const threadId = `${user.id}__${product.seller.id}__${product.id}`;
-    const thread = all[threadId] || {
-      productId: product.id,
-      productTitle: product.title,
-      productImage: product.images[0],
-      withUser: product.seller.name,
-      withUserId: product.seller.id,
-      messages: [],
-    };
-    thread.messages.push({
-      from: user.id,
-      text: messageText.trim(),
-      at: new Date().toISOString(),
-    });
-    all[threadId] = thread;
-    localStorage.setItem(key, JSON.stringify(all));
+    const text = messageText.trim();
+    if (!text) return;
+
+    // Find or create the conversation between this buyer and the seller about this product.
+    let convId;
+    const { data: existing, error: findErr } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("product_id", product.id)
+      .eq("buyer_id", user.id)
+      .eq("seller_id", product.seller.id)
+      .maybeSingle();
+
+    if (findErr) {
+      alert("Could not open conversation: " + findErr.message);
+      return;
+    }
+
+    if (existing) {
+      convId = existing.id;
+    } else {
+      const { data: created, error: insertErr } = await supabase
+        .from("conversations")
+        .insert({
+          product_id: product.id,
+          buyer_id: user.id,
+          seller_id: product.seller.id,
+        })
+        .select("id")
+        .single();
+      if (insertErr) {
+        alert("Could not start conversation: " + insertErr.message);
+        return;
+      }
+      convId = created.id;
+    }
+
+    const { error: msgErr } = await supabase
+      .from("messages")
+      .insert({ conversation_id: convId, sender_id: user.id, body: text });
+    if (msgErr) {
+      alert("Could not send message: " + msgErr.message);
+      return;
+    }
+
     setMessageSent(true);
     setMessageText("");
     setTimeout(() => {
