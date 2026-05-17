@@ -453,20 +453,35 @@ function PostAd() {
             </div>
           )}
 
-          {errors.submit && (
-            <div
-              style={{
-                color: "#b00020",
-                background: "#fdecea",
-                padding: "10px 14px",
-                borderRadius: 8,
-                marginTop: 16,
-                marginBottom: 4,
-              }}
-            >
-              {errors.submit}
-            </div>
-          )}
+          {step === 4 &&
+            (errors.submit ||
+              Object.keys(errors).some((k) => k !== "submit")) && (
+              <div
+                style={{
+                  color: "#b00020",
+                  background: "#fdecea",
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  marginTop: 16,
+                  marginBottom: 4,
+                }}
+              >
+                {errors.submit ? (
+                  <strong>{errors.submit}</strong>
+                ) : (
+                  <>
+                    <strong>Please fix before publishing:</strong>
+                    <ul style={{ margin: "6px 0 0 18px" }}>
+                      {Object.entries(errors)
+                        .filter(([k]) => k !== "submit")
+                        .map(([k, v]) => (
+                          <li key={k}>{v}</li>
+                        ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+            )}
 
           {step < 5 && (
             <div className="form-actions">
