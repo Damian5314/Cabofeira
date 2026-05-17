@@ -96,7 +96,7 @@ function Search() {
             <select value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="">All categories</option>
               {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+                <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
           </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useProducts } from "../context/ProductsContext";
 import { useAuth } from "../context/AuthContext";
-import { getCategoryById } from "../data/categories";
+import { getCategoryById, CategoryIcon } from "../data/categories";
 import { formatPrice, timeAgo } from "../utils/format";
 import ProductCard from "../components/ProductCard";
 import "./ProductDetail.css";
@@ -143,7 +143,7 @@ function ProductDetail() {
                 <span>👁 {product.views} views</span>
               </div>
               <div className="detail-tags">
-                <span className="badge">{category?.icon} {category?.name}</span>
+                <span className="badge"><CategoryIcon category={category} size={14} style={{ verticalAlign: "middle", marginRight: 4 }} />{category?.name}</span>
                 <span className="badge">{product.subcategory}</span>
                 <span className={`badge ${product.condition === "New" ? "badge-new" : ""}`}>
                   {product.condition}

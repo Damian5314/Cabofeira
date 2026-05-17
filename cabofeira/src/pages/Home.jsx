@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { useProducts } from "../context/ProductsContext";
-import { categories } from "../data/categories";
+import { categories, CategoryIcon } from "../data/categories";
 import { islands } from "../data/locations";
 import "./Home.css";
 
@@ -50,7 +50,7 @@ function Home() {
               <option value="">All Categories</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.icon} {c.name}
+                  {c.name}
                 </option>
               ))}
             </select>
@@ -85,7 +85,7 @@ function Home() {
                 key={c.id}
                 className="category-tile"
               >
-                <span className="category-icon">{c.icon}</span>
+                <span className="category-icon"><CategoryIcon category={c} size={36} /></span>
                 <span>{c.name}</span>
               </Link>
             ))}

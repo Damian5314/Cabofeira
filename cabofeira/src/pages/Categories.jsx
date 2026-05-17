@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { categories } from "../data/categories";
+import { categories, CategoryIcon } from "../data/categories";
 import { useProducts } from "../context/ProductsContext";
 import "./Categories.css";
 
@@ -19,7 +19,7 @@ function Categories() {
           {categories.map((c) => (
             <div key={c.id} className="cat-card">
               <Link to={`/search?category=${c.id}`} className="cat-card-head">
-                <span className="cat-icon">{c.icon}</span>
+                <span className="cat-icon"><CategoryIcon category={c} size={32} /></span>
                 <div>
                   <h3>{c.name}</h3>
                   <span className="muted small">{count(c.id)} ads</span>

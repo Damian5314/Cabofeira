@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useProducts } from "../context/ProductsContext";
 import { usePricing } from "../context/PricingContext";
-import { categories } from "../data/categories";
+import { categories, CategoryIcon } from "../data/categories";
 import { formatPrice } from "../utils/format";
 import "./Admin.css";
 
@@ -152,7 +152,7 @@ function Admin() {
               {categories.map((c) => (
                 <div key={c.id} className="price-row">
                   <div className="price-name">
-                    <span className="cat-emoji">{c.icon}</span>
+                    <span className="cat-emoji"><CategoryIcon category={c} size={22} /></span>
                     <div>
                       <strong>{c.name}</strong>
                       <div className="muted small">{c.subcategories.length} subcategories</div>

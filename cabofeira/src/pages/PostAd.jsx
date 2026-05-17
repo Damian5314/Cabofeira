@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useProducts } from "../context/ProductsContext";
 import { usePricing } from "../context/PricingContext";
-import { categories, getCategoryById } from "../data/categories";
+import { categories, getCategoryById, CategoryIcon } from "../data/categories";
 import { islands } from "../data/locations";
 import { formatPrice } from "../utils/format";
 import "./PostAd.css";
@@ -207,7 +207,7 @@ function PostAd() {
                     className={`cat-pill ${form.category === c.id ? "is-selected" : ""}`}
                     onClick={() => update({ category: c.id, subcategory: "" })}
                   >
-                    <span>{c.icon}</span> {c.name}
+                    <CategoryIcon category={c} size={18} style={{ verticalAlign: "middle", marginRight: 6 }} /> {c.name}
                   </button>
                 ))}
               </div>
