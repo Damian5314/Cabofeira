@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { HiMenu, HiX, HiSearch } from "react-icons/hi";
 import { useAuth } from "../context/AuthContext";
 import { LogoMark } from "../assets/logo";
 import "./Navbar.css";
@@ -22,17 +23,45 @@ function Navbar() {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
+  // Lock body scroll while the mobile drawer is open.
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  const closeMobile = () => setMobileOpen(false);
+
   const handleSearch = (e) => {
     e.preventDefault();
     const q = search.trim();
     navigate(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
-    setMobileOpen(false);
+    closeMobile();
   };
+
+  const SearchForm = ({ className = "" }) => (
+    <form className={`navbar-search ${className}`} onSubmit={handleSearch}>
+      <input
+        type="text"
+        placeholder="Search for cars, phones, houses..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <button type="submit" aria-label="Search">
+        <HiSearch size={18} />
+      </button>
+    </form>
+  );
 
   return (
     <nav className="navbar">
       <div className="navbar-inner">
-        <Link to="/" className="logo-link" onClick={() => setMobileOpen(false)}>
+        <Link to="/" className="logo-link" onClick={closeMobile}>
           <LogoMark size={36} />
           <div className="logo-stack">
             <span className="logo-title">CaboFeira</span>
@@ -40,33 +69,34 @@ function Navbar() {
           </div>
         </Link>
 
-        <form className="navbar-search" onSubmit={handleSearch}>
-          <input
-            type="text"
-            placeholder="Search for cars, phones, houses..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <button type="submit" aria-label="Search">🔍</button>
-        </form>
+        <SearchForm className="desktop-only" />
 
         <button
           className="mobile-toggle"
           onClick={() => setMobileOpen((v) => !v)}
-          aria-label="Toggle menu"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
         >
-          ☰
+          {mobileOpen ? <HiX size={24} /> : <HiMenu size={24} />}
         </button>
 
+        <div
+          className={`mobile-backdrop ${mobileOpen ? "open" : ""}`}
+          onClick={closeMobile}
+          aria-hidden="true"
+        />
+
         <div className={`navbar-links ${mobileOpen ? "open" : ""}`}>
-          <NavLink to="/" end onClick={() => setMobileOpen(false)}>Home</NavLink>
-          <NavLink to="/categories" onClick={() => setMobileOpen(false)}>Categories</NavLink>
-          <NavLink to="/search" onClick={() => setMobileOpen(false)}>Browse</NavLink>
+          <SearchForm className="mobile-only" />
+
+          <NavLink to="/" end onClick={closeMobile}>Home</NavLink>
+          <NavLink to="/categories" onClick={closeMobile}>Categories</NavLink>
+          <NavLink to="/search" onClick={closeMobile}>Browse</NavLink>
 
           <Link
             to="/postad"
             className="btn btn-primary post-btn"
-            onClick={() => setMobileOpen(false)}
+            onClick={closeMobile}
           >
             + Post Ad
           </Link>
@@ -85,14 +115,14 @@ function Navbar() {
               </button>
               {menuOpen && (
                 <div className="dropdown">
-                  <Link to="/profile" onClick={() => setMenuOpen(false)}>👤 My Profile</Link>
-                  <Link to="/profile/ads" onClick={() => setMenuOpen(false)}>📋 My Ads</Link>
-                  <Link to="/favorites" onClick={() => setMenuOpen(false)}>❤️ Favorites</Link>
-                  <Link to="/messages" onClick={() => setMenuOpen(false)}>💬 Messages</Link>
+                  <Link to="/profile" onClick={() => { setMenuOpen(false); closeMobile(); }}>My Profile</Link>
+                  <Link to="/profile/ads" onClick={() => { setMenuOpen(false); closeMobile(); }}>My Ads</Link>
+                  <Link to="/favorites" onClick={() => { setMenuOpen(false); closeMobile(); }}>Favorites</Link>
+                  <Link to="/messages" onClick={() => { setMenuOpen(false); closeMobile(); }}>Messages</Link>
                   {isAdmin && (
                     <>
                       <hr />
-                      <Link to="/admin" onClick={() => setMenuOpen(false)}>👑 Admin panel</Link>
+                      <Link to="/admin" onClick={() => { setMenuOpen(false); closeMobile(); }}>Admin panel</Link>
                     </>
                   )}
                   <hr />
@@ -100,20 +130,21 @@ function Navbar() {
                     onClick={() => {
                       logout();
                       setMenuOpen(false);
+                      closeMobile();
                       navigate("/");
                     }}
                   >
-                    🚪 Logout
+                    Logout
                   </button>
                 </div>
               )}
             </div>
           ) : (
             <div className="auth-buttons">
-              <Link to="/login" className="btn btn-outline" onClick={() => setMobileOpen(false)}>
+              <Link to="/login" className="btn btn-outline" onClick={closeMobile}>
                 Login
               </Link>
-              <Link to="/register" className="btn btn-primary" onClick={() => setMobileOpen(false)}>
+              <Link to="/register" className="btn btn-primary" onClick={closeMobile}>
                 Sign Up
               </Link>
             </div>
