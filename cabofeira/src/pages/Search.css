@@ -1,0 +1,149 @@
+.search-page {
+  background: var(--cf-bg);
+}
+
+.search-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.filters {
+  background: var(--cf-bg-alt);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  padding: 18px;
+  position: sticky;
+  top: 80px;
+}
+
+.filters-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.filters-head h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.clear {
+  background: none;
+  border: none;
+  color: var(--cf-accent);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.clear:hover {
+  text-decoration: underline;
+}
+
+.filter-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--cf-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.filter-group input,
+.filter-group select {
+  padding: 9px 12px;
+  border: 1px solid var(--cf-border);
+  border-radius: 8px;
+  font-size: 0.92rem;
+  background: white;
+  outline: none;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+  border-color: var(--cf-accent);
+}
+
+.price-row {
+  display: flex;
+  gap: 6px;
+}
+
+.price-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.results-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.results-head .page-title {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.results-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.sort-select {
+  padding: 9px 12px;
+  border: 1px solid var(--cf-border);
+  border-radius: 8px;
+  background: white;
+  font-size: 0.92rem;
+}
+
+.filter-toggle {
+  display: none;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--cf-bg-alt);
+  border-radius: var(--cf-radius);
+  border: 1px dashed var(--cf-border);
+}
+
+.empty h3 {
+  margin: 0 0 8px;
+}
+
+.empty p {
+  margin: 0 0 18px;
+}
+
+@media (max-width: 850px) {
+  .search-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    display: none;
+    position: static;
+  }
+
+  .filters.open {
+    display: block;
+  }
+
+  .filter-toggle {
+    display: inline-flex;
+  }
+}

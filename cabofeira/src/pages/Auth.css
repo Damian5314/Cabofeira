@@ -1,0 +1,163 @@
+.auth-page {
+  min-height: calc(100vh - 200px);
+  background: linear-gradient(135deg, var(--cf-blue) 0%, var(--cf-blue-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.auth-card {
+  background: white;
+  border-radius: 14px;
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--cf-shadow-lg);
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none !important;
+  color: var(--cf-blue);
+  margin-bottom: 14px;
+}
+
+.auth-logo h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--cf-blue);
+}
+
+.auth-card h2 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+}
+
+.auth-card > p.muted {
+  margin: 0 0 22px;
+}
+
+.auth-error {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--cf-text);
+}
+
+.auth-form label > span:first-child {
+  color: var(--cf-text);
+}
+
+.auth-form input {
+  padding: 11px 14px;
+  border: 1px solid var(--cf-border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  font-family: inherit;
+}
+
+.auth-form input:focus {
+  border-color: var(--cf-accent);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+}
+
+.password-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input input {
+  flex: 1;
+  padding-right: 42px;
+}
+
+.password-input button {
+  position: absolute;
+  right: 6px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+}
+
+.auth-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -4px;
+}
+
+.checkbox {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500 !important;
+  font-size: 0.88rem !important;
+  cursor: pointer;
+}
+
+.checkbox input {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 22px 0;
+  color: var(--cf-text-muted);
+  font-size: 0.85rem;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--cf-border);
+}
+
+.divider span {
+  padding: 0 12px;
+}
+
+.social-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-footer {
+  text-align: center;
+  margin: 22px 0 0;
+  font-size: 0.92rem;
+  color: var(--cf-text-muted);
+}

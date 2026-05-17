@@ -1,0 +1,139 @@
+.info-page {
+  background: var(--cf-bg);
+}
+
+.narrow {
+  max-width: 760px;
+}
+
+.info-page .lead {
+  font-size: 1.1rem;
+  color: var(--cf-text-muted);
+  margin-bottom: 20px;
+}
+
+.info-page h2 {
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+.info-page p,
+.info-page li {
+  line-height: 1.6;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 28px;
+  margin-top: 22px;
+}
+
+.contact-info {
+  background: var(--cf-bg-alt);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  padding: 20px;
+}
+
+.contact-info h3 {
+  margin: 16px 0 4px;
+  font-size: 1rem;
+}
+
+.contact-info h3:first-child {
+  margin-top: 0;
+}
+
+.contact-info p {
+  margin: 0;
+  color: var(--cf-text-muted);
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--cf-bg-alt);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  padding: 20px;
+}
+
+.contact-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--cf-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: var(--cf-accent);
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.faq-item {
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  background: var(--cf-bg-alt);
+  overflow: hidden;
+}
+
+.faq-item.open {
+  box-shadow: var(--cf-shadow);
+}
+
+.faq-q {
+  background: none;
+  border: none;
+  width: 100%;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.98rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.faq-q .caret {
+  font-size: 1.4rem;
+  color: var(--cf-accent);
+}
+
+.faq-a {
+  padding: 0 18px 16px;
+  color: var(--cf-text-muted);
+  line-height: 1.55;
+}
+
+.success-card {
+  text-align: center;
+  padding: 30px 0;
+}
+
+@media (max-width: 700px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}

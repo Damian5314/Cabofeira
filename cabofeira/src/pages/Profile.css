@@ -1,0 +1,212 @@
+.profile-page {
+  background: var(--cf-bg);
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 26px;
+  align-items: start;
+}
+
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: 80px;
+}
+
+.profile-card {
+  background: var(--cf-bg-alt);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  padding: 22px;
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--cf-blue);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 auto 10px;
+}
+
+.profile-card h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.profile-nav {
+  background: var(--cf-bg-alt);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-nav a,
+.profile-nav .logout-btn {
+  display: block;
+  padding: 11px 14px;
+  border-radius: 8px;
+  color: var(--cf-text);
+  text-decoration: none;
+  font-size: 0.92rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.profile-nav a:hover,
+.profile-nav .logout-btn:hover {
+  background: var(--cf-bg);
+  text-decoration: none;
+}
+
+.profile-nav a.active {
+  background: var(--cf-blue);
+  color: white;
+}
+
+.logout-btn {
+  color: var(--cf-red) !important;
+  border-top: 1px solid var(--cf-border) !important;
+  border-radius: 0 !important;
+  margin-top: 4px;
+  padding-top: 14px !important;
+}
+
+.profile-main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.profile-section {
+  background: var(--cf-bg-alt);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  padding: 22px;
+}
+
+.profile-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.profile-section h2 {
+  margin: 0 0 14px;
+  font-size: 1.15rem;
+}
+
+.info-list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px 16px;
+}
+
+.info-list > div {
+  display: contents;
+}
+
+.info-list dt {
+  font-weight: 600;
+  color: var(--cf-text-muted);
+}
+
+.info-list dd {
+  margin: 0;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.profile-form input,
+.profile-form textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--cf-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.profile-form input:focus,
+.profile-form textarea:focus {
+  border-color: var(--cf-accent);
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.stat {
+  background: var(--cf-bg);
+  border-radius: var(--cf-radius);
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--cf-blue);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--cf-text-muted);
+  margin-top: 4px;
+}
+
+@media (max-width: 800px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-sidebar {
+    position: static;
+  }
+
+  .info-list {
+    grid-template-columns: 1fr;
+  }
+
+  .info-list dt {
+    margin-bottom: -4px;
+  }
+}

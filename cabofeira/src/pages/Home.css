@@ -1,35 +1,202 @@
+.home {
+  background: var(--cf-bg);
+}
+
 .hero-section {
-    /*background-image: url("/background.jpg"); /* plaats dit bestand in public folder */
-    background-size: cover;
-    background-position: center;
-    height: 70vh;
-    position: relative;
-    color: white;
+  background: linear-gradient(135deg, var(--cf-blue) 0%, var(--cf-blue-dark) 60%, #001a4a 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(247, 209, 22, 0.15), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(207, 32, 39, 0.15), transparent 40%);
+  pointer-events: none;
+}
+
+.hero-overlay {
+  position: relative;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.hero-overlay h1 {
+  font-size: 2.6rem;
+  margin: 0 0 14px;
+  color: white;
+  line-height: 1.15;
+}
+
+.highlight {
+  color: var(--cf-yellow);
+  font-style: italic;
+}
+
+.hero-sub {
+  font-size: 1.1rem;
+  opacity: 0.92;
+  max-width: 640px;
+  margin: 0 auto 28px;
+}
+
+.hero-search {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 8px;
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  padding: 8px;
+  border-radius: 14px;
+  box-shadow: var(--cf-shadow-lg);
+}
+
+.hero-search input,
+.hero-search select {
+  border: none;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  background: transparent;
+  color: var(--cf-text);
+  outline: none;
+  border-radius: 8px;
+}
+
+.hero-search input:focus,
+.hero-search select:focus {
+  background: var(--cf-bg);
+}
+
+.hero-search .btn-primary {
+  padding: 12px 22px;
+}
+
+.hero-stats {
+  margin-top: 24px;
+  font-size: 0.95rem;
+  opacity: 0.88;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.hero-stats strong {
+  color: var(--cf-yellow);
+}
+
+.home-section {
+  padding: 50px 0;
+}
+
+.home-section:nth-of-type(even) {
+  background: var(--cf-bg-alt);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.category-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 12px;
+  background: var(--cf-bg-alt);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  text-decoration: none !important;
+  color: var(--cf-text);
+  font-weight: 500;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.category-tile:hover {
+  border-color: var(--cf-accent);
+  color: var(--cf-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--cf-shadow);
+}
+
+.category-icon {
+  font-size: 2rem;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.cta-section {
+  background: linear-gradient(135deg, var(--cf-yellow) 0%, #ffdc3a 100%);
+  color: var(--cf-blue-dark);
+  padding: 50px 0;
+}
+
+.cta-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.cta-inner h2 {
+  margin: 0 0 4px;
+  color: var(--cf-blue-dark);
+}
+
+.cta-inner p {
+  margin: 0;
+}
+
+.cta-btn {
+  background: var(--cf-blue);
+  color: white !important;
+  border-color: var(--cf-blue);
+  padding: 14px 28px;
+  font-size: 1rem;
+}
+
+@media (max-width: 700px) {
+  .hero-overlay {
+    padding: 50px 20px;
   }
-  
-  .overlay {
-    background: rgba(0, 0, 0, 0.6);
-    height: 60%;
-    padding: 100px 30px;
-    text-align: center;
+
+  .hero-overlay h1 {
+    font-size: 1.8rem;
   }
-  
-  .highlight {
-    color: #00c9ff;
+
+  .hero-sub {
+    font-size: 1rem;
   }
-  
-  .search-bar {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
+
+  .hero-search {
+    grid-template-columns: 1fr;
   }
-  
-  .search-bar input,
-  .search-bar select,
-  .search-bar button {
-    padding: 10px;
-    border-radius: 5px;
-    border: none;
-  }
-  
+}
