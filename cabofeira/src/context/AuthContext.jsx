@@ -1,72 +1,92 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { findSeedUser, publicUser, seedUsers } from "../data/seedUsers";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { supabase } from "../lib/supabase";
 
 const AuthContext = createContext(null);
 
-const STORAGE_KEY = "cabofeira_user";
-const REGISTERED_KEY = "cabofeira_registered_users";
-
-function loadRegistered() {
-  try {
-    return JSON.parse(localStorage.getItem(REGISTERED_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
+const fromProfile = (row) => ({
+  id: row.id,
+  name: row.name,
+  email: row.email,
+  phone: row.phone || "",
+  bio: row.bio || "",
+  role: row.role,
+  memberSince: row.member_since,
+  verified: row.verified,
+  avatar: row.avatar,
+});
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [registered, setRegistered] = useState(loadRegistered);
+  const loadProfile = useCallback(async (id) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error || !data) {
+      setUser(null);
+      return;
+    }
+    setUser(fromProfile(data));
+  }, []);
+
+  const refreshUsers = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .order("created_at", { ascending: true });
+    if (!error && data) setUsers(data.map(fromProfile));
+  }, []);
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  }, [user]);
+    let mounted = true;
+
+    (async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!mounted) return;
+      if (session?.user) await loadProfile(session.user.id);
+      setLoading(false);
+    })();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      if (session?.user) loadProfile(session.user.id);
+      else setUser(null);
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [loadProfile]);
 
   useEffect(() => {
-    localStorage.setItem(REGISTERED_KEY, JSON.stringify(registered));
-  }, [registered]);
+    refreshUsers();
+  }, [user, refreshUsers]);
 
-  const login = ({ email, password }) => {
+  const login = async ({ email, password }) => {
     if (!email || !password) {
       return { ok: false, error: "Email and password are required." };
     }
-
-    // Seed accounts require their exact password.
-    const seed = findSeedUser(email);
-    if (seed) {
-      if (seed.password !== password) {
-        return { ok: false, error: "Incorrect password for this account." };
-      }
-      setUser(publicUser(seed));
-      return { ok: true };
-    }
-
-    // Otherwise check the locally-registered list.
-    const reg = registered.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (reg) {
-      if (reg.password !== password) {
-        return { ok: false, error: "Incorrect password." };
-      }
-      setUser(publicUser(reg));
-      return { ok: true };
-    }
-
-    return { ok: false, error: "No account found with that email." };
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
   };
 
-  const register = ({ name, email, phone, password, confirmPassword }) => {
+  const register = async ({ name, email, phone, password, confirmPassword }) => {
     if (!name || !email || !password) {
       return { ok: false, error: "Name, email and password are required." };
     }
@@ -76,46 +96,43 @@ export function AuthProvider({ children }) {
     if (password !== confirmPassword) {
       return { ok: false, error: "Passwords do not match." };
     }
-    if (findSeedUser(email) || registered.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
-      return { ok: false, error: "An account with this email already exists." };
-    }
-
-    const newUser = {
-      id: `u_${Date.now()}`,
-      name,
+    const { error } = await supabase.auth.signUp({
       email,
-      phone: phone || "",
       password,
-      role: "user",
-      memberSince: new Date().toISOString().slice(0, 10),
-      verified: false,
-      avatar: null,
-    };
-    setRegistered((prev) => [...prev, newUser]);
-    setUser(publicUser(newUser));
+      options: { data: { name, phone: phone || "" } },
+    });
+    if (error) return { ok: false, error: error.message };
     return { ok: true };
   };
 
-  const logout = () => setUser(null);
-
-  const updateProfile = (patch) => {
-    setUser((u) => (u ? { ...u, ...patch } : u));
-    // Mirror name/phone changes back into the registered list so admin sees them.
-    setRegistered((prev) =>
-      prev.map((u) => (u.email === user?.email ? { ...u, ...patch } : u))
-    );
+  const logout = async () => {
+    await supabase.auth.signOut();
   };
 
-  // All known users for the admin: seed + registered, deduped by email.
-  const allUsers = () => {
-    const map = new Map();
-    [...seedUsers, ...registered].forEach((u) => {
-      map.set(u.email.toLowerCase(), publicUser(u));
-    });
-    return Array.from(map.values());
+  const updateProfile = async (patch) => {
+    if (!user) return { ok: false, error: "Not signed in." };
+    const dbPatch = {};
+    if ("name" in patch) dbPatch.name = patch.name;
+    if ("phone" in patch) dbPatch.phone = patch.phone;
+    if ("bio" in patch) dbPatch.bio = patch.bio;
+    if ("avatar" in patch) dbPatch.avatar = patch.avatar;
+    const { data, error } = await supabase
+      .from("profiles")
+      .update(dbPatch)
+      .eq("id", user.id)
+      .select()
+      .single();
+    if (error) return { ok: false, error: error.message };
+    setUser(fromProfile(data));
+    refreshUsers();
+    return { ok: true };
   };
+
+  const allUsers = () => users;
 
   const isAdmin = user?.role === "admin";
+
+  if (loading) return null;
 
   return (
     <AuthContext.Provider

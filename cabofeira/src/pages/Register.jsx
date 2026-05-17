@@ -24,14 +24,14 @@ function Register() {
     setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     if (!form.agree) {
       setError("Please agree to the Terms of Service.");
       return;
     }
-    const result = register(form);
+    const result = await register(form);
     if (!result.ok) {
       setError(result.error);
       return;

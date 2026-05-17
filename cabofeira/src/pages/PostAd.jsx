@@ -130,7 +130,7 @@ function PostAd() {
 
   const prev = () => setStep(step - 1);
 
-  const submit = () => {
+  const submit = async () => {
     const e = validate(4);
     setErrors(e);
     if (Object.keys(e).length > 0) return;
@@ -156,13 +156,17 @@ function PostAd() {
       },
     };
 
-    if (isEdit) {
-      updateProduct(id, payload);
-      navigate(`/product/${id}`);
-    } else {
-      const created = addProduct(payload);
-      setStep(5);
-      setTimeout(() => navigate(`/product/${created.id}`), 1800);
+    try {
+      if (isEdit) {
+        await updateProduct(id, payload);
+        navigate(`/product/${id}`);
+      } else {
+        const created = await addProduct(payload);
+        setStep(5);
+        setTimeout(() => navigate(`/product/${created.id}`), 1800);
+      }
+    } catch (err) {
+      setErrors({ submit: err.message || "Could not save your ad. Please try again." });
     }
   };
 
@@ -446,6 +450,21 @@ function PostAd() {
               <div className="success-icon">🎉</div>
               <h2>Your ad is live!</h2>
               <p className="muted">Redirecting to your listing...</p>
+            </div>
+          )}
+
+          {errors.submit && (
+            <div
+              style={{
+                color: "#b00020",
+                background: "#fdecea",
+                padding: "10px 14px",
+                borderRadius: 8,
+                marginTop: 16,
+                marginBottom: 4,
+              }}
+            >
+              {errors.submit}
             </div>
           )}
 
