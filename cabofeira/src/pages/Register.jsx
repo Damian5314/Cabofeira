@@ -20,6 +20,7 @@ function Register() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [sentEmail, setSentEmail] = useState("");
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -38,6 +39,10 @@ function Register() {
       setError(result.error);
       return;
     }
+    if (result.needsConfirmation) {
+      setSentEmail(form.email);
+      return;
+    }
     navigate("/profile");
   };
 
@@ -53,97 +58,116 @@ function Register() {
 
         {error && <div className="auth-error">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <label>
-            <span>{t("auth.fullName")}</span>
-            <input
-              type="text"
-              name="name"
-              placeholder={t("auth.fullNamePlaceholder")}
-              value={form.name}
-              onChange={handleChange}
-              required
-            />
-          </label>
+        {sentEmail && (
+          <div style={{ textAlign: "center", padding: "20px 0" }}>
+            <h3 style={{ color: "#10b981", marginBottom: 8 }}>
+              {t("auth.confirm.checkInbox")}
+            </h3>
+            <p className="muted" style={{ marginBottom: 8 }}>
+              {t("auth.confirm.sentTo", { email: sentEmail })}
+            </p>
+            <p className="muted">{t("auth.confirm.clickToActivate")}</p>
+            <Link to="/login" className="btn btn-outline btn-block" style={{ marginTop: 20 }}>
+              {t("auth.confirm.backToLogin")}
+            </Link>
+          </div>
+        )}
 
-          <label>
-            <span>{t("auth.email")}</span>
-            <input
-              type="email"
-              name="email"
-              placeholder={t("auth.emailPlaceholder")}
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
-          </label>
-
-          <label>
-            <span>{t("auth.phoneOptional")}</span>
-            <input
-              type="tel"
-              name="phone"
-              placeholder={t("auth.phonePlaceholder")}
-              value={form.phone}
-              onChange={handleChange}
-            />
-          </label>
-
-          <label>
-            <span>{t("auth.password")}</span>
-            <div className="password-input">
+        {!sentEmail && (
+          <form onSubmit={handleSubmit} className="auth-form">
+            <label>
+              <span>{t("auth.fullName")}</span>
               <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder={t("auth.passwordHint")}
-                value={form.password}
+                type="text"
+                name="name"
+                placeholder={t("auth.fullNamePlaceholder")}
+                value={form.name}
                 onChange={handleChange}
                 required
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                tabIndex={-1}
-              >
-                {showPassword ? "🙈" : "👁️"}
-              </button>
-            </div>
-          </label>
+            </label>
 
-          <label>
-            <span>{t("auth.confirmPassword")}</span>
-            <input
-              type={showPassword ? "text" : "password"}
-              name="confirmPassword"
-              placeholder={t("auth.confirmPasswordPlaceholder")}
-              value={form.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-          </label>
+            <label>
+              <span>{t("auth.email")}</span>
+              <input
+                type="email"
+                name="email"
+                placeholder={t("auth.emailPlaceholder")}
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+            </label>
 
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              name="agree"
-              checked={form.agree}
-              onChange={handleChange}
-            />
-            <span>
-              {t("auth.agreeTerms", { terms: "", privacy: "" })}{" "}
-              <Link to="/terms">{t("auth.terms")}</Link> &amp;{" "}
-              <Link to="/privacy">{t("auth.privacy")}</Link>.
-            </span>
-          </label>
+            <label>
+              <span>{t("auth.phoneOptional")}</span>
+              <input
+                type="tel"
+                name="phone"
+                placeholder={t("auth.phonePlaceholder")}
+                value={form.phone}
+                onChange={handleChange}
+              />
+            </label>
 
-          <button type="submit" className="btn btn-primary btn-block">
-            {t("auth.createAccountBtn")}
-          </button>
-        </form>
+            <label>
+              <span>{t("auth.password")}</span>
+              <div className="password-input">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder={t("auth.passwordHint")}
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
+            </label>
 
-        <p className="auth-footer">
-          {t("auth.alreadyAccount")} <Link to="/login">{t("auth.signIn")}</Link>
-        </p>
+            <label>
+              <span>{t("auth.confirmPassword")}</span>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="confirmPassword"
+                placeholder={t("auth.confirmPasswordPlaceholder")}
+                value={form.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+            </label>
+
+            <label className="checkbox">
+              <input
+                type="checkbox"
+                name="agree"
+                checked={form.agree}
+                onChange={handleChange}
+              />
+              <span>
+                {t("auth.agreeTerms", { terms: "", privacy: "" })}{" "}
+                <Link to="/terms">{t("auth.terms")}</Link>{" & "}
+                <Link to="/privacy">{t("auth.privacy")}</Link>.
+              </span>
+            </label>
+
+            <button type="submit" className="btn btn-primary btn-block">
+              {t("auth.createAccountBtn")}
+            </button>
+          </form>
+        )}
+
+        {!sentEmail && (
+          <p className="auth-footer">
+            {t("auth.alreadyAccount")} <Link to="/login">{t("auth.signIn")}</Link>
+          </p>
+        )}
       </div>
     </div>
   );

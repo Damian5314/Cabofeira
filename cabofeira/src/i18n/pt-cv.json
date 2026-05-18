@@ -253,6 +253,16 @@
       "sentHint": "Se existir uma conta com este email, enviámos um link para repor a palavra-passe.",
       "backToLogin": "← Voltar ao login"
     },
+    "confirm": {
+      "checkInbox": "✓ Verifica o teu email",
+      "sentTo": "Enviámos um link de confirmação para {email}.",
+      "clickToActivate": "Clica no link para activar a conta, depois volta aqui para entrar.",
+      "backToLogin": "← Voltar ao login",
+      "resend": "Reenviar email de confirmação",
+      "resending": "A enviar...",
+      "resent": "✓ Enviado — verifica de novo a tua caixa de entrada.",
+      "notConfirmed": "O teu email ainda não foi confirmado. Verifica a tua caixa de entrada ou reenvia o link abaixo."
+    },
     "reset": {
       "title": "Definir nova palavra-passe",
       "intro": "Escolhe uma nova palavra-passe para a tua conta.",

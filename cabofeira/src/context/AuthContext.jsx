@@ -62,9 +62,14 @@ export function AuthProvider({ children }) {
         data: { session },
       } = await supabase.auth.getSession();
       if (!mounted) return;
-      // If a recovery flow is in progress, treat the session as anonymous
-      // for the UI: the user must set a new password before being "logged in".
-      const recovering = sessionStorage.getItem(RECOVERY_FLAG) === "1";
+      // Recovery flag should only count when the user is actively on the
+      // reset page. Otherwise it's stale state from an abandoned reset flow.
+      let recovering = sessionStorage.getItem(RECOVERY_FLAG) === "1";
+      if (recovering && window.location.pathname !== "/reset-password") {
+        sessionStorage.removeItem(RECOVERY_FLAG);
+        setIsRecovering(false);
+        recovering = false;
+      }
       if (session?.user && !recovering) {
         await loadProfile(session.user.id);
       }
@@ -111,6 +116,10 @@ export function AuthProvider({ children }) {
     if (!email || !password) {
       return { ok: false, error: t("auth.errors.missingCredentials") };
     }
+    // Any pending recovery flag must be wiped before a fresh login so the
+    // session listener doesn't silently mark the new session as "anonymous".
+    sessionStorage.removeItem(RECOVERY_FLAG);
+    setIsRecovering(false);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { ok: false, error: error.message };
     return { ok: true };
@@ -126,16 +135,27 @@ export function AuthProvider({ children }) {
     if (password !== confirmPassword) {
       return { ok: false, error: t("auth.errors.passwordMismatch") };
     }
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { name, phone: phone || "" } },
     });
     if (error) return { ok: false, error: error.message };
+    // If email confirmation is enabled in Supabase, signUp returns no session
+    // until the user clicks the verification link.
+    return { ok: true, needsConfirmation: !data.session };
+  };
+
+  const resendConfirmation = async (email) => {
+    if (!email) return { ok: false, error: t("auth.errors.missingCredentials") };
+    const { error } = await supabase.auth.resend({ type: "signup", email });
+    if (error) return { ok: false, error: error.message };
     return { ok: true };
   };
 
   const logout = async () => {
+    sessionStorage.removeItem(RECOVERY_FLAG);
+    setIsRecovering(false);
     await supabase.auth.signOut();
   };
 
@@ -238,6 +258,7 @@ export function AuthProvider({ children }) {
         deleteAccount,
         requestPasswordReset,
         updatePassword,
+        resendConfirmation,
       }}
     >
       {children}

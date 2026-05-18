@@ -253,6 +253,16 @@
       "sentHint": "If an account exists for that email, we sent a link to reset your password.",
       "backToLogin": "← Back to login"
     },
+    "confirm": {
+      "checkInbox": "✓ Check your inbox",
+      "sentTo": "We sent a confirmation link to {email}.",
+      "clickToActivate": "Click it to activate your account, then come back here to sign in.",
+      "backToLogin": "← Back to login",
+      "resend": "Resend confirmation email",
+      "resending": "Sending...",
+      "resent": "✓ Sent — check your inbox again.",
+      "notConfirmed": "Your email isn't confirmed yet. Check your inbox for the link, or resend it below."
+    },
     "reset": {
       "title": "Set a new password",
       "intro": "Choose a new password for your account.",
