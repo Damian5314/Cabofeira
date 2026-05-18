@@ -3,10 +3,12 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useProducts } from "../context/ProductsContext";
 import { usePricing } from "../context/PricingContext";
-import { useT } from "../i18n/I18nContext";
+import { useT, useI18n } from "../i18n/I18nContext";
 import { categories, getCategoryById, CategoryIcon } from "../data/categories";
 import { islands } from "../data/locations";
 import { formatPrice } from "../utils/format";
+import { supabase } from "../lib/supabase";
+import { useToast } from "../components/Toast";
 import "./PostAd.css";
 
 const blank = {
@@ -30,6 +32,8 @@ function PostAd() {
   const { addProduct, getProduct, fetchProduct, updateProduct } = useProducts();
   const { getPrice, featuredPrice } = usePricing();
   const t = useT();
+  const { locale } = useI18n();
+  const toast = useToast();
   const isEdit = Boolean(id);
   const [existing, setExisting] = useState(() => (isEdit ? getProduct(id) : null));
 
@@ -149,11 +153,34 @@ function PostAd() {
       if (isEdit) {
         await updateProduct(id, payload);
         navigate(`/product/${id}`);
-      } else {
-        const created = await addProduct(payload);
-        setStep(5);
-        setTimeout(() => navigate(`/product/${created.id}`), 1800);
+        return;
       }
+
+      const created = await addProduct(payload);
+
+      // Edge Function decides: free ads are flipped to 'free' and return a
+      // direct product URL; paid ads return a Stripe Checkout URL.
+      setStep(5);
+      const { data: { session } } = await supabase.auth.getSession();
+      const { data, error } = await supabase.functions.invoke(
+        "create-checkout-session",
+        {
+          body: {
+            productId: created.id,
+            origin: window.location.origin,
+            locale,
+          },
+          headers: session
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : {},
+        }
+      );
+
+      if (error || !data?.url) {
+        toast.error(error?.message || t("postAd.errors.submitFailed"));
+        return;
+      }
+      window.location.href = data.url;
     } catch (err) {
       setErrors({ submit: err.message || t("postAd.errors.submitFailed") });
     }
@@ -434,9 +461,9 @@ function PostAd() {
 
           {step === 5 && (
             <div className="success-card">
-              <div className="success-icon">🎉</div>
-              <h2>{t("postAd.liveTitle")}</h2>
-              <p className="muted">{t("postAd.redirecting")}</p>
+              <div className="success-icon">⏳</div>
+              <h2>{totalCost > 0 ? t("postAd.redirectingPayment") : t("postAd.liveTitle")}</h2>
+              <p className="muted">{t("common.loading")}</p>
             </div>
           )}
 

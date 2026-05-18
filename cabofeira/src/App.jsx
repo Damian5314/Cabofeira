@@ -15,6 +15,8 @@ import Categories from "./pages/Categories";
 import Search from "./pages/Search";
 import ProductDetail from "./pages/ProductDetail";
 import PostAd from "./pages/PostAd";
+import PostAdSuccess from "./pages/PostAdSuccess";
+import PostAdCancel from "./pages/PostAdCancel";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -44,6 +46,8 @@ function App() {
                     <Route path="/product/:id" element={<ProductDetail />} />
 
                     <Route path="/postad" element={<PostAd />} />
+                    <Route path="/postad/success" element={<PostAdSuccess />} />
+                    <Route path="/postad/cancel" element={<PostAdCancel />} />
                     <Route path="/edit/:id" element={<PostAd />} />
 
                     <Route path="/login" element={<Login />} />
