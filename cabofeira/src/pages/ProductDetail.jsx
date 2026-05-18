@@ -291,7 +291,7 @@ function ProductDetail() {
                       className="btn btn-outline"
                       onClick={() => setReportOpen(true)}
                     >
-                      {t("product.report")}
+                      {t("product.reportBtn")}
                     </button>
                   )}
                 </div>

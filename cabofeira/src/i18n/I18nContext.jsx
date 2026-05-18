@@ -52,8 +52,15 @@ export function I18nProvider({ children }) {
   const t = useMemo(() => {
     const dict = DICTS[locale] || DICTS.en;
     return (key, vars) => {
-      const val =
-        getNested(dict, key) ?? getNested(DICTS.en, key) ?? key;
+      const val = getNested(dict, key) ?? getNested(DICTS.en, key) ?? key;
+      // Safety: if a key accidentally points to a nested object (eg. "product.report"
+      // when "product.report.title" was meant), don't return it — that would crash
+      // React with "objects are not valid as a React child".
+      if (val !== null && typeof val === "object") {
+        // eslint-disable-next-line no-console
+        console.warn(`[i18n] key "${key}" resolved to an object, not a string`);
+        return key;
+      }
       return interp(val, vars);
     };
   }, [locale]);
