@@ -17,6 +17,8 @@ import ProductDetail from "./pages/ProductDetail";
 import PostAd from "./pages/PostAd";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import MyAds from "./pages/MyAds";
 import Favorites from "./pages/Favorites";
@@ -46,6 +48,8 @@ function App() {
 
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/forgot" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
 
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/profile/ads" element={<MyAds />} />

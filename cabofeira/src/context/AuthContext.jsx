@@ -22,11 +22,16 @@ const fromProfile = (row) => ({
   avatar: row.avatar,
 });
 
+const RECOVERY_FLAG = "cf_recovering";
+
 export function AuthProvider({ children }) {
   const t = useT();
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isRecovering, setIsRecovering] = useState(
+    () => sessionStorage.getItem(RECOVERY_FLAG) === "1"
+  );
 
   const loadProfile = useCallback(async (id) => {
     const { data, error } = await supabase
@@ -57,14 +62,37 @@ export function AuthProvider({ children }) {
         data: { session },
       } = await supabase.auth.getSession();
       if (!mounted) return;
-      if (session?.user) await loadProfile(session.user.id);
+      // If a recovery flow is in progress, treat the session as anonymous
+      // for the UI: the user must set a new password before being "logged in".
+      const recovering = sessionStorage.getItem(RECOVERY_FLAG) === "1";
+      if (session?.user && !recovering) {
+        await loadProfile(session.user.id);
+      }
       setLoading(false);
     })();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
+      // When the user clicks the password-reset link, Supabase fires
+      // PASSWORD_RECOVERY with a temporary session. Redirect to the reset
+      // page so they actually choose a new password instead of silently
+      // landing on the home screen "logged in".
+      if (event === "PASSWORD_RECOVERY") {
+        sessionStorage.setItem(RECOVERY_FLAG, "1");
+        setIsRecovering(true);
+        setUser(null);
+        if (window.location.pathname !== "/reset-password") {
+          window.location.replace("/reset-password");
+        }
+        return;
+      }
+      // Ignore SIGNED_IN echoes while a recovery flow is still pending.
+      if (sessionStorage.getItem(RECOVERY_FLAG) === "1") {
+        setUser(null);
+        return;
+      }
       if (session?.user) loadProfile(session.user.id);
       else setUser(null);
     });
@@ -109,6 +137,27 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     await supabase.auth.signOut();
+  };
+
+  const requestPasswordReset = async (email) => {
+    if (!email) return { ok: false, error: t("auth.errors.missingCredentials") };
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  };
+
+  const updatePassword = async (newPassword) => {
+    if (!newPassword || newPassword.length < 6) {
+      return { ok: false, error: t("auth.errors.passwordShort") };
+    }
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) return { ok: false, error: error.message };
+    // Recovery flow finished — clear the flag so future sessions log in normally.
+    sessionStorage.removeItem(RECOVERY_FLAG);
+    setIsRecovering(false);
+    return { ok: true };
   };
 
   const deleteAccount = async () => {
@@ -178,6 +227,7 @@ export function AuthProvider({ children }) {
       value={{
         user,
         isAdmin,
+        isRecovering,
         login,
         register,
         logout,
@@ -186,6 +236,8 @@ export function AuthProvider({ children }) {
         setUserRole,
         setUserVerified,
         deleteAccount,
+        requestPasswordReset,
+        updatePassword,
       }}
     >
       {children}

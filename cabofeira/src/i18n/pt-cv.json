@@ -243,6 +243,26 @@
       "passwordShort": "A palavra-passe precisa de pelo menos 6 caracteres.",
       "passwordMismatch": "As palavras-passe não coincidem.",
       "agreeRequired": "Tens de aceitar os Termos de Utilização."
+    },
+    "forgot": {
+      "title": "Recuperar palavra-passe",
+      "intro": "Indica o teu email e enviamos um link para repor a palavra-passe.",
+      "send": "Enviar link",
+      "sending": "A enviar...",
+      "sent": "✓ Verifica o teu email",
+      "sentHint": "Se existir uma conta com este email, enviámos um link para repor a palavra-passe.",
+      "backToLogin": "← Voltar ao login"
+    },
+    "reset": {
+      "title": "Definir nova palavra-passe",
+      "intro": "Escolhe uma nova palavra-passe para a tua conta.",
+      "newPassword": "Nova palavra-passe",
+      "confirmPassword": "Confirmar nova palavra-passe",
+      "update": "Actualizar palavra-passe",
+      "updating": "A actualizar...",
+      "success": "✓ Palavra-passe actualizada",
+      "successHint": "A redireccionar para a página inicial...",
+      "invalidLink": "Este link expirou ou é inválido. Pede um novo."
     }
   },
   "profile": {

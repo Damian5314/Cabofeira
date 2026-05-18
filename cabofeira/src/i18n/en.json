@@ -243,6 +243,26 @@
       "passwordShort": "Password must be at least 6 characters.",
       "passwordMismatch": "Passwords do not match.",
       "agreeRequired": "Please agree to the Terms of Service."
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "intro": "Enter your email and we'll send you a reset link.",
+      "send": "Send reset link",
+      "sending": "Sending...",
+      "sent": "✓ Check your inbox",
+      "sentHint": "If an account exists for that email, we sent a link to reset your password.",
+      "backToLogin": "← Back to login"
+    },
+    "reset": {
+      "title": "Set a new password",
+      "intro": "Choose a new password for your account.",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "update": "Update password",
+      "updating": "Updating...",
+      "success": "✓ Password updated",
+      "successHint": "Redirecting you to home...",
+      "invalidLink": "This reset link is invalid or has expired. Request a new one."
     }
   },
   "profile": {
