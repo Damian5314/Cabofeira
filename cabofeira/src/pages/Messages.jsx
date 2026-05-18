@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useMessages } from "../context/MessagesContext";
+import { useToast } from "../components/Toast";
+import { useT } from "../i18n/I18nContext";
 import { supabase } from "../lib/supabase";
 import "./Messages.css";
 
@@ -8,6 +11,9 @@ const placeholderImg = "https://picsum.photos/seed/cabofeira/120/120";
 
 function Messages() {
   const { user } = useAuth();
+  const { unreadByConv, markRead } = useMessages();
+  const toast = useToast();
+  const t = useT();
   const [conversations, setConversations] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -57,7 +63,8 @@ function Messages() {
 
   useEffect(() => {
     loadMessages(activeId);
-  }, [activeId, loadMessages]);
+    if (activeId) markRead(activeId);
+  }, [activeId, loadMessages, markRead]);
 
   // Realtime: live updates for the active conversation.
   useEffect(() => {
@@ -131,6 +138,7 @@ function Messages() {
     if (error) {
       // eslint-disable-next-line no-console
       console.error("[messages] send:", error);
+      toast.error(t("messages.sendFailed"));
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
       setDraft(text);
       return;
@@ -141,13 +149,13 @@ function Messages() {
   return (
     <div className="page messages-page">
       <div className="container">
-        <h1 className="page-title">💬 Messages</h1>
+        <h1 className="page-title">{t("messages.title")}</h1>
 
         {conversations.length === 0 ? (
           <div className="empty">
-            <h3>No conversations yet</h3>
-            <p className="muted">When you message a seller, the conversation will appear here.</p>
-            <Link to="/search" className="btn btn-primary">Browse listings</Link>
+            <h3>{t("messages.empty")}</h3>
+            <p className="muted">{t("messages.emptyHint")}</p>
+            <Link to="/search" className="btn btn-primary">{t("messages.browse")}</Link>
           </div>
         ) : (
           <div className="messages-grid">
@@ -156,6 +164,7 @@ function Messages() {
                 const partner = otherOf(c);
                 const lastMessage =
                   c.id === activeId ? messages[messages.length - 1]?.body : null;
+                const unread = unreadByConv[c.id] || 0;
                 return (
                   <button
                     key={c.id}
@@ -167,12 +176,22 @@ function Messages() {
                       alt={c.product?.title || "Listing"}
                     />
                     <div className="thread-info">
-                      <div className="thread-with">{partner?.name || "Unknown user"}</div>
-                      <div className="thread-product">
-                        {c.product?.title || "(listing removed)"}
+                      <div className="thread-with">
+                        {partner?.name || t("messages.unknownUser")}
+                        {unread > 0 && (
+                          <span className="unread-badge" style={{ marginLeft: 6 }}>
+                            {unread}
+                          </span>
+                        )}
                       </div>
-                      <div className="thread-last muted small">
-                        {lastMessage || "Open to view messages"}
+                      <div className="thread-product">
+                        {c.product?.title || t("messages.removedListing")}
+                      </div>
+                      <div
+                        className={`thread-last small ${unread > 0 ? "" : "muted"}`}
+                        style={unread > 0 ? { fontWeight: 600 } : undefined}
+                      >
+                        {lastMessage || t("messages.openHint")}
                       </div>
                     </div>
                   </button>
@@ -189,13 +208,13 @@ function Messages() {
                       alt={active.product?.title || "Listing"}
                     />
                     <div>
-                      <div className="thread-with">{other?.name || "Unknown user"}</div>
+                      <div className="thread-with">{other?.name || t("messages.unknownUser")}</div>
                       {active.product ? (
                         <Link to={`/product/${active.product_id}`} className="small">
-                          About: {active.product.title}
+                          {t("messages.about", { title: active.product.title })}
                         </Link>
                       ) : (
-                        <span className="muted small">Listing removed</span>
+                        <span className="muted small">{t("messages.listingRemoved")}</span>
                       )}
                     </div>
                   </header>
@@ -218,18 +237,18 @@ function Messages() {
                   <form className="thread-input" onSubmit={send}>
                     <input
                       type="text"
-                      placeholder="Type a message..."
+                      placeholder={t("messages.placeholder")}
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
                     />
                     <button type="submit" className="btn btn-primary" disabled={!draft.trim()}>
-                      Send
+                      {t("messages.send")}
                     </button>
                   </form>
                 </>
               ) : (
                 <div className="thread-placeholder muted">
-                  Select a conversation to view messages.
+                  {t("messages.selectThread")}
                 </div>
               )}
             </main>

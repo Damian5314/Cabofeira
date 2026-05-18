@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import { supabase } from "../lib/supabase";
+import { useT } from "../i18n/I18nContext";
 
 const AuthContext = createContext(null);
 
@@ -22,6 +23,7 @@ const fromProfile = (row) => ({
 });
 
 export function AuthProvider({ children }) {
+  const t = useT();
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,7 +81,7 @@ export function AuthProvider({ children }) {
 
   const login = async ({ email, password }) => {
     if (!email || !password) {
-      return { ok: false, error: "Email and password are required." };
+      return { ok: false, error: t("auth.errors.missingCredentials") };
     }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { ok: false, error: error.message };
@@ -88,13 +90,13 @@ export function AuthProvider({ children }) {
 
   const register = async ({ name, email, phone, password, confirmPassword }) => {
     if (!name || !email || !password) {
-      return { ok: false, error: "Name, email and password are required." };
+      return { ok: false, error: t("auth.errors.missingFields") };
     }
     if (password.length < 6) {
-      return { ok: false, error: "Password must be at least 6 characters." };
+      return { ok: false, error: t("auth.errors.passwordShort") };
     }
     if (password !== confirmPassword) {
-      return { ok: false, error: "Passwords do not match." };
+      return { ok: false, error: t("auth.errors.passwordMismatch") };
     }
     const { error } = await supabase.auth.signUp({
       email,
@@ -107,6 +109,15 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     await supabase.auth.signOut();
+  };
+
+  const deleteAccount = async () => {
+    if (!user) return { ok: false, error: "Not signed in." };
+    const { error } = await supabase.rpc("delete_my_account");
+    if (error) return { ok: false, error: error.message };
+    await supabase.auth.signOut();
+    setUser(null);
+    return { ok: true };
   };
 
   const updateProfile = async (patch) => {
@@ -132,11 +143,50 @@ export function AuthProvider({ children }) {
 
   const isAdmin = user?.role === "admin";
 
+  const setUserRole = async (userId, role) => {
+    if (!isAdmin) return { ok: false, error: "Not allowed." };
+    if (userId === user.id) return { ok: false, error: "You can't change your own role." };
+    if (!["user", "admin"].includes(role)) return { ok: false, error: "Invalid role." };
+    const { data, error } = await supabase
+      .from("profiles")
+      .update({ role })
+      .eq("id", userId)
+      .select()
+      .single();
+    if (error) return { ok: false, error: error.message };
+    setUsers((prev) => prev.map((u) => (u.id === userId ? fromProfile(data) : u)));
+    return { ok: true };
+  };
+
+  const setUserVerified = async (userId, verified) => {
+    if (!isAdmin) return { ok: false, error: "Not allowed." };
+    const { data, error } = await supabase
+      .from("profiles")
+      .update({ verified: !!verified })
+      .eq("id", userId)
+      .select()
+      .single();
+    if (error) return { ok: false, error: error.message };
+    setUsers((prev) => prev.map((u) => (u.id === userId ? fromProfile(data) : u)));
+    return { ok: true };
+  };
+
   if (loading) return null;
 
   return (
     <AuthContext.Provider
-      value={{ user, isAdmin, login, register, logout, updateProfile, allUsers }}
+      value={{
+        user,
+        isAdmin,
+        login,
+        register,
+        logout,
+        updateProfile,
+        allUsers,
+        setUserRole,
+        setUserVerified,
+        deleteAccount,
+      }}
     >
       {children}
     </AuthContext.Provider>

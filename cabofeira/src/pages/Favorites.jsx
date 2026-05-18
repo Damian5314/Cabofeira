@@ -2,22 +2,28 @@ import React from "react";
 import { Link } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { useProducts } from "../context/ProductsContext";
+import { useT } from "../i18n/I18nContext";
 
 function Favorites() {
   const { products, favorites } = useProducts();
+  const t = useT();
   const favProducts = products.filter((p) => favorites.includes(p.id));
 
   return (
     <div className="page">
       <div className="container">
-        <h1 className="page-title">❤️ Your favorites</h1>
-        <p className="muted">{favProducts.length} saved listing{favProducts.length === 1 ? "" : "s"}</p>
+        <h1 className="page-title">❤️ {t("favorites.title")}</h1>
+        <p className="muted">
+          {favProducts.length === 1
+            ? t("myAds.activeListing", { count: favProducts.length })
+            : t("myAds.activeListings", { count: favProducts.length })}
+        </p>
 
         {favProducts.length === 0 ? (
           <div className="empty" style={{ marginTop: 30 }}>
-            <h3>No favorites yet</h3>
-            <p className="muted">Tap the heart icon on any ad to save it for later.</p>
-            <Link to="/search" className="btn btn-primary">Browse listings</Link>
+            <h3>{t("favorites.empty")}</h3>
+            <p className="muted">{t("favorites.emptyHint")}</p>
+            <Link to="/search" className="btn btn-primary">{t("favorites.browse")}</Link>
           </div>
         ) : (
           <div className="product-grid" style={{ marginTop: 20 }}>

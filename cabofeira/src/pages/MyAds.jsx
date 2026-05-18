@@ -1,21 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useProducts } from "../context/ProductsContext";
+import { useT } from "../i18n/I18nContext";
 import { formatPrice, timeAgo } from "../utils/format";
+import ConfirmDialog from "../components/ConfirmDialog";
 import "./MyAds.css";
 
 function MyAds() {
   const { user } = useAuth();
   const { userProducts, removeProduct } = useProducts();
+  const t = useT();
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [busy, setBusy] = useState(false);
 
   if (!user) return <Navigate to="/login?redirect=/profile/ads" replace />;
 
   const myAds = userProducts(user.id);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this ad? This cannot be undone.")) {
-      removeProduct(id);
+  const handleConfirmDelete = async () => {
+    if (!pendingDelete) return;
+    setBusy(true);
+    try {
+      await removeProduct(pendingDelete.id);
+    } finally {
+      setBusy(false);
+      setPendingDelete(null);
     }
   };
 
@@ -24,17 +34,21 @@ function MyAds() {
       <div className="container">
         <div className="my-ads-head">
           <div>
-            <h1 className="page-title">My ads</h1>
-            <p className="muted">{myAds.length} active listing{myAds.length === 1 ? "" : "s"}</p>
+            <h1 className="page-title">{t("myAds.title")}</h1>
+            <p className="muted">
+              {myAds.length === 1
+                ? t("myAds.activeListing", { count: myAds.length })
+                : t("myAds.activeListings", { count: myAds.length })}
+            </p>
           </div>
-          <Link to="/postad" className="btn btn-primary">+ Post a new ad</Link>
+          <Link to="/postad" className="btn btn-primary">{t("myAds.postNew")}</Link>
         </div>
 
         {myAds.length === 0 ? (
           <div className="empty">
-            <h3>You haven't posted any ads yet</h3>
-            <p className="muted">Start selling — it's free and takes less than a minute.</p>
-            <Link to="/postad" className="btn btn-primary">+ Post your first ad</Link>
+            <h3>{t("myAds.noAds")}</h3>
+            <p className="muted">{t("myAds.noAdsHint")}</p>
+            <Link to="/postad" className="btn btn-primary">{t("myAds.postFirst")}</Link>
           </div>
         ) : (
           <div className="my-ads-list">
@@ -50,19 +64,22 @@ function MyAds() {
                   <div className="my-ad-meta">
                     <span>{formatPrice(p.price, p.currency)}</span>
                     <span>•</span>
-                    <span>👁 {p.views} views</span>
+                    <span>👁 {p.views} {t("product.viewsLabel")}</span>
                     <span>•</span>
                     <span>{timeAgo(p.createdAt)}</span>
                   </div>
                   <div className="my-ad-tags">
-                    {p.featured && <span className="badge badge-featured">★ Featured</span>}
+                    {p.featured && <span className="badge badge-featured">{t("product.featuredBadge")}</span>}
                     <span className="badge">{p.location.city}, {p.location.island}</span>
                   </div>
                 </div>
                 <div className="my-ad-actions">
-                  <Link to={`/edit/${p.id}`} className="btn btn-outline">✏️ Edit</Link>
-                  <button className="btn btn-outline btn-danger-outline" onClick={() => handleDelete(p.id)}>
-                    🗑 Delete
+                  <Link to={`/edit/${p.id}`} className="btn btn-outline">✏️ {t("common.edit")}</Link>
+                  <button
+                    className="btn btn-outline btn-danger-outline"
+                    onClick={() => setPendingDelete(p)}
+                  >
+                    🗑 {t("common.delete")}
                   </button>
                 </div>
               </div>
@@ -70,6 +87,17 @@ function MyAds() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title={t("myAds.deleteTitle")}
+        message={pendingDelete ? t("myAds.deleteMessage", { title: pendingDelete.title }) : null}
+        confirmLabel={t("myAds.deleteConfirm")}
+        danger
+        busy={busy}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => !busy && setPendingDelete(null)}
+      />
     </div>
   );
 }

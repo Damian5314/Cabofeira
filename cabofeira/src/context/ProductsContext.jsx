@@ -10,6 +10,12 @@ import { useAuth } from "./AuthContext";
 
 const ProductsContext = createContext(null);
 
+const PRODUCT_SELECT = `
+  id, title, description, price, currency, category, subcategory, condition,
+  location_city, location_island, images, featured, views, created_at, seller_id,
+  seller:profiles!products_seller_id_fkey(id, name, phone, email, member_since, verified)
+`;
+
 const fromRow = (r) => ({
   id: r.id,
   title: r.title,
@@ -25,12 +31,12 @@ const fromRow = (r) => ({
   views: r.views || 0,
   createdAt: (r.created_at || "").slice(0, 10),
   seller: {
-    id: r.seller_id,
-    name: r.seller_name,
-    phone: r.seller_phone,
-    email: r.seller_email,
-    memberSince: r.seller_member_since,
-    verified: r.seller_verified,
+    id: r.seller?.id || r.seller_id,
+    name: r.seller?.name || "",
+    phone: r.seller?.phone || "",
+    email: r.seller?.email || "",
+    memberSince: r.seller?.member_since || null,
+    verified: r.seller?.verified ?? false,
   },
 });
 
@@ -47,24 +53,95 @@ const toRow = (p, sellerId) => ({
   location_island: p.location.island,
   images: p.images,
   featured: p.featured,
-  seller_name: p.seller.name,
-  seller_phone: p.seller.phone,
-  seller_email: p.seller.email,
-  seller_member_since: p.seller.memberSince || null,
-  seller_verified: p.seller.verified ?? false,
 });
 
 export function ProductsProvider({ children }) {
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
 
   const refreshProducts = useCallback(async () => {
+    // Cached pool for Home/MyAds/Favorites lookups. Capped to 200 most recent
+    // ads — pages that need broader access (Search, Admin) use fetchProducts
+    // for server-side paginated queries instead.
+    setProductsLoading(true);
     const { data, error } = await supabase
       .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
+      .select(PRODUCT_SELECT)
+      .order("created_at", { ascending: false })
+      .range(0, 199);
     if (!error && data) setProducts(data.map(fromRow));
+    setProductsLoading(false);
+  }, []);
+
+  // Fetch a single product (used when navigating to an old ad that fell out
+  // of the cache window). Returns the product or null. Adds to local cache.
+  const fetchProduct = useCallback(async (id) => {
+    const { data, error } = await supabase
+      .from("products")
+      .select(PRODUCT_SELECT)
+      .eq("id", id)
+      .maybeSingle();
+    if (error || !data) return null;
+    const product = fromRow(data);
+    setProducts((prev) =>
+      prev.some((p) => p.id === product.id)
+        ? prev.map((p) => (p.id === product.id ? product : p))
+        : [...prev, product]
+    );
+    return product;
+  }, []);
+
+  // Server-side filtered + paginated query for Search / Admin.
+  const fetchProducts = useCallback(async (opts = {}) => {
+    const {
+      search = "",
+      category = "",
+      island = "",
+      sellerId = "",
+      featured = null,
+      minPrice = null,
+      maxPrice = null,
+      sort = "newest",
+      range = [0, 23],
+    } = opts;
+
+    let q = supabase
+      .from("products")
+      .select(PRODUCT_SELECT, { count: "exact" });
+
+    if (search.trim()) {
+      const pat = `%${search.trim()}%`;
+      q = q.or(`title.ilike.${pat},description.ilike.${pat}`);
+    }
+    if (category) q = q.eq("category", category);
+    if (island) q = q.eq("location_island", island);
+    if (sellerId) q = q.eq("seller_id", sellerId);
+    if (featured !== null) q = q.eq("featured", featured);
+    if (minPrice !== null && minPrice !== "") q = q.gte("price", Number(minPrice));
+    if (maxPrice !== null && maxPrice !== "") q = q.lte("price", Number(maxPrice));
+
+    switch (sort) {
+      case "price-asc":
+        q = q.order("price", { ascending: true });
+        break;
+      case "price-desc":
+        q = q.order("price", { ascending: false });
+        break;
+      case "popular":
+        q = q.order("views", { ascending: false });
+        break;
+      case "newest":
+      default:
+        q = q.order("created_at", { ascending: false });
+    }
+
+    q = q.range(range[0], range[1]);
+
+    const { data, error, count } = await q;
+    if (error) throw error;
+    return { items: (data || []).map(fromRow), total: count || 0 };
   }, []);
 
   const refreshFavorites = useCallback(async () => {
@@ -92,7 +169,7 @@ export function ProductsProvider({ children }) {
     const { data, error } = await supabase
       .from("products")
       .insert(toRow(product, user.id))
-      .select()
+      .select(PRODUCT_SELECT)
       .single();
     if (error) throw error;
     const created = fromRow(data);
@@ -115,16 +192,11 @@ export function ProductsProvider({ children }) {
     }
     if ("images" in patch) dbPatch.images = patch.images;
     if ("featured" in patch) dbPatch.featured = patch.featured;
-    if (patch.seller) {
-      dbPatch.seller_name = patch.seller.name;
-      dbPatch.seller_phone = patch.seller.phone;
-      dbPatch.seller_email = patch.seller.email;
-    }
     const { data, error } = await supabase
       .from("products")
       .update(dbPatch)
       .eq("id", id)
-      .select()
+      .select(PRODUCT_SELECT)
       .single();
     if (error) throw error;
     const updated = fromRow(data);
@@ -173,10 +245,13 @@ export function ProductsProvider({ children }) {
     <ProductsContext.Provider
       value={{
         products,
+        productsLoading,
         addProduct,
         updateProduct,
         removeProduct,
         getProduct,
+        fetchProduct,
+        fetchProducts,
         incrementViews,
         favorites,
         toggleFavorite,

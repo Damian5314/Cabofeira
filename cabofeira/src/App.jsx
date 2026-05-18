@@ -6,6 +6,9 @@ import ScrollToTop from "./components/ScrollToTop";
 import { AuthProvider } from "./context/AuthContext";
 import { ProductsProvider } from "./context/ProductsContext";
 import { PricingProvider } from "./context/PricingContext";
+import { MessagesProvider } from "./context/MessagesContext";
+import { ToastProvider } from "./components/Toast";
+import { I18nProvider } from "./i18n/I18nContext";
 
 import Home from "./pages/Home";
 import Categories from "./pages/Categories";
@@ -23,43 +26,49 @@ import { About, Contact, FAQ, NotFound } from "./pages/Info";
 
 function App() {
   return (
-    <AuthProvider>
-      <ProductsProvider>
-        <PricingProvider>
-          <Router>
-            <ScrollToTop />
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
+    <I18nProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <ProductsProvider>
+            <PricingProvider>
+              <MessagesProvider>
+                <Router>
+                  <ScrollToTop />
+                  <Navbar />
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/categories" element={<Categories />} />
+                    <Route path="/search" element={<Search />} />
+                    <Route path="/product/:id" element={<ProductDetail />} />
 
-              <Route path="/postad" element={<PostAd />} />
-              <Route path="/edit/:id" element={<PostAd />} />
+                    <Route path="/postad" element={<PostAd />} />
+                    <Route path="/edit/:id" element={<PostAd />} />
 
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
 
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/profile/ads" element={<MyAds />} />
-              <Route path="/profile/settings" element={<Profile />} />
-              <Route path="/favorites" element={<Favorites />} />
-              <Route path="/messages" element={<Messages />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/profile/ads" element={<MyAds />} />
+                    <Route path="/profile/settings" element={<Profile />} />
+                    <Route path="/favorites" element={<Favorites />} />
+                    <Route path="/messages" element={<Messages />} />
 
-              <Route path="/admin" element={<Admin />} />
+                    <Route path="/admin" element={<Admin />} />
 
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/faq" element={<FAQ />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/faq" element={<FAQ />} />
 
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Footer />
-          </Router>
-        </PricingProvider>
-      </ProductsProvider>
-    </AuthProvider>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                  <Footer />
+                </Router>
+              </MessagesProvider>
+            </PricingProvider>
+          </ProductsProvider>
+        </AuthProvider>
+      </ToastProvider>
+    </I18nProvider>
   );
 }
 

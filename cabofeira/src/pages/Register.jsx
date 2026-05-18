@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useT } from "../i18n/I18nContext";
 import { LogoMark } from "../assets/logo";
 import "./Auth.css";
 
 function Register() {
   const { register } = useAuth();
+  const t = useT();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -28,7 +30,7 @@ function Register() {
     e.preventDefault();
     setError("");
     if (!form.agree) {
-      setError("Please agree to the Terms of Service.");
+      setError(t("auth.errors.agreeRequired"));
       return;
     }
     const result = await register(form);
@@ -46,18 +48,18 @@ function Register() {
           <LogoMark size={56} />
           <h1>CaboFeira</h1>
         </Link>
-        <h2>Create your account</h2>
-        <p className="muted">Join the marketplace and start selling today.</p>
+        <h2>{t("auth.createAccount")}</h2>
+        <p className="muted">{t("auth.joinIntro")}</p>
 
         {error && <div className="auth-error">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <label>
-            <span>Full name</span>
+            <span>{t("auth.fullName")}</span>
             <input
               type="text"
               name="name"
-              placeholder="João Silva"
+              placeholder={t("auth.fullNamePlaceholder")}
               value={form.name}
               onChange={handleChange}
               required
@@ -65,11 +67,11 @@ function Register() {
           </label>
 
           <label>
-            <span>Email</span>
+            <span>{t("auth.email")}</span>
             <input
               type="email"
               name="email"
-              placeholder="you@example.cv"
+              placeholder={t("auth.emailPlaceholder")}
               value={form.email}
               onChange={handleChange}
               required
@@ -77,23 +79,23 @@ function Register() {
           </label>
 
           <label>
-            <span>Phone number <span className="muted small">(optional)</span></span>
+            <span>{t("auth.phoneOptional")}</span>
             <input
               type="tel"
               name="phone"
-              placeholder="+238 991 1234"
+              placeholder={t("auth.phonePlaceholder")}
               value={form.phone}
               onChange={handleChange}
             />
           </label>
 
           <label>
-            <span>Password</span>
+            <span>{t("auth.password")}</span>
             <div className="password-input">
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
-                placeholder="At least 6 characters"
+                placeholder={t("auth.passwordHint")}
                 value={form.password}
                 onChange={handleChange}
                 required
@@ -109,11 +111,11 @@ function Register() {
           </label>
 
           <label>
-            <span>Confirm password</span>
+            <span>{t("auth.confirmPassword")}</span>
             <input
               type={showPassword ? "text" : "password"}
               name="confirmPassword"
-              placeholder="Repeat your password"
+              placeholder={t("auth.confirmPasswordPlaceholder")}
               value={form.confirmPassword}
               onChange={handleChange}
               required
@@ -128,18 +130,19 @@ function Register() {
               onChange={handleChange}
             />
             <span>
-              I agree to the <Link to="/terms">Terms of Service</Link> and{" "}
-              <Link to="/privacy">Privacy Policy</Link>.
+              {t("auth.agreeTerms", { terms: "", privacy: "" })}{" "}
+              <Link to="/terms">{t("auth.terms")}</Link> &amp;{" "}
+              <Link to="/privacy">{t("auth.privacy")}</Link>.
             </span>
           </label>
 
           <button type="submit" className="btn btn-primary btn-block">
-            Create account
+            {t("auth.createAccountBtn")}
           </button>
         </form>
 
         <p className="auth-footer">
-          Already have an account? <Link to="/login">Sign in</Link>
+          {t("auth.alreadyAccount")} <Link to="/login">{t("auth.signIn")}</Link>
         </p>
       </div>
     </div>

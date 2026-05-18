@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useT } from "../i18n/I18nContext";
 import { LogoMark } from "../assets/logo";
 import "./Auth.css";
 
 function Login() {
   const { login } = useAuth();
+  const t = useT();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const redirect = params.get("redirect") || "/";
@@ -33,13 +35,13 @@ function Login() {
           <LogoMark size={56} />
           <h1>CaboFeira</h1>
         </Link>
-        <h2>Welcome back</h2>
-        <p className="muted">Sign in to continue buying and selling.</p>
+        <h2>{t("auth.welcomeBack")}</h2>
+        <p className="muted">{t("auth.signInIntro")}</p>
 
         {error && <div className="auth-error">{error}</div>}
 
         <div className="demo-hint">
-          <strong>Demo accounts:</strong>
+          <strong>{t("auth.demoAccounts")}</strong>
           <button
             type="button"
             onClick={() => { setEmail("admin@cabofeira.cv"); setPassword("admin123"); }}
@@ -56,10 +58,10 @@ function Login() {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <label>
-            <span>Email</span>
+            <span>{t("auth.email")}</span>
             <input
               type="email"
-              placeholder="you@example.cv"
+              placeholder={t("auth.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
@@ -68,11 +70,11 @@ function Login() {
           </label>
 
           <label>
-            <span>Password</span>
+            <span>{t("auth.password")}</span>
             <div className="password-input">
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Your password"
+                placeholder={t("auth.passwordPlaceholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
@@ -90,29 +92,29 @@ function Login() {
 
           <div className="auth-row">
             <label className="checkbox">
-              <input type="checkbox" /> Remember me
+              <input type="checkbox" /> {t("auth.rememberMe")}
             </label>
-            <Link to="/forgot" className="small">Forgot password?</Link>
+            <Link to="/forgot" className="small">{t("auth.forgotPassword")}</Link>
           </div>
 
           <button type="submit" className="btn btn-primary btn-block">
-            Sign in
+            {t("auth.signIn")}
           </button>
         </form>
 
-        <div className="divider"><span>or</span></div>
+        <div className="divider"><span>{t("common.or")}</span></div>
 
         <div className="social-row">
           <button className="btn btn-outline btn-block" onClick={(e) => e.preventDefault()}>
-            Continue with Google
+            {t("auth.continueGoogle")}
           </button>
           <button className="btn btn-outline btn-block" onClick={(e) => e.preventDefault()}>
-            Continue with Facebook
+            {t("auth.continueFacebook")}
           </button>
         </div>
 
         <p className="auth-footer">
-          Don't have an account? <Link to="/register">Sign up</Link>
+          {t("auth.noAccount")} <Link to="/register">{t("auth.signUp")}</Link>
         </p>
       </div>
     </div>

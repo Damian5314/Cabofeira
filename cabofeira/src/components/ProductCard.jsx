@@ -1,29 +1,29 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useProducts } from "../context/ProductsContext";
+import { useT } from "../i18n/I18nContext";
 import { formatPrice, timeAgo } from "../utils/format";
 import "./ProductCard.css";
 
 function ProductCard({ product }) {
   const { isFavorite, toggleFavorite } = useProducts();
+  const t = useT();
   const fav = isFavorite(product.id);
 
   return (
     <article className={`product-card ${product.featured ? "is-featured" : ""}`}>
       <Link to={`/product/${product.id}`} className="card-image-wrap">
-        <img
-          src={product.images[0]}
-          alt={product.title}
-          loading="lazy"
-        />
-        {product.featured && <span className="badge badge-featured">★ Featured</span>}
+        <img src={product.images[0]} alt={product.title} loading="lazy" />
+        {product.featured && (
+          <span className="badge badge-featured">{t("product.featuredBadge")}</span>
+        )}
         <button
           className={`fav-btn ${fav ? "is-fav" : ""}`}
           onClick={(e) => {
             e.preventDefault();
             toggleFavorite(product.id);
           }}
-          aria-label={fav ? "Remove from favorites" : "Add to favorites"}
+          aria-label={fav ? t("product.saved") : t("product.save")}
         >
           {fav ? "❤️" : "🤍"}
         </button>

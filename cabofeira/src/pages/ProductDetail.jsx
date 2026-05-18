@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useProducts } from "../context/ProductsContext";
 import { useAuth } from "../context/AuthContext";
+import { useT } from "../i18n/I18nContext";
 import { getCategoryById, CategoryIcon } from "../data/categories";
 import { supabase } from "../lib/supabase";
+import Skeleton from "../components/Skeleton";
+import { useToast } from "../components/Toast";
 import { formatPrice, timeAgo } from "../utils/format";
 import ProductCard from "../components/ProductCard";
 import "./ProductDetail.css";
@@ -11,30 +14,87 @@ import "./ProductDetail.css";
 function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getProduct, products, isFavorite, toggleFavorite, incrementViews } =
+  const { getProduct, fetchProduct, products, isFavorite, toggleFavorite, incrementViews } =
     useProducts();
   const { user } = useAuth();
+  const toast = useToast();
+  const t = useT();
 
-  const product = getProduct(id);
+  const cached = getProduct(id);
+  const [product, setProduct] = useState(cached || null);
+  const [loadingProduct, setLoadingProduct] = useState(!cached);
   const [activeImage, setActiveImage] = useState(0);
   const [showPhone, setShowPhone] = useState(false);
   const [messageOpen, setMessageOpen] = useState(false);
   const [messageText, setMessageText] = useState("");
   const [messageSent, setMessageSent] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportDetails, setReportDetails] = useState("");
+  const [reportSending, setReportSending] = useState(false);
+  const [reportError, setReportError] = useState("");
+  const [reportSent, setReportSent] = useState(false);
 
   useEffect(() => {
-    if (product) incrementViews(product.id);
+    let alive = true;
+    const fromCache = getProduct(id);
+    if (fromCache) {
+      setProduct(fromCache);
+      setLoadingProduct(false);
+      incrementViews(fromCache.id);
+      return;
+    }
+    setLoadingProduct(true);
+    fetchProduct(id).then((p) => {
+      if (!alive) return;
+      setProduct(p);
+      setLoadingProduct(false);
+      if (p) incrementViews(p.id);
+    });
+    return () => {
+      alive = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  if (loadingProduct) {
+    return (
+      <div className="page product-detail">
+        <div className="container">
+          <Skeleton width={180} height={14} style={{ marginBottom: 18 }} />
+          <div className="detail-grid">
+            <div className="gallery">
+              <Skeleton width="100%" height={420} radius={12} />
+              <div className="thumbs" style={{ marginTop: 10 }}>
+                {[0, 1, 2, 3].map((i) => (
+                  <Skeleton key={i} width={70} height={70} radius={8} style={{ marginRight: 6 }} />
+                ))}
+              </div>
+            </div>
+            <aside className="detail-side">
+              <div className="detail-card">
+                <Skeleton width="90%" height={28} style={{ marginBottom: 12 }} />
+                <Skeleton width="50%" height={32} style={{ marginBottom: 18 }} />
+                <Skeleton width="70%" height={14} style={{ marginBottom: 8 }} />
+                <Skeleton width="40%" height={14} style={{ marginBottom: 24 }} />
+                <Skeleton width="100%" height={44} radius={10} style={{ marginBottom: 8 }} />
+                <Skeleton width="100%" height={44} radius={10} style={{ marginBottom: 8 }} />
+                <Skeleton width="100%" height={44} radius={10} />
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
       <div className="page container">
         <div className="empty">
-          <h2>Ad not found</h2>
-          <p className="muted">This listing may have been removed or doesn't exist.</p>
-          <Link to="/search" className="btn btn-primary">Browse other ads</Link>
+          <h2>{t("product.notFound")}</h2>
+          <p className="muted">{t("product.notFoundHint")}</p>
+          <Link to="/search" className="btn btn-primary">{t("product.browseOther")}</Link>
         </div>
       </div>
     );
@@ -55,7 +115,6 @@ function ProductDetail() {
     const text = messageText.trim();
     if (!text) return;
 
-    // Find or create the conversation between this buyer and the seller about this product.
     let convId;
     const { data: existing, error: findErr } = await supabase
       .from("conversations")
@@ -66,7 +125,7 @@ function ProductDetail() {
       .maybeSingle();
 
     if (findErr) {
-      alert("Could not open conversation: " + findErr.message);
+      toast.error("Could not open conversation: " + findErr.message);
       return;
     }
 
@@ -83,7 +142,7 @@ function ProductDetail() {
         .select("id")
         .single();
       if (insertErr) {
-        alert("Could not start conversation: " + insertErr.message);
+        toast.error("Could not start conversation: " + insertErr.message);
         return;
       }
       convId = created.id;
@@ -93,7 +152,7 @@ function ProductDetail() {
       .from("messages")
       .insert({ conversation_id: convId, sender_id: user.id, body: text });
     if (msgErr) {
-      alert("Could not send message: " + msgErr.message);
+      toast.error("Could not send message: " + msgErr.message);
       return;
     }
 
@@ -115,7 +174,7 @@ function ProductDetail() {
       }
     } else {
       navigator.clipboard.writeText(url);
-      alert("Link copied to clipboard!");
+      toast.success(t("product.linkCopied"));
     }
   };
 
@@ -125,11 +184,11 @@ function ProductDetail() {
     <div className="page product-detail">
       <div className="container">
         <nav className="breadcrumbs">
-          <Link to="/">Home</Link> ›{" "}
+          <Link to="/">{t("nav.home")}</Link> ›{" "}
           <Link to={`/search?category=${product.category}`}>
-            {category?.name}
+            {t(`categories.${product.category}`)}
           </Link>{" "}
-          › <span>{product.subcategory}</span>
+          › <span>{t(`subcategories.${product.subcategory}`)}</span>
         </nav>
 
         <div className="detail-grid">
@@ -137,7 +196,7 @@ function ProductDetail() {
             <div className="gallery-main">
               <img src={product.images[activeImage]} alt={product.title} />
               {product.featured && (
-                <span className="badge badge-featured gallery-badge">★ Featured</span>
+                <span className="badge badge-featured gallery-badge">{t("product.featuredBadge")}</span>
               )}
             </div>
             {product.images.length > 1 && (
@@ -166,13 +225,17 @@ function ProductDetail() {
                 <span>•</span>
                 <span>🗓 {timeAgo(product.createdAt)}</span>
                 <span>•</span>
-                <span>👁 {product.views} views</span>
+                <span>👁 {product.views} {t("product.viewsLabel")}</span>
               </div>
               <div className="detail-tags">
-                <span className="badge"><CategoryIcon category={category} size={14} style={{ verticalAlign: "middle", marginRight: 4 }} />{category?.name}</span>
-                <span className="badge">{product.subcategory}</span>
+                <span className="badge"><CategoryIcon category={category} size={14} style={{ verticalAlign: "middle", marginRight: 4 }} />{t(`categories.${product.category}`)}</span>
+                <span className="badge">{t(`subcategories.${product.subcategory}`)}</span>
                 <span className={`badge ${product.condition === "New" ? "badge-new" : ""}`}>
-                  {product.condition}
+                  {product.condition === "New"
+                    ? t("postAd.conditionNew")
+                    : product.condition === "Used"
+                    ? t("postAd.conditionUsed")
+                    : t("postAd.conditionParts")}
                 </span>
               </div>
 
@@ -180,31 +243,35 @@ function ProductDetail() {
                 {isOwner ? (
                   <>
                     <Link to={`/edit/${product.id}`} className="btn btn-primary btn-block">
-                      ✏️ Edit your ad
+                      {t("product.editAd")}
                     </Link>
                     <Link to="/profile/ads" className="btn btn-outline btn-block">
-                      Manage your ads
+                      {t("product.manageAds")}
                     </Link>
                   </>
                 ) : (
                   <>
-                    <button
-                      className="btn btn-primary btn-block"
-                      onClick={() => setShowPhone(true)}
-                    >
-                      📞 {showPhone ? product.seller.phone : "Show phone number"}
-                    </button>
-                    <a
-                      href={`mailto:${product.seller.email}?subject=${encodeURIComponent("About: " + product.title)}`}
-                      className="btn btn-outline btn-block"
-                    >
-                      ✉️ Email seller
-                    </a>
+                    {product.seller.phone && (
+                      <button
+                        className="btn btn-primary btn-block"
+                        onClick={() => setShowPhone(true)}
+                      >
+                        📞 {showPhone ? product.seller.phone : t("product.showPhone")}
+                      </button>
+                    )}
+                    {product.seller.email && (
+                      <a
+                        href={`mailto:${product.seller.email}?subject=${encodeURIComponent(t("product.message.about", { title: product.title }))}`}
+                        className="btn btn-outline btn-block"
+                      >
+                        {t("product.emailSeller")}
+                      </a>
+                    )}
                     <button
                       className="btn btn-outline btn-block"
                       onClick={() => setMessageOpen(true)}
                     >
-                      💬 Send message
+                      {t("product.sendMessage")}
                     </button>
                   </>
                 )}
@@ -214,17 +281,17 @@ function ProductDetail() {
                     className={`btn btn-outline ${fav ? "is-fav" : ""}`}
                     onClick={() => toggleFavorite(product.id)}
                   >
-                    {fav ? "❤️ Saved" : "🤍 Save"}
+                    {fav ? t("product.saved") : t("product.save")}
                   </button>
                   <button className="btn btn-outline" onClick={share}>
-                    🔗 Share
+                    {t("product.share")}
                   </button>
                   {!isOwner && (
                     <button
                       className="btn btn-outline"
                       onClick={() => setReportOpen(true)}
                     >
-                      🚩 Report
+                      {t("product.report")}
                     </button>
                   )}
                 </div>
@@ -232,7 +299,7 @@ function ProductDetail() {
             </div>
 
             <div className="detail-card seller-card">
-              <h3>Seller</h3>
+              <h3>{t("product.seller")}</h3>
               <div className="seller-row">
                 <div className="seller-avatar">
                   {product.seller.name[0].toUpperCase()}
@@ -241,37 +308,37 @@ function ProductDetail() {
                   <div className="seller-name">
                     {product.seller.name}
                     {product.seller.verified && (
-                      <span className="badge badge-verified" title="Verified seller">
-                        ✓ Verified
+                      <span className="badge badge-verified" title={t("product.verified")}>
+                        {t("product.verified")}
                       </span>
                     )}
                   </div>
                   <div className="muted small">
-                    Member since {product.seller.memberSince}
+                    {t("product.memberSince", { date: product.seller.memberSince })}
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="safety-tips">
-              <h4>🛡️ Safety tips</h4>
+              <h4>{t("product.safetyTitle")}</h4>
               <ul>
-                <li>Meet in public places.</li>
-                <li>Inspect the item before paying.</li>
-                <li>Never share bank or password info.</li>
+                <li>{t("product.safetyMeet")}</li>
+                <li>{t("product.safetyInspect")}</li>
+                <li>{t("product.safetyNoBank")}</li>
               </ul>
             </div>
           </aside>
         </div>
 
         <section className="detail-section">
-          <h2>Description</h2>
+          <h2>{t("product.description")}</h2>
           <p className="description">{product.description}</p>
         </section>
 
         {similar.length > 0 && (
           <section className="detail-section">
-            <h2>Similar listings</h2>
+            <h2>{t("product.similar")}</h2>
             <div className="product-grid">
               {similar.map((p) => (
                 <ProductCard key={p.id} product={p} />
@@ -282,20 +349,20 @@ function ProductDetail() {
       </div>
 
       {messageOpen && (
-        <Modal onClose={() => setMessageOpen(false)} title={`Message ${product.seller.name}`}>
+        <Modal onClose={() => setMessageOpen(false)} title={t("product.message.title", { name: product.seller.name })}>
           {messageSent ? (
             <div className="success">
-              <h3>✓ Message sent!</h3>
-              <p className="muted">You can continue the conversation in Messages.</p>
+              <h3>{t("product.message.success")}</h3>
+              <p className="muted">{t("product.message.successHint")}</p>
             </div>
           ) : (
             <>
               <p className="muted">
-                About: <strong>{product.title}</strong>
+                {t("product.message.about", { title: "" })}<strong>{product.title}</strong>
               </p>
               <textarea
                 rows={5}
-                placeholder="Hi! Is this still available?"
+                placeholder={t("product.message.placeholder")}
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
               />
@@ -304,10 +371,10 @@ function ProductDetail() {
                 onClick={sendMessage}
                 disabled={!messageText.trim()}
               >
-                Send message
+                {t("product.message.send")}
               </button>
               {!user && (
-                <p className="muted small">You'll need to log in to send.</p>
+                <p className="muted small">{t("product.message.loginHint")}</p>
               )}
             </>
           )}
@@ -315,27 +382,90 @@ function ProductDetail() {
       )}
 
       {reportOpen && (
-        <Modal onClose={() => setReportOpen(false)} title="Report this ad">
-          <p className="muted">Help us keep CaboFeira safe. Why are you reporting this ad?</p>
-          <select className="report-select" defaultValue="">
-            <option value="" disabled>Select a reason</option>
-            <option>Spam or duplicate</option>
-            <option>Fraud / scam</option>
-            <option>Wrong category</option>
-            <option>Prohibited item</option>
-            <option>Offensive content</option>
-            <option>Other</option>
-          </select>
-          <textarea rows={3} placeholder="Additional details (optional)" />
-          <button
-            className="btn btn-primary btn-block"
-            onClick={() => {
-              alert("Thanks. Your report has been submitted.");
-              setReportOpen(false);
-            }}
-          >
-            Submit report
-          </button>
+        <Modal
+          onClose={() => {
+            setReportOpen(false);
+            setReportReason("");
+            setReportDetails("");
+            setReportError("");
+            setReportSent(false);
+          }}
+          title={t("product.report.title")}
+        >
+          {reportSent ? (
+            <div className="success">
+              <h3>{t("product.report.submitted")}</h3>
+              <p className="muted">{t("product.report.thanks")}</p>
+            </div>
+          ) : (
+            <>
+              <p className="muted">{t("product.report.intro")}</p>
+              {reportError && (
+                <div
+                  style={{
+                    color: "#b00020",
+                    background: "#fdecea",
+                    padding: "8px 12px",
+                    borderRadius: 6,
+                    marginBottom: 8,
+                  }}
+                >
+                  {reportError}
+                </div>
+              )}
+              <select
+                className="report-select"
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+              >
+                <option value="" disabled>{t("product.report.reasonPlaceholder")}</option>
+                <option>{t("product.report.reason1")}</option>
+                <option>{t("product.report.reason2")}</option>
+                <option>{t("product.report.reason3")}</option>
+                <option>{t("product.report.reason4")}</option>
+                <option>{t("product.report.reason5")}</option>
+                <option>{t("product.report.reason6")}</option>
+              </select>
+              <textarea
+                rows={3}
+                placeholder={t("product.report.detailsPlaceholder")}
+                value={reportDetails}
+                onChange={(e) => setReportDetails(e.target.value)}
+              />
+              <button
+                className="btn btn-primary btn-block"
+                disabled={!reportReason || reportSending}
+                onClick={async () => {
+                  if (!user) {
+                    navigate(`/login?redirect=/product/${product.id}`);
+                    return;
+                  }
+                  setReportSending(true);
+                  setReportError("");
+                  const { error } = await supabase.from("reports").insert({
+                    product_id: product.id,
+                    reporter_id: user.id,
+                    reason: reportReason,
+                    details: reportDetails.trim() || null,
+                  });
+                  setReportSending(false);
+                  if (error) {
+                    setReportError(error.message || "Could not submit report.");
+                    return;
+                  }
+                  setReportSent(true);
+                  setTimeout(() => {
+                    setReportOpen(false);
+                    setReportSent(false);
+                    setReportReason("");
+                    setReportDetails("");
+                  }, 1500);
+                }}
+              >
+                {reportSending ? t("product.report.sending") : t("product.report.submit")}
+              </button>
+            </>
+          )}
         </Modal>
       )}
     </div>

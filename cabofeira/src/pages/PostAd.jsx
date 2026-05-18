@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useProducts } from "../context/ProductsContext";
 import { usePricing } from "../context/PricingContext";
+import { useT } from "../i18n/I18nContext";
 import { categories, getCategoryById, CategoryIcon } from "../data/categories";
 import { islands } from "../data/locations";
 import { formatPrice } from "../utils/format";
@@ -18,9 +19,6 @@ const blank = {
   description: "",
   island: "",
   city: "",
-  contactName: "",
-  contactPhone: "",
-  contactEmail: "",
   images: [],
   featured: false,
 };
@@ -29,10 +27,23 @@ function PostAd() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
-  const { addProduct, getProduct, updateProduct } = useProducts();
+  const { addProduct, getProduct, fetchProduct, updateProduct } = useProducts();
   const { getPrice, featuredPrice } = usePricing();
+  const t = useT();
   const isEdit = Boolean(id);
-  const existing = isEdit ? getProduct(id) : null;
+  const [existing, setExisting] = useState(() => (isEdit ? getProduct(id) : null));
+
+  useEffect(() => {
+    if (!isEdit) return;
+    if (existing) return;
+    let alive = true;
+    fetchProduct(id).then((p) => {
+      if (alive) setExisting(p || null);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [isEdit, id, existing, fetchProduct]);
 
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(blank);
@@ -50,21 +61,11 @@ function PostAd() {
         description: existing.description,
         island: existing.location.island,
         city: existing.location.city,
-        contactName: existing.seller.name,
-        contactPhone: existing.seller.phone,
-        contactEmail: existing.seller.email,
         images: existing.images,
         featured: existing.featured,
       });
-    } else if (user) {
-      setForm((f) => ({
-        ...f,
-        contactName: user.name,
-        contactEmail: user.email,
-        contactPhone: user.phone || "",
-      }));
     }
-  }, [isEdit, existing, user]);
+  }, [isEdit, existing]);
 
   if (!user) {
     return <Navigate to={`/login?redirect=${isEdit ? `/edit/${id}` : "/postad"}`} replace />;
@@ -78,6 +79,7 @@ function PostAd() {
 
   const categoryObj = getCategoryById(form.category);
   const islandObj = islands.find((i) => i.name === form.island);
+  const categoryName = form.category ? t(`categories.${form.category}`) : "";
 
   const postingCost = form.category ? getPrice(form.category) : 0;
   const totalCost = postingCost + (form.featured ? featuredPrice : 0);
@@ -102,22 +104,17 @@ function PostAd() {
   const validate = (s) => {
     const e = {};
     if (s >= 1) {
-      if (!form.category) e.category = "Choose a category";
-      if (!form.subcategory) e.subcategory = "Choose a subcategory";
+      if (!form.category) e.category = t("postAd.errors.chooseCategory");
+      if (!form.subcategory) e.subcategory = t("postAd.errors.chooseSubcategory");
     }
     if (s >= 2) {
-      if (!form.title || form.title.length < 5) e.title = "Title needs at least 5 characters";
-      if (form.price === "" || Number(form.price) < 0) e.price = "Enter a valid price (0 = contact for price)";
-      if (!form.description || form.description.length < 20) e.description = "Description needs at least 20 characters";
+      if (!form.title || form.title.length < 5) e.title = t("postAd.errors.titleShort");
+      if (form.price === "" || Number(form.price) < 0) e.price = t("postAd.errors.priceInvalid");
+      if (!form.description || form.description.length < 20) e.description = t("postAd.errors.descriptionShort");
     }
     if (s >= 3) {
-      if (!form.island) e.island = "Choose an island";
-      if (!form.city) e.city = "Choose a city";
-    }
-    if (s >= 4) {
-      if (!form.contactName) e.contactName = "Name is required";
-      if (!form.contactPhone) e.contactPhone = "Phone is required";
-      if (!form.contactEmail) e.contactEmail = "Email is required";
+      if (!form.island) e.island = t("postAd.errors.chooseIsland");
+      if (!form.city) e.city = t("postAd.errors.chooseCity");
     }
     return e;
   };
@@ -146,14 +143,6 @@ function PostAd() {
       location: { city: form.city, island: form.island },
       images: form.images.length ? form.images : [`https://picsum.photos/seed/${Date.now()}/600/450`],
       featured: form.featured,
-      seller: {
-        id: user.id,
-        name: form.contactName,
-        phone: form.contactPhone,
-        email: form.contactEmail,
-        memberSince: user.memberSince,
-        verified: user.verified || false,
-      },
     };
 
     try {
@@ -166,23 +155,25 @@ function PostAd() {
         setTimeout(() => navigate(`/product/${created.id}`), 1800);
       }
     } catch (err) {
-      setErrors({ submit: err.message || "Could not save your ad. Please try again." });
+      setErrors({ submit: err.message || t("postAd.errors.submitFailed") });
     }
   };
 
   const totalSteps = 4;
   const progress = Math.min((step / totalSteps) * 100, 100);
+  const stepLabels = [t("postAd.step1"), t("postAd.step2"), t("postAd.step3"), t("postAd.step4")];
+  const formatMoney = (n) => (n === 0 ? t("common.free") : `${n.toLocaleString("pt-CV")} ${t("common.currency")}`);
 
   return (
     <div className="page postad-page">
       <div className="container postad-container">
-        <h1 className="page-title">{isEdit ? "Edit your ad" : "Post a new ad"}</h1>
+        <h1 className="page-title">{isEdit ? t("postAd.titleEdit") : t("postAd.titleNew")}</h1>
 
         {step < 5 && (
           <div className="progress">
             <div className="progress-bar" style={{ width: `${progress}%` }} />
             <div className="progress-steps">
-              {["Category", "Details", "Location", "Preview"].map((label, i) => (
+              {stepLabels.map((label, i) => (
                 <div key={label} className={`progress-step ${step >= i + 1 ? "done" : ""}`}>
                   <span className="step-num">{i + 1}</span>
                   <span>{label}</span>
@@ -195,10 +186,10 @@ function PostAd() {
         <div className="postad-form">
           {step === 1 && (
             <>
-              <h2>Step 1: Category</h2>
-              <p className="muted">Choose the best fit for your listing.</p>
+              <h2>{t("postAd.step1Title")}</h2>
+              <p className="muted">{t("postAd.step1Hint")}</p>
 
-              <label className="form-label">Category</label>
+              <label className="form-label">{t("postAd.categoryLabel")}</label>
               <div className="cat-pick">
                 {categories.map((c) => (
                   <button
@@ -207,7 +198,7 @@ function PostAd() {
                     className={`cat-pill ${form.category === c.id ? "is-selected" : ""}`}
                     onClick={() => update({ category: c.id, subcategory: "" })}
                   >
-                    <CategoryIcon category={c} size={18} style={{ verticalAlign: "middle", marginRight: 6 }} /> {c.name}
+                    <CategoryIcon category={c} size={18} style={{ verticalAlign: "middle", marginRight: 6 }} /> {t(`categories.${c.id}`)}
                   </button>
                 ))}
               </div>
@@ -215,23 +206,21 @@ function PostAd() {
 
               {categoryObj && (
                 <>
-                  <label className="form-label">Subcategory</label>
+                  <label className="form-label">{t("postAd.subcategoryLabel")}</label>
                   <select
                     value={form.subcategory}
                     onChange={(e) => update({ subcategory: e.target.value })}
                   >
-                    <option value="">Choose a subcategory</option>
+                    <option value="">{t("postAd.chooseSubcategory")}</option>
                     {categoryObj.subcategories.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                      <option key={s} value={s}>{t(`subcategories.${s}`)}</option>
                     ))}
                   </select>
                   {errors.subcategory && <span className="error">{errors.subcategory}</span>}
 
                   <div className="cost-banner">
-                    <span>Posting cost in {categoryObj.name}:</span>
-                    <strong>
-                      {postingCost === 0 ? "Free" : `${postingCost.toLocaleString("pt-CV")} CVE`}
-                    </strong>
+                    <span>{t("postAd.postingCost", { category: categoryName })}</span>
+                    <strong>{formatMoney(postingCost)}</strong>
                   </div>
                 </>
               )}
@@ -240,14 +229,14 @@ function PostAd() {
 
           {step === 2 && (
             <>
-              <h2>Step 2: Listing details</h2>
+              <h2>{t("postAd.step2Title")}</h2>
 
-              <label className="form-label">Title</label>
+              <label className="form-label">{t("postAd.titleLabel")}</label>
               <input
                 type="text"
                 value={form.title}
                 onChange={(e) => update({ title: e.target.value })}
-                placeholder="e.g. Toyota Hilux 2018 - Excellent condition"
+                placeholder={t("postAd.titlePlaceholder")}
                 maxLength={80}
               />
               <div className="hint">{form.title.length}/80</div>
@@ -255,7 +244,7 @@ function PostAd() {
 
               <div className="grid-2">
                 <div>
-                  <label className="form-label">Price</label>
+                  <label className="form-label">{t("postAd.priceLabel")}</label>
                   <div className="price-input">
                     <input
                       type="number"
@@ -264,42 +253,42 @@ function PostAd() {
                       placeholder="0"
                       min="0"
                     />
-                    <span>CVE</span>
+                    <span>{t("common.currency")}</span>
                   </div>
-                  <div className="hint">Enter 0 for "Contact for price"</div>
+                  <div className="hint">{t("postAd.priceHint")}</div>
                   {errors.price && <span className="error">{errors.price}</span>}
                 </div>
                 <div>
-                  <label className="form-label">Condition</label>
+                  <label className="form-label">{t("postAd.conditionLabel")}</label>
                   <select
                     value={form.condition}
                     onChange={(e) => update({ condition: e.target.value })}
                   >
-                    <option>New</option>
-                    <option>Used</option>
-                    <option>For parts</option>
+                    <option value="New">{t("postAd.conditionNew")}</option>
+                    <option value="Used">{t("postAd.conditionUsed")}</option>
+                    <option value="For parts">{t("postAd.conditionParts")}</option>
                   </select>
                 </div>
               </div>
 
-              <label className="form-label">Description</label>
+              <label className="form-label">{t("postAd.descriptionLabel")}</label>
               <textarea
                 rows={6}
                 value={form.description}
                 onChange={(e) => update({ description: e.target.value })}
-                placeholder="Describe the item: condition, features, why you're selling..."
+                placeholder={t("postAd.descriptionPlaceholder")}
                 maxLength={2000}
               />
               <div className="hint">{form.description.length}/2000</div>
               {errors.description && <span className="error">{errors.description}</span>}
 
-              <label className="form-label">Photos (up to 6)</label>
+              <label className="form-label">{t("postAd.photosLabel")}</label>
               <div className="image-grid">
                 {form.images.map((src, i) => (
                   <div key={i} className="image-thumb">
                     <img src={src} alt={`upload ${i + 1}`} />
-                    <button type="button" onClick={() => removeImage(i)} aria-label="Remove">✕</button>
-                    {i === 0 && <span className="image-main-badge">Main</span>}
+                    <button type="button" onClick={() => removeImage(i)} aria-label={t("postAd.removePhoto")}>✕</button>
+                    {i === 0 && <span className="image-main-badge">{t("postAd.mainBadge")}</span>}
                   </div>
                 ))}
                 {form.images.length < 6 && (
@@ -310,27 +299,27 @@ function PostAd() {
                       multiple
                       onChange={(e) => handleFiles(e.target.files)}
                     />
-                    <span>+ Add photo</span>
+                    <span>{t("postAd.addPhoto")}</span>
                   </label>
                 )}
               </div>
-              <div className="hint">First photo will be the main image.</div>
+              <div className="hint">{t("postAd.firstPhotoHint")}</div>
             </>
           )}
 
           {step === 3 && (
             <>
-              <h2>Step 3: Location</h2>
-              <p className="muted">Buyers nearby will see your ad first.</p>
+              <h2>{t("postAd.step3Title")}</h2>
+              <p className="muted">{t("postAd.step3Hint")}</p>
 
               <div className="grid-2">
                 <div>
-                  <label className="form-label">Island</label>
+                  <label className="form-label">{t("postAd.islandLabel")}</label>
                   <select
                     value={form.island}
                     onChange={(e) => update({ island: e.target.value, city: "" })}
                   >
-                    <option value="">Select island</option>
+                    <option value="">{t("postAd.selectIsland")}</option>
                     {islands.map((i) => (
                       <option key={i.name} value={i.name}>{i.name}</option>
                     ))}
@@ -338,13 +327,13 @@ function PostAd() {
                   {errors.island && <span className="error">{errors.island}</span>}
                 </div>
                 <div>
-                  <label className="form-label">City / town</label>
+                  <label className="form-label">{t("postAd.cityLabel")}</label>
                   <select
                     value={form.city}
                     onChange={(e) => update({ city: e.target.value })}
                     disabled={!islandObj}
                   >
-                    <option value="">Select city</option>
+                    <option value="">{t("postAd.selectCity")}</option>
                     {islandObj?.cities.map((c) => (
                       <option key={c} value={c}>{c}</option>
                     ))}
@@ -353,35 +342,34 @@ function PostAd() {
                 </div>
               </div>
 
-              <h3 style={{ marginTop: 24 }}>Contact information</h3>
-              <p className="muted">How buyers will reach you. Visible on your ad.</p>
+              <h3 style={{ marginTop: 24 }}>{t("postAd.contactTitle")}</h3>
+              <p className="muted">
+                {t("postAd.contactIntro", { link: "" })}
+                <Link to="/profile">{t("postAd.editProfile")}</Link>
+              </p>
 
-              <div className="grid-2">
+              <div
+                style={{
+                  background: "var(--cf-bg)",
+                  border: "1px solid var(--cf-border)",
+                  borderRadius: 8,
+                  padding: 14,
+                  marginBottom: 16,
+                  display: "grid",
+                  gap: 6,
+                }}
+              >
+                <div><strong>{t("postAd.name")}:</strong> {user.name}</div>
+                <div><strong>{t("postAd.email")}:</strong> {user.email}</div>
                 <div>
-                  <label className="form-label">Name</label>
-                  <input
-                    value={form.contactName}
-                    onChange={(e) => update({ contactName: e.target.value })}
-                  />
-                  {errors.contactName && <span className="error">{errors.contactName}</span>}
-                </div>
-                <div>
-                  <label className="form-label">Phone</label>
-                  <input
-                    value={form.contactPhone}
-                    onChange={(e) => update({ contactPhone: e.target.value })}
-                    placeholder="+238 991 1234"
-                  />
-                  {errors.contactPhone && <span className="error">{errors.contactPhone}</span>}
+                  <strong>{t("postAd.phone")}:</strong>{" "}
+                  {user.phone || (
+                    <em className="muted">
+                      <Link to="/profile">{t("postAd.addPhoneLink")}</Link>
+                    </em>
+                  )}
                 </div>
               </div>
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                value={form.contactEmail}
-                onChange={(e) => update({ contactEmail: e.target.value })}
-              />
-              {errors.contactEmail && <span className="error">{errors.contactEmail}</span>}
 
               <label className="checkbox-row">
                 <input
@@ -390,10 +378,10 @@ function PostAd() {
                   onChange={(e) => update({ featured: e.target.checked })}
                 />
                 <span>
-                  <strong>★ Make this a featured ad</strong>
+                  <strong>{t("postAd.featuredTitle")}</strong>
                   <br />
                   <span className="muted small">
-                    Featured ads appear on the home page and get up to 5× more views. (Demo only — no payment.)
+                    {t("postAd.featuredHint")}
                   </span>
                 </span>
               </label>
@@ -402,8 +390,8 @@ function PostAd() {
 
           {step === 4 && (
             <>
-              <h2>Step 4: Preview</h2>
-              <p className="muted">Check everything looks right, then publish.</p>
+              <h2>{t("postAd.step4Title")}</h2>
+              <p className="muted">{t("postAd.step4Hint")}</p>
 
               <div className="preview-card">
                 {form.images[0] && (
@@ -413,33 +401,32 @@ function PostAd() {
                   <h3>{form.title}</h3>
                   <div className="preview-price">{formatPrice(form.price, "CVE")}</div>
                   <p className="muted small">
-                    📍 {form.city}, {form.island} • {categoryObj?.name} / {form.subcategory}
+                    📍 {form.city}, {form.island} • {categoryName} / {form.subcategory ? t(`subcategories.${form.subcategory}`) : ""}
                   </p>
                   <p>{form.description}</p>
                   <p className="muted small">
-                    Contact: {form.contactName} • {form.contactPhone} • {form.contactEmail}
+                    {user.name}
+                    {user.phone ? ` • ${user.phone}` : ""} • {user.email}
                   </p>
-                  {form.featured && <span className="badge badge-featured">★ Featured</span>}
+                  {form.featured && <span className="badge badge-featured">{t("product.featuredBadge")}</span>}
                 </div>
               </div>
 
               <div className="cost-summary">
-                <h4>Cost summary</h4>
+                <h4>{t("postAd.costSummary")}</h4>
                 <div className="cost-line">
-                  <span>Listing in {categoryObj?.name}</span>
-                  <span>{postingCost === 0 ? "Free" : `${postingCost.toLocaleString("pt-CV")} CVE`}</span>
+                  <span>{t("postAd.listingIn", { category: categoryName })}</span>
+                  <span>{formatMoney(postingCost)}</span>
                 </div>
                 {form.featured && (
                   <div className="cost-line">
-                    <span>⭐ Featured surcharge</span>
-                    <span>{featuredPrice.toLocaleString("pt-CV")} CVE</span>
+                    <span>{t("postAd.featuredSurcharge")}</span>
+                    <span>{featuredPrice.toLocaleString("pt-CV")} {t("common.currency")}</span>
                   </div>
                 )}
                 <div className="cost-line cost-total">
-                  <span>Total</span>
-                  <span>
-                    {totalCost === 0 ? "Free" : `${totalCost.toLocaleString("pt-CV")} CVE`}
-                  </span>
+                  <span>{t("postAd.total")}</span>
+                  <span>{formatMoney(totalCost)}</span>
                 </div>
               </div>
             </>
@@ -448,8 +435,8 @@ function PostAd() {
           {step === 5 && (
             <div className="success-card">
               <div className="success-icon">🎉</div>
-              <h2>Your ad is live!</h2>
-              <p className="muted">Redirecting to your listing...</p>
+              <h2>{t("postAd.liveTitle")}</h2>
+              <p className="muted">{t("postAd.redirecting")}</p>
             </div>
           )}
 
@@ -470,7 +457,7 @@ function PostAd() {
                   <strong>{errors.submit}</strong>
                 ) : (
                   <>
-                    <strong>Please fix before publishing:</strong>
+                    <strong>{t("postAd.fixErrors")}</strong>
                     <ul style={{ margin: "6px 0 0 18px" }}>
                       {Object.entries(errors)
                         .filter(([k]) => k !== "submit")
@@ -486,15 +473,15 @@ function PostAd() {
           {step < 5 && (
             <div className="form-actions">
               {step > 1 ? (
-                <button type="button" className="btn btn-outline" onClick={prev}>← Back</button>
+                <button type="button" className="btn btn-outline" onClick={prev}>← {t("common.back")}</button>
               ) : (
                 <div />
               )}
               {step < 4 ? (
-                <button type="button" className="btn btn-primary" onClick={next}>Continue →</button>
+                <button type="button" className="btn btn-primary" onClick={next}>{t("common.continue")} →</button>
               ) : (
                 <button type="button" className="btn btn-primary" onClick={submit}>
-                  {isEdit ? "💾 Save changes" : "🚀 Publish ad"}
+                  {isEdit ? t("postAd.saveChanges") : t("postAd.publishAd")}
                 </button>
               )}
             </div>
