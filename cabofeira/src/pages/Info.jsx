@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import AdSlot from "../components/AdSlot";
+import { isAdSlotVisible } from "../config/features";
 import "./Info.css";
 
 export function About() {
@@ -32,6 +34,7 @@ export function About() {
           Questions? Visit our <Link to="/contact">contact page</Link> or check the{" "}
           <Link to="/faq">FAQ</Link>.
         </p>
+        {isAdSlotVisible("info-footer") && <AdSlot placement="info-footer" />}
       </div>
     </div>
   );
@@ -143,6 +146,7 @@ export function FAQ() {
             </div>
           ))}
         </div>
+        {isAdSlotVisible("info-footer") && <AdSlot placement="info-footer" />}
       </div>
     </div>
   );
@@ -156,6 +160,7 @@ export function NotFound() {
         <h2>Page not found</h2>
         <p className="muted">The page you're looking for doesn't exist or has been moved.</p>
         <Link to="/" className="btn btn-primary">Back to home</Link>
+        {isAdSlotVisible("not-found") && <AdSlot placement="not-found" />}
       </div>
     </div>
   );

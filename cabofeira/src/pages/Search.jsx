@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { ProductCardSkeleton, ProductCardSkeletonGrid } from "../components/Skeleton";
+import AdSlot from "../components/AdSlot";
+import { isAdSlotVisible } from "../config/features";
 import { useProducts } from "../context/ProductsContext";
 import { useT } from "../i18n/I18nContext";
 import { categories } from "../data/categories";
@@ -216,8 +218,13 @@ function Search() {
           ) : (
             <>
               <div className="product-grid">
-                {items.map((p) => (
-                  <ProductCard key={p.id} product={p} />
+                {items.map((p, i) => (
+                  <React.Fragment key={p.id}>
+                    <ProductCard product={p} />
+                    {i === 11 && isAdSlotVisible("search-inline") && (
+                      <AdSlot placement="search-inline" />
+                    )}
+                  </React.Fragment>
                 ))}
                 {loadingMore &&
                   Array.from({ length: 4 }).map((_, i) => (

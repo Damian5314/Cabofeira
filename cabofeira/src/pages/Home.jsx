@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { ProductCardSkeletonGrid } from "../components/Skeleton";
+import AdSlot from "../components/AdSlot";
+import { isAdSlotVisible } from "../config/features";
 import { useProducts } from "../context/ProductsContext";
 import { useT } from "../i18n/I18nContext";
 import { categories, CategoryIcon } from "../data/categories";
@@ -92,6 +94,14 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {isAdSlotVisible("home-top") && (
+        <section className="home-section">
+          <div className="container">
+            <AdSlot placement="home-top" />
+          </div>
+        </section>
+      )}
 
       {(productsLoading || featured.length > 0) && (
         <section className="home-section">
