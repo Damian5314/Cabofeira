@@ -110,6 +110,7 @@ export function ProductsProvider({ children }) {
     const {
       search = "",
       category = "",
+      subcategory = "",
       island = "",
       sellerId = "",
       featured = null,
@@ -128,6 +129,7 @@ export function ProductsProvider({ children }) {
       q = q.or(`title.ilike.${pat},description.ilike.${pat}`);
     }
     if (category) q = q.eq("category", category);
+    if (subcategory) q = q.eq("subcategory", subcategory);
     if (island) q = q.eq("location_island", island);
     if (sellerId) q = q.eq("seller_id", sellerId);
     if (featured !== null) q = q.eq("featured", featured);

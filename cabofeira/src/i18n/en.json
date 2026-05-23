@@ -64,6 +64,8 @@
     "keywordPlaceholder": "Keyword...",
     "category": "Category",
     "allCategories": "All categories",
+    "subcategory": "Subcategory",
+    "allSubcategories": "All subcategories",
     "island": "Island",
     "allIslands": "All islands",
     "priceRange": "Price range (CVE)",

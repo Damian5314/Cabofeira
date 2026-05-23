@@ -4,7 +4,7 @@ import ProductCard from "../components/ProductCard";
 import { ProductCardSkeleton, ProductCardSkeletonGrid } from "../components/Skeleton";
 import { useProducts } from "../context/ProductsContext";
 import { useT } from "../i18n/I18nContext";
-import { categories } from "../data/categories";
+import { categories, getCategoryById } from "../data/categories";
 import { islands } from "../data/locations";
 import "./Search.css";
 
@@ -19,11 +19,14 @@ function Search() {
   const [searchInput, setSearchInput] = useState(params.get("q") || "");
   const [search, setSearch] = useState(params.get("q") || "");
   const [category, setCategory] = useState(params.get("category") || "");
+  const [subcategory, setSubcategory] = useState(params.get("subcategory") || "");
   const [location, setLocation] = useState(params.get("location") || "");
   const [minPrice, setMinPrice] = useState(params.get("min") || "");
   const [maxPrice, setMaxPrice] = useState(params.get("max") || "");
   const [sort, setSort] = useState(params.get("sort") || "newest");
   const [showFilters, setShowFilters] = useState(false);
+
+  const categoryObj = getCategoryById(category);
 
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
@@ -42,12 +45,13 @@ function Search() {
     const next = new URLSearchParams();
     if (search) next.set("q", search);
     if (category) next.set("category", category);
+    if (subcategory) next.set("subcategory", subcategory);
     if (location) next.set("location", location);
     if (minPrice) next.set("min", minPrice);
     if (maxPrice) next.set("max", maxPrice);
     if (sort && sort !== "newest") next.set("sort", sort);
     setParams(next, { replace: true });
-  }, [search, category, location, minPrice, maxPrice, sort, setParams]);
+  }, [search, category, subcategory, location, minPrice, maxPrice, sort, setParams]);
 
   const runQuery = useCallback(
     async (offset, append) => {
@@ -59,6 +63,7 @@ function Search() {
         const { items: page, total: tt } = await fetchProducts({
           search,
           category,
+          subcategory,
           island: location,
           minPrice,
           maxPrice,
@@ -77,7 +82,7 @@ function Search() {
         setLoadingMore(false);
       }
     },
-    [fetchProducts, search, category, location, minPrice, maxPrice, sort]
+    [fetchProducts, search, category, subcategory, location, minPrice, maxPrice, sort]
   );
 
   useEffect(() => {
@@ -93,6 +98,7 @@ function Search() {
     setSearchInput("");
     setSearch("");
     setCategory("");
+    setSubcategory("");
     setLocation("");
     setMinPrice("");
     setMaxPrice("");
@@ -122,13 +128,34 @@ function Search() {
 
           <div className="filter-group">
             <label>{t("search.category")}</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <select
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setSubcategory("");
+              }}
+            >
               <option value="">{t("search.allCategories")}</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>{t(`categories.${c.id}`)}</option>
               ))}
             </select>
           </div>
+
+          {categoryObj && (
+            <div className="filter-group">
+              <label>{t("search.subcategory")}</label>
+              <select
+                value={subcategory}
+                onChange={(e) => setSubcategory(e.target.value)}
+              >
+                <option value="">{t("search.allSubcategories")}</option>
+                {categoryObj.subcategories.map((s) => (
+                  <option key={s} value={s}>{t(`subcategories.${s}`)}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="filter-group">
             <label>{t("search.island")}</label>

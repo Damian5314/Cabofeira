@@ -30,7 +30,7 @@ function Categories() {
               <ul className="cat-subs">
                 {c.subcategories.map((s) => (
                   <li key={s}>
-                    <Link to={`/search?category=${c.id}&q=${encodeURIComponent(s)}`}>{t(`subcategories.${s}`)}</Link>
+                    <Link to={`/search?category=${c.id}&subcategory=${encodeURIComponent(s)}`}>{t(`subcategories.${s}`)}</Link>
                   </li>
                 ))}
               </ul>

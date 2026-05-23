@@ -64,6 +64,8 @@
     "keywordPlaceholder": "Palavra-chave...",
     "category": "Categoria",
     "allCategories": "Todas as categorias",
+    "subcategory": "Subcategoria",
+    "allSubcategories": "Todas as subcategorias",
     "island": "Ilha",
     "allIslands": "Todas as ilhas",
     "priceRange": "Faixa de preço (CVE)",
