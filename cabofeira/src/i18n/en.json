@@ -194,6 +194,8 @@
     "total": "Total",
     "saveChanges": "💾 Save changes",
     "publishAd": "🚀 Publish ad",
+    "publishing": "Publishing...",
+    "savingChanges": "Saving...",
     "liveTitle": "Your ad is live!",
     "redirecting": "Redirecting to your listing...",
     "fixErrors": "Please fix before publishing:",

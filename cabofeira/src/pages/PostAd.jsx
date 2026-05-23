@@ -48,6 +48,7 @@ function PostAd() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(blank);
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (isEdit && existing) {
@@ -128,6 +129,7 @@ function PostAd() {
   const prev = () => setStep(step - 1);
 
   const submit = async () => {
+    if (submitting) return;
     const e = validate(4);
     setErrors(e);
     if (Object.keys(e).length > 0) return;
@@ -145,6 +147,7 @@ function PostAd() {
       featured: form.featured,
     };
 
+    setSubmitting(true);
     try {
       if (isEdit) {
         await updateProduct(id, payload);
@@ -156,6 +159,7 @@ function PostAd() {
       }
     } catch (err) {
       setErrors({ submit: err.message || t("postAd.errors.submitFailed") });
+      setSubmitting(false);
     }
   };
 
@@ -473,15 +477,28 @@ function PostAd() {
           {step < 5 && (
             <div className="form-actions">
               {step > 1 ? (
-                <button type="button" className="btn btn-outline" onClick={prev}>← {t("common.back")}</button>
+                <button type="button" className="btn btn-outline" onClick={prev} disabled={submitting}>← {t("common.back")}</button>
               ) : (
                 <div />
               )}
               {step < 4 ? (
                 <button type="button" className="btn btn-primary" onClick={next}>{t("common.continue")} →</button>
               ) : (
-                <button type="button" className="btn btn-primary" onClick={submit}>
-                  {isEdit ? t("postAd.saveChanges") : t("postAd.publishAd")}
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={submit}
+                  disabled={submitting}
+                  aria-busy={submitting}
+                >
+                  {submitting && <span className="btn-spinner" aria-hidden="true" />}
+                  {submitting
+                    ? isEdit
+                      ? t("postAd.savingChanges")
+                      : t("postAd.publishing")
+                    : isEdit
+                    ? t("postAd.saveChanges")
+                    : t("postAd.publishAd")}
                 </button>
               )}
             </div>
