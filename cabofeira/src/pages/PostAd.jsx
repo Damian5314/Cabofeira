@@ -7,7 +7,22 @@ import { useT } from "../i18n/I18nContext";
 import { categories, getCategoryById, CategoryIcon } from "../data/categories";
 import { islands } from "../data/locations";
 import { formatPrice } from "../utils/format";
+import { supabase } from "../lib/supabase";
 import "./PostAd.css";
+
+const PRODUCT_IMAGES_BUCKET = "product-images";
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+const extFromFile = (file) => {
+  const fromName = file.name?.split(".").pop()?.toLowerCase();
+  if (fromName && /^[a-z0-9]{1,5}$/.test(fromName)) return fromName;
+  const fromType = file.type?.split("/")[1]?.toLowerCase();
+  return fromType && /^[a-z0-9]{1,5}$/.test(fromType) ? fromType : "jpg";
+};
+
+const randomId = () =>
+  (window.crypto?.randomUUID?.() ||
+    `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
 
 const blank = {
   category: "",
@@ -49,6 +64,8 @@ function PostAd() {
   const [form, setForm] = useState(blank);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(0);
+  const [uploadError, setUploadError] = useState("");
 
   useEffect(() => {
     if (isEdit && existing) {
@@ -85,18 +102,43 @@ function PostAd() {
   const postingCost = form.category ? getPrice(form.category) : 0;
   const totalCost = postingCost + (form.featured ? featuredPrice : 0);
 
-  const handleFiles = (files) => {
-    const arr = Array.from(files).slice(0, 6);
-    Promise.all(
-      arr.map(
-        (file) =>
-          new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.readAsDataURL(file);
-          })
-      )
-    ).then((dataUrls) => update({ images: [...form.images, ...dataUrls].slice(0, 6) }));
+  const handleFiles = async (files) => {
+    setUploadError("");
+    const slotsLeft = Math.max(0, 6 - form.images.length);
+    const arr = Array.from(files).slice(0, slotsLeft);
+    if (arr.length === 0) return;
+
+    const tooBig = arr.find((f) => f.size > MAX_IMAGE_BYTES);
+    if (tooBig) {
+      setUploadError(t("postAd.errors.imageTooLarge"));
+      return;
+    }
+
+    setUploading((n) => n + arr.length);
+    try {
+      const uploaded = await Promise.all(
+        arr.map(async (file) => {
+          const path = `${user.id}/${randomId()}.${extFromFile(file)}`;
+          const { error } = await supabase.storage
+            .from(PRODUCT_IMAGES_BUCKET)
+            .upload(path, file, {
+              cacheControl: "31536000",
+              contentType: file.type || undefined,
+              upsert: false,
+            });
+          if (error) throw error;
+          const { data } = supabase.storage
+            .from(PRODUCT_IMAGES_BUCKET)
+            .getPublicUrl(path);
+          return data.publicUrl;
+        })
+      );
+      update({ images: [...form.images, ...uploaded].slice(0, 6) });
+    } catch (err) {
+      setUploadError(err.message || t("postAd.errors.uploadFailed"));
+    } finally {
+      setUploading((n) => Math.max(0, n - arr.length));
+    }
   };
 
   const removeImage = (idx) =>
@@ -295,18 +337,29 @@ function PostAd() {
                     {i === 0 && <span className="image-main-badge">{t("postAd.mainBadge")}</span>}
                   </div>
                 ))}
-                {form.images.length < 6 && (
-                  <label className="image-upload">
+                {Array.from({ length: uploading }).map((_, i) => (
+                  <div key={`up-${i}`} className="image-thumb image-thumb-uploading" aria-busy="true">
+                    <span className="btn-spinner" aria-hidden="true" />
+                    <span className="muted small">{t("postAd.uploading")}</span>
+                  </div>
+                ))}
+                {form.images.length + uploading < 6 && (
+                  <label className={`image-upload ${uploading > 0 ? "is-disabled" : ""}`}>
                     <input
                       type="file"
                       accept="image/*"
                       multiple
-                      onChange={(e) => handleFiles(e.target.files)}
+                      disabled={uploading > 0}
+                      onChange={(e) => {
+                        handleFiles(e.target.files);
+                        e.target.value = "";
+                      }}
                     />
                     <span>{t("postAd.addPhoto")}</span>
                   </label>
                 )}
               </div>
+              {uploadError && <span className="error">{uploadError}</span>}
               <div className="hint">{t("postAd.firstPhotoHint")}</div>
             </>
           )}
@@ -482,13 +535,20 @@ function PostAd() {
                 <div />
               )}
               {step < 4 ? (
-                <button type="button" className="btn btn-primary" onClick={next}>{t("common.continue")} →</button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={next}
+                  disabled={uploading > 0}
+                >
+                  {t("common.continue")} →
+                </button>
               ) : (
                 <button
                   type="button"
                   className="btn btn-primary"
                   onClick={submit}
-                  disabled={submitting}
+                  disabled={submitting || uploading > 0}
                   aria-busy={submitting}
                 >
                   {submitting && <span className="btn-spinner" aria-hidden="true" />}

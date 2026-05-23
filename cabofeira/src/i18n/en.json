@@ -167,6 +167,7 @@
     "descriptionPlaceholder": "Describe the item: condition, features, why you're selling...",
     "photosLabel": "Photos (up to 6)",
     "addPhoto": "+ Add photo",
+    "uploading": "Uploading...",
     "firstPhotoHint": "First photo will be the main image.",
     "mainBadge": "Main",
     "removePhoto": "Remove",
@@ -207,7 +208,9 @@
       "descriptionShort": "Description needs at least 20 characters",
       "chooseIsland": "Choose an island",
       "chooseCity": "Choose a city",
-      "submitFailed": "Could not save your ad. Please try again."
+      "submitFailed": "Could not save your ad. Please try again.",
+      "imageTooLarge": "One of the images is too large (max 5 MB).",
+      "uploadFailed": "Could not upload the image. Please try again."
     }
   },
   "auth": {

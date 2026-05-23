@@ -16,6 +16,18 @@ const PRODUCT_SELECT = `
   seller:profiles!products_seller_id_fkey(id, name, phone, email, member_since, verified)
 `;
 
+const PRODUCT_IMAGES_BUCKET = "product-images";
+const STORAGE_PUBLIC_MARKER = `/storage/v1/object/public/${PRODUCT_IMAGES_BUCKET}/`;
+
+// Extract the object path from a public Storage URL, or null for anything
+// else (legacy base64 data: URLs, picsum fallbacks, external links).
+const storagePathFromUrl = (url) => {
+  if (typeof url !== "string") return null;
+  const idx = url.indexOf(STORAGE_PUBLIC_MARKER);
+  if (idx === -1) return null;
+  return decodeURIComponent(url.slice(idx + STORAGE_PUBLIC_MARKER.length));
+};
+
 const fromRow = (r) => ({
   id: r.id,
   title: r.title,
@@ -205,9 +217,22 @@ export function ProductsProvider({ children }) {
   };
 
   const removeProduct = async (id) => {
+    const target = products.find((p) => p.id === id);
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) throw error;
     setProducts((prev) => prev.filter((p) => p.id !== id));
+
+    const paths = (target?.images || [])
+      .map(storagePathFromUrl)
+      .filter(Boolean);
+    if (paths.length > 0) {
+      // Best-effort: ad is already deleted from the DB. If storage cleanup
+      // fails (network, permission), the row is gone — files become orphans
+      // that a periodic cleanup job can sweep later.
+      supabase.storage.from(PRODUCT_IMAGES_BUCKET).remove(paths).then(({ error: e }) => {
+        if (e) console.warn("[products] storage cleanup failed:", e.message);
+      });
+    }
   };
 
   const getProduct = (id) => products.find((p) => p.id === id);

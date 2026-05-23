@@ -167,6 +167,7 @@
     "descriptionPlaceholder": "Descreve o artigo: estado, características, motivo da venda...",
     "photosLabel": "Fotos (até 6)",
     "addPhoto": "+ Adicionar foto",
+    "uploading": "A carregar...",
     "firstPhotoHint": "A primeira foto será a principal.",
     "mainBadge": "Principal",
     "removePhoto": "Remover",
@@ -207,7 +208,9 @@
       "descriptionShort": "A descrição precisa de pelo menos 20 caracteres",
       "chooseIsland": "Escolhe uma ilha",
       "chooseCity": "Escolhe uma cidade",
-      "submitFailed": "Não foi possível guardar o anúncio. Tenta de novo."
+      "submitFailed": "Não foi possível guardar o anúncio. Tenta de novo.",
+      "imageTooLarge": "Uma das imagens é demasiado grande (máx. 5 MB).",
+      "uploadFailed": "Não foi possível carregar a imagem. Tenta de novo."
     }
   },
   "auth": {

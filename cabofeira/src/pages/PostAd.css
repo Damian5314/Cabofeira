@@ -250,6 +250,20 @@
   display: none;
 }
 
+.image-upload.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.image-thumb-uploading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--cf-bg);
+}
+
 .checkbox-row {
   display: flex;
   align-items: flex-start;
