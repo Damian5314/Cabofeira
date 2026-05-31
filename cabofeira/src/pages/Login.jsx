@@ -84,7 +84,7 @@ function Login() {
           </div>
         )}
 
-        <div className="demo-hint">
+        {/* <div className="demo-hint">
           <strong>{t("auth.demoAccounts")}</strong>
           <button
             type="button"
@@ -98,7 +98,7 @@ function Login() {
           >
             👤 user@cabofeira.cv / user123
           </button>
-        </div>
+        </div> */}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <label>
