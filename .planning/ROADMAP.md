@@ -38,7 +38,7 @@ Plans:
 
 - [x] 01-01-PLAN.md — RLS guard triggers (SEC-01/02/03) + products.status column + SELECT policy rewrite (FND-01)
 - [x] 01-02-PLAN.md — notifications keystone: table + owner-only RLS + create_notification() + realtime (FND-02)
-- [ ] 01-03-PLAN.md — admin_audit_log keystone: append-only table + log_admin_action() RPC (FND-03)
+- [x] 01-03-PLAN.md — admin_audit_log keystone: append-only table + log_admin_action() RPC (FND-03)
 - [ ] 01-04-PLAN.md — [BLOCKING] manual-apply SQL in Supabase + direct-API verification probe pass
 - [ ] 01-05-PLAN.md — [BLOCKING] SEC-04 demo-credential scrub (files) + Auth-account deletion + git-history rewrite
 
