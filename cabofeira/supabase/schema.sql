@@ -44,6 +44,12 @@ create table if not exists public.products (
   created_at            timestamptz not null default now()
 );
 
+-- Listing lifecycle keystone (FND-01 / D-02). `not null default 'active'`
+-- auto-backfills existing rows (D-03) — no separate UPDATE needed.
+alter table public.products
+  add column if not exists status text not null default 'active'
+  check (status in ('active','sold','expired','hidden'));
+
 create index if not exists products_seller_id_idx on public.products (seller_id);
 create index if not exists products_category_idx  on public.products (category);
 create index if not exists products_created_idx   on public.products (created_at desc);
@@ -123,19 +129,32 @@ drop policy if exists "profiles_select_all"     on public.profiles;
 drop policy if exists "profiles_update_self"    on public.profiles;
 drop policy if exists "profiles_update_admin"   on public.profiles;
 create policy "profiles_select_all"   on public.profiles for select using (true);
-create policy "profiles_update_self"  on public.profiles for update using (auth.uid() = id);
+create policy "profiles_update_self"  on public.profiles for update using (auth.uid() = id) with check (auth.uid() = id);
 create policy "profiles_update_admin" on public.profiles for update using (public.is_admin());
 
 -- products: world-readable, owner CRUD, admin override on update/delete.
-drop policy if exists "products_select_all"      on public.products;
-drop policy if exists "products_insert_self"     on public.products;
-drop policy if exists "products_update_self"     on public.products;
-drop policy if exists "products_delete_self"     on public.products;
-drop policy if exists "products_update_admin"    on public.products;
-drop policy if exists "products_delete_admin"    on public.products;
-create policy "products_select_all"   on public.products for select using (true);
+-- Legacy world-readable SELECT policy is dropped by name via a catch-all so
+-- a re-run on an already-deployed DB cleanly replaces it (FND-01 rewrite).
+do $$
+declare pol text;
+begin
+  for pol in
+    select policyname from pg_policies
+    where schemaname = 'public' and tablename = 'products' and cmd = 'SELECT'
+  loop
+    execute format('drop policy if exists %I on public.products', pol);
+  end loop;
+end $$;
+drop policy if exists "products_insert_self"                     on public.products;
+drop policy if exists "products_update_self"                     on public.products;
+drop policy if exists "products_delete_self"                     on public.products;
+drop policy if exists "products_update_admin"                    on public.products;
+drop policy if exists "products_delete_admin"                    on public.products;
+-- SELECT: anon/public see only active listings; owner and admin still see
+-- their non-active rows (My-Ads + Admin visibility preserved) — FND-01 / D-01.
+create policy "products_select_active_or_owner_or_admin" on public.products for select using (status = 'active' or auth.uid() = seller_id or public.is_admin());
 create policy "products_insert_self"  on public.products for insert with check (auth.uid() = seller_id);
-create policy "products_update_self"  on public.products for update using (auth.uid() = seller_id);
+create policy "products_update_self"  on public.products for update using (auth.uid() = seller_id) with check (auth.uid() = seller_id);
 create policy "products_delete_self"  on public.products for delete using (auth.uid() = seller_id);
 create policy "products_update_admin" on public.products for update using (public.is_admin());
 create policy "products_delete_admin" on public.products for delete using (public.is_admin());
@@ -149,21 +168,5 @@ create policy "favorites_insert_own" on public.favorites for insert with check (
 create policy "favorites_delete_own" on public.favorites for delete using (auth.uid() = user_id);
 
 -- =====================================================================
--- Demo seed accounts
--- =====================================================================
--- Supabase Auth users cannot be inserted directly via SQL because the
--- password hashing happens in the Auth service. Create the two demo
--- accounts manually:
---
--- 1. Authentication → Users → "Add user" → "Create new user"
---      email: admin@cabofeira.cv   password: admin123   (auto-confirm: on)
---      email: user@cabofeira.cv    password: user123    (auto-confirm: on)
---
--- 2. After creating them, promote the admin account to role = 'admin':
---
---      update public.profiles set role = 'admin', verified = true
---      where email = 'admin@cabofeira.cv';
---
---      update public.profiles set name = 'Maria Demo'
---      where email = 'user@cabofeira.cv';
+-- Demo seed accounts intentionally removed (no credentials in source) — SEC-04.
 -- =====================================================================
