@@ -12,7 +12,7 @@ const ProductsContext = createContext(null);
 
 const PRODUCT_SELECT = `
   id, title, description, price, currency, category, subcategory, condition,
-  location_city, location_island, images, featured, views, created_at, seller_id,
+  location_city, location_island, images, featured, views, status, created_at, seller_id,
   seller:profiles!products_seller_id_fkey(id, name, phone, email, member_since, verified)
 `;
 
@@ -41,6 +41,7 @@ const fromRow = (r) => ({
   images: r.images || [],
   featured: r.featured,
   views: r.views || 0,
+  status: r.status,
   createdAt: (r.created_at || "").slice(0, 10),
   seller: {
     id: r.seller?.id || r.seller_id,
