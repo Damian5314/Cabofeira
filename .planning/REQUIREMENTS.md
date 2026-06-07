@@ -92,17 +92,49 @@ Explicitly excluded for this milestone, documented to prevent scope creep.
 
 ## Traceability
 
-Populated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FND-01 → SEC-10 | TBD | Pending |
+| FND-01 | Phase 1 | Pending |
+| FND-02 | Phase 1 | Pending |
+| FND-03 | Phase 1 | Pending |
+| SEC-01 | Phase 1 | Pending |
+| SEC-02 | Phase 1 | Pending |
+| SEC-03 | Phase 1 | Pending |
+| SEC-04 | Phase 1 | Pending |
+| FEAT-01 | Phase 2 | Pending |
+| FEAT-02 | Phase 2 | Pending |
+| FEAT-03 | Phase 2 | Pending |
+| FEAT-04 | Phase 2 | Pending |
+| FEAT-05 | Phase 2 | Pending |
+| FEAT-06 | Phase 2 | Pending |
+| FEAT-07 | Phase 2 | Pending |
+| FEAT-08 | Phase 2 | Pending |
+| ABUSE-01 | Phase 2 | Pending |
+| ABUSE-02 | Phase 2 | Pending |
+| ADMIN-01 | Phase 2 | Pending |
+| ADMIN-02 | Phase 2 | Pending |
+| QA-01 | Phase 3 | Pending |
+| QA-02 | Phase 3 | Pending |
+| QA-03 | Phase 3 | Pending |
+| QA-04 | Phase 3 | Pending |
+| QA-05 | Phase 3 | Pending |
+| QA-06 | Phase 3 | Pending |
+| QA-07 | Phase 3 | Pending |
+| QA-08 | Phase 3 | Pending |
+| SEC-05 | Phase 4 | Pending |
+| SEC-06 | Phase 4 | Pending |
+| SEC-07 | Phase 4 | Pending |
+| SEC-08 | Phase 4 | Pending |
+| SEC-09 | Phase 4 | Pending |
+| SEC-10 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 31 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 31 ⚠️
+- Mapped to phases: 31 ✓
+- Unmapped: 0 ✓
+
+**Note:** The SEC category is intentionally split across two phases — the three highest-severity, independently-deployable RLS holes (SEC-01/02/03) plus the demo-account removal (SEC-04) land in Phase 1 (urgent + keystone-blocking), while the broader audit and the launch-gating direct-API verification pass (SEC-05 → SEC-10) close the milestone in Phase 4. ADMIN-01/02 sit in Phase 2 because the audit-log table they write to (FND-03) is built in Phase 1.
 
 ---
 *Requirements defined: 2026-06-07*
-*Last updated: 2026-06-07 after initial definition*
+*Last updated: 2026-06-07 after roadmap creation (traceability mapped)*
