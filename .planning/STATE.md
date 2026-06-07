@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-06-07T16:43:02.164Z"
-last_activity: 2026-06-07 — Roadmap created from requirements + research dependency order
+status: executing
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-06-07T19:14:33.937Z"
+last_activity: 2026-06-07 -- Phase 01 execution started
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 5
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-07)
 
 **Core value:** A trustworthy marketplace where a buyer can find a listing and safely contact the seller — and no user can be harmed by a security hole.
-**Current focus:** Phase 1 — Security Foundation + Keystones
+**Current focus:** Phase 01 — security-foundation-keystones
 
 **Repo layout:** App source lives in the `cabofeira/` subdirectory; SQL schema/RLS lives in `cabofeira/supabase/*.sql` (applied manually via Supabase SQL editor, no migration runner). Planning lives at repo-root `.planning/`.
 
 ## Current Position
 
-Phase: 1 of 4 (Security Foundation + Keystones)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-06-07 — Roadmap created from requirements + research dependency order
+Phase: 01 (security-foundation-keystones) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-06-07 -- Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 01 P01 | 12 | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,9 @@ Recent decisions affecting current work:
 - [Roadmap]: Research reordered the user-stated Features→Correctness→Security sequence — keystones (status enum, notifications) + the three highest-severity RLS holes (SEC-01/02/03/04) land in Phase 1 because features depend on them and the escalation hole is urgent and independent.
 - [Roadmap]: Security split across two phases — Phase 1 closes the highest-severity independent holes; Phase 4 runs the broad audit + direct-API verification that gates launch.
 - [Roadmap]: Manual QA + fix, not an automated test suite (user decision); a direct-API verification pass is the only valid authorization-QA method since UI testing cannot reach RLS holes.
+- [Phase ?]: [01-01]: views guard allows only old.views+1 (D-20) so increment_product_views survives for non-admins
+- [Phase ?]: [01-01]: security guards use silent reset (D-19), not raise exception, to preserve legitimate full-row updates
+- [Phase ?]: [01-01]: legacy products_select_all SELECT policy dropped via pg_policies catch-all do-block for idempotent rewrite
 
 ### Pending Todos
 
@@ -90,6 +94,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-07T16:43:02.156Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-security-foundation-keystones/01-CONTEXT.md
+Last session: 2026-06-07T19:14:33.928Z
+Stopped at: Completed 01-01-PLAN.md
+Resume file: None

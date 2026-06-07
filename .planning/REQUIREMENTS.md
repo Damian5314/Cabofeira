@@ -9,7 +9,7 @@
 
 ### Foundation (keystones — build first, unlock later features)
 
-- [ ] **FND-01**: Listings carry a `status` (active / sold / expired / hidden); only `active` listings appear in public browse and search
+- [x] **FND-01**: Listings carry a `status` (active / sold / expired / hidden); only `active` listings appear in public browse and search
 - [ ] **FND-02**: A `notifications` table + RLS + realtime publication + reusable fan-out trigger exist (keystone for all alerts)
 - [ ] **FND-03**: An append-only `admin_audit_log` table + `log_admin_action()` RPC exist (built before admin features write to it)
 
@@ -47,9 +47,9 @@
 
 ### Security Hardening — launch gate
 
-- [ ] **SEC-01**: `profiles` self-update cannot change `role` or `verified` (WITH CHECK + BEFORE UPDATE trigger; admin/RPC only)
-- [ ] **SEC-02**: `products` self-update cannot change `seller_id` / `featured` / `seller_verified` / `views`; listings cannot be stolen
-- [ ] **SEC-03**: `products` insert forces `featured=false`, `seller_verified=false`, `views=0` for non-admins (no mass-assignment)
+- [x] **SEC-01**: `profiles` self-update cannot change `role` or `verified` (WITH CHECK + BEFORE UPDATE trigger; admin/RPC only)
+- [x] **SEC-02**: `products` self-update cannot change `seller_id` / `featured` / `seller_verified` / `views`; listings cannot be stolen
+- [x] **SEC-03**: `products` insert forces `featured=false`, `seller_verified=false`, `views=0` for non-admins (no mass-assignment)
 - [ ] **SEC-04**: Demo admin/user accounts removed from prod; demo credentials scrubbed from `schema.sql` and git history
 - [ ] **SEC-05**: Storage bucket enforces allowed MIME types + file-size limit server-side (not client-only)
 - [ ] **SEC-06**: Open-redirect in `Login.jsx` fixed — `redirect` param allowlisted to internal paths
@@ -94,12 +94,12 @@ Explicitly excluded for this milestone, documented to prevent scope creep.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FND-01 | Phase 1 | Pending |
+| FND-01 | Phase 1 | Complete |
 | FND-02 | Phase 1 | Pending |
 | FND-03 | Phase 1 | Pending |
-| SEC-01 | Phase 1 | Pending |
-| SEC-02 | Phase 1 | Pending |
-| SEC-03 | Phase 1 | Pending |
+| SEC-01 | Phase 1 | Complete |
+| SEC-02 | Phase 1 | Complete |
+| SEC-03 | Phase 1 | Complete |
 | SEC-04 | Phase 1 | Pending |
 | FEAT-01 | Phase 2 | Pending |
 | FEAT-02 | Phase 2 | Pending |
@@ -129,6 +129,7 @@ Explicitly excluded for this milestone, documented to prevent scope creep.
 | SEC-10 | Phase 4 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 31 total
 - Mapped to phases: 31 ✓
 - Unmapped: 0 ✓
