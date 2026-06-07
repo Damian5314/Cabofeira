@@ -39,12 +39,16 @@ create policy "notifications_update_own"
   with check (auth.uid() = user_id);
 
 -- NO insert policy: rows enter only via create_notification() (SECURITY
--- DEFINER). A user can never forge a notification for another user.
+-- DEFINER). The function's in-body authorization gate (below) is what
+-- prevents a user from forging a notification for another user.
 
 -- -----------------------------
 -- create_notification() — the sole insert path (fan-out function).
 -- Security definer so it bypasses the missing INSERT policy; callable by
--- authenticated only. Phase 2's new_message trigger will call this.
+-- authenticated only. An in-function gate restricts a plain client to
+-- targeting ITSELF (p_user_id = auth.uid()); only admins may target an
+-- arbitrary user. Phase 2's new_message trigger (admin/SECURITY DEFINER
+-- context) handles cross-user fan-out.
 -- -----------------------------
 
 create or replace function public.create_notification(
@@ -63,6 +67,16 @@ as $$
 declare
   v_id uuid;
 begin
+  -- Authorization gate: a plain authenticated client may only create a
+  -- notification for itself. Only admins (or internal SECURITY DEFINER
+  -- callers running with an admin identity) may target an arbitrary user.
+  -- Without this, any authenticated user could forge notifications to any
+  -- victim's realtime bell — the RPC is the trust boundary in this
+  -- no-server-API architecture.
+  if p_user_id <> auth.uid() and not public.is_admin() then
+    raise exception 'Not authorized';
+  end if;
+
   insert into public.notifications (user_id, type, title, body, data, link)
   values (p_user_id, p_type, p_title, p_body, coalesce(p_data, '{}'::jsonb), p_link)
   returning id into v_id;
