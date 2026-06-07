@@ -29,7 +29,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The `products.status` enum (active/sold/expired/hidden) exists and only `active` listings appear in public browse and search
   4. A `notifications` table with RLS + realtime publication + reusable fan-out trigger exists, and an append-only `admin_audit_log` table with `log_admin_action()` RPC exists
   5. No demo admin/user account authenticates against prod Auth and the demo-credential block is scrubbed from `schema.sql` and git history
-**Plans**: TBD
+**Plans**: 5 plans in 2 waves
+Plans:
+- [ ] 01-01-PLAN.md — RLS guard triggers (SEC-01/02/03) + products.status column + SELECT policy rewrite (FND-01)
+- [ ] 01-02-PLAN.md — notifications keystone: table + owner-only RLS + create_notification() + realtime (FND-02)
+- [ ] 01-03-PLAN.md — admin_audit_log keystone: append-only table + log_admin_action() RPC (FND-03)
+- [ ] 01-04-PLAN.md — [BLOCKING] manual-apply SQL in Supabase + direct-API verification probe pass
+- [ ] 01-05-PLAN.md — [BLOCKING] SEC-04 demo-credential scrub (files) + Auth-account deletion + git-history rewrite
 
 ### Phase 2: Missing Table-Stakes Features
 **Goal**: With the keystones in place, the marketplace features whose absence loses user trust at first visit are built and wired into the existing UI and infrastructure.
@@ -76,7 +82,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Security Foundation + Keystones | 0/TBD | Not started | - |
+| 1. Security Foundation + Keystones | 0/5 | Not started | - |
 | 2. Missing Table-Stakes Features | 0/TBD | Not started | - |
 | 3. Correctness — Manual QA + Bug Fixes | 0/TBD | Not started | - |
 | 4. Security Hardening — Full Audit + API Verification | 0/TBD | Not started | - |
