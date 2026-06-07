@@ -188,7 +188,7 @@
     "phoneNotSet": "Not set — {link}",
     "addPhoneLink": "add one in your profile",
     "featuredTitle": "★ Make this a featured ad",
-    "featuredHint": "Featured ads appear on the home page and get up to 5× more views. (Demo only — no payment.)",
+    "featuredHint": "Featured ads appear on the home page and get up to 5× more views.",
     "step4Title": "Step 4: Preview",
     "step4Hint": "Check everything looks right, then publish.",
     "costSummary": "Cost summary",
@@ -218,7 +218,6 @@
   "auth": {
     "welcomeBack": "Welcome back",
     "signInIntro": "Sign in to continue buying and selling.",
-    "demoAccounts": "Demo accounts:",
     "email": "Email",
     "emailPlaceholder": "you@example.cv",
     "password": "Password",

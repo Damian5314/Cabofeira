@@ -84,22 +84,6 @@ function Login() {
           </div>
         )}
 
-        {/* <div className="demo-hint">
-          <strong>{t("auth.demoAccounts")}</strong>
-          <button
-            type="button"
-            onClick={() => { setEmail("admin@cabofeira.cv"); setPassword("admin123"); }}
-          >
-            👑 admin@cabofeira.cv / admin123
-          </button>
-          <button
-            type="button"
-            onClick={() => { setEmail("user@cabofeira.cv"); setPassword("user123"); }}
-          >
-            👤 user@cabofeira.cv / user123
-          </button>
-        </div> */}
-
         <form onSubmit={handleSubmit} className="auth-form">
           <label>
             <span>{t("auth.email")}</span>

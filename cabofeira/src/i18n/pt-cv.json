@@ -188,7 +188,7 @@
     "phoneNotSet": "Por preencher — {link}",
     "addPhoneLink": "adiciona um no teu perfil",
     "featuredTitle": "★ Tornar este anúncio destacado",
-    "featuredHint": "Anúncios destacados aparecem na página inicial e recebem até 5× mais visualizações. (Demo — sem pagamento.)",
+    "featuredHint": "Anúncios destacados aparecem na página inicial e recebem até 5× mais visualizações.",
     "step4Title": "Passo 4: Pré-visualização",
     "step4Hint": "Verifica se está tudo certo e publica.",
     "costSummary": "Resumo de custos",
@@ -218,7 +218,6 @@
   "auth": {
     "welcomeBack": "Bem-vindo de volta",
     "signInIntro": "Inicia sessão para continuar a comprar e vender.",
-    "demoAccounts": "Contas demo:",
     "email": "Email",
     "emailPlaceholder": "tu@exemplo.cv",
     "password": "Palavra-passe",
