@@ -100,6 +100,7 @@ Items acknowledged and carried forward from previous milestone close:
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | Security (SEC-04) | Git-history rewrite to purge `admin123`/`user123` (in commits 7bf50ac, 3c67242, 6849513, bfac3e5) + `git push --force`. Live accounts already deleted; this is the belt-and-suspenders history scrub. Runbook in 01-05-SUMMARY.md. | OUTSTANDING — destructive, user-deferred | 01-05 (2026-06-07) |
+| Security (CR-01) | RE-APPLY `cabofeira/supabase/notifications.sql` to live Supabase. Source patched (commit 5ccd6c4) to gate `create_notification()` to self-or-admin, closing a notification-forgery hole found in code review. The fix is idempotent (`create or replace`); paste the one file in the Supabase SQL editor. Until re-applied, the live DB still has the forgeable RPC. | OUTSTANDING — user committed to re-apply | code-review (2026-06-07) |
 
 ## Session Continuity
 
