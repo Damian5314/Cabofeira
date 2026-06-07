@@ -10,7 +10,7 @@
 ### Foundation (keystones — build first, unlock later features)
 
 - [x] **FND-01**: Listings carry a `status` (active / sold / expired / hidden); only `active` listings appear in public browse and search
-- [ ] **FND-02**: A `notifications` table + RLS + realtime publication + reusable fan-out trigger exist (keystone for all alerts)
+- [x] **FND-02**: A `notifications` table + RLS + realtime publication + reusable fan-out trigger exist (keystone for all alerts)
 - [ ] **FND-03**: An append-only `admin_audit_log` table + `log_admin_action()` RPC exist (built before admin features write to it)
 
 ### Marketplace Features (missing table-stakes + market-fit)
@@ -95,7 +95,7 @@ Explicitly excluded for this milestone, documented to prevent scope creep.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | FND-01 | Phase 1 | Complete |
-| FND-02 | Phase 1 | Pending |
+| FND-02 | Phase 1 | Complete |
 | FND-03 | Phase 1 | Pending |
 | SEC-01 | Phase 1 | Complete |
 | SEC-02 | Phase 1 | Complete |
