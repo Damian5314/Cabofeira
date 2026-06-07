@@ -40,7 +40,7 @@ Plans:
 - [x] 01-02-PLAN.md — notifications keystone: table + owner-only RLS + create_notification() + realtime (FND-02)
 - [x] 01-03-PLAN.md — admin_audit_log keystone: append-only table + log_admin_action() RPC (FND-03)
 - [x] 01-04-PLAN.md — [BLOCKING] manual-apply SQL in Supabase (applied clean) + probe authored. NOTE: direct-API probe run DEFERRED to /gsd-verify-work — boundary applied but not yet probe-verified.
-- [ ] 01-05-PLAN.md — [BLOCKING] SEC-04 demo-credential scrub (files) + Auth-account deletion + git-history rewrite
+- [~] 01-05-PLAN.md — SEC-04: working-tree scrub DONE (65fa5a4) + demo Auth accounts DELETED (admin123/user123 authenticate nothing). Git-history rewrite + force-push DEFERRED (tracked in STATE.md Deferred Items). SEC-04 substantially mitigated, NOT fully complete.
 
 ### Phase 2: Missing Table-Stakes Features
 
@@ -96,7 +96,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Security Foundation + Keystones | 4/5 | In Progress (pending probe verification) |  |
+| 1. Security Foundation + Keystones | 5/5 (01-05 SEC-04 history-scrub deferred) | In Progress (pending probe verification + SEC-04 history scrub) |  |
 | 2. Missing Table-Stakes Features | 0/TBD | Not started | - |
 | 3. Correctness — Manual QA + Bug Fixes | 0/TBD | Not started | - |
 | 4. Security Hardening — Full Audit + API Verification | 0/TBD | Not started | - |

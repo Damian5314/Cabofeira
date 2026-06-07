@@ -50,7 +50,7 @@
 - [x] **SEC-01**: `profiles` self-update cannot change `role` or `verified` (WITH CHECK + BEFORE UPDATE trigger; admin/RPC only)
 - [x] **SEC-02**: `products` self-update cannot change `seller_id` / `featured` / `seller_verified` / `views`; listings cannot be stolen
 - [x] **SEC-03**: `products` insert forces `featured=false`, `seller_verified=false`, `views=0` for non-admins (no mass-assignment)
-- [ ] **SEC-04**: Demo admin/user accounts removed from prod; demo credentials scrubbed from `schema.sql` and git history
+- [~] **SEC-04**: Demo admin/user accounts removed from prod; demo credentials scrubbed from `schema.sql` and git history — PARTIAL: demo Auth accounts deleted (admin123/user123 authenticate nothing) + working-tree/`schema.sql` scrubbed; git-history rewrite + force-push DEFERRED (tracked in STATE.md Deferred Items). NOT fully complete until `git log -S admin123`/`-S user123` are empty.
 - [ ] **SEC-05**: Storage bucket enforces allowed MIME types + file-size limit server-side (not client-only)
 - [ ] **SEC-06**: Open-redirect in `Login.jsx` fixed — `redirect` param allowlisted to internal paths
 - [ ] **SEC-07**: SECURITY DEFINER functions audited (pinned `search_path`, minimal grants, revoked from anon/public); FORCE RLS where appropriate
@@ -100,7 +100,7 @@ Explicitly excluded for this milestone, documented to prevent scope creep.
 | SEC-01 | Phase 1 | Applied; probe-verification deferred (01-04 Task 3) |
 | SEC-02 | Phase 1 | Applied; probe-verification deferred (01-04 Task 3) |
 | SEC-03 | Phase 1 | Applied; probe-verification deferred (01-04 Task 3) |
-| SEC-04 | Phase 1 | Pending (Plan 01-05) |
+| SEC-04 | Phase 1 | Mitigated-with-caveat — demo accounts deleted + working-tree scrubbed (01-05); git-history rewrite DEFERRED/outstanding |
 | FEAT-01 | Phase 2 | Pending |
 | FEAT-02 | Phase 2 | Pending |
 | FEAT-03 | Phase 2 | Pending |
@@ -138,4 +138,4 @@ Explicitly excluded for this milestone, documented to prevent scope creep.
 
 ---
 *Requirements defined: 2026-06-07*
-*Last updated: 2026-06-07 after 01-04 — Phase-1 SQL applied to live DB; direct-API probe-verification deferred to /gsd-verify-work (boundary applied but unproven). SEC-04 remains Pending (Plan 01-05).*
+*Last updated: 2026-06-07 after 01-05 — demo Auth accounts deleted + working-tree demo-credential scrub committed (65fa5a4). SEC-04 mitigated-with-caveat: git-history rewrite + force-push DEFERRED (tracked in STATE.md Deferred Items) — not fully complete. Direct-API probe-verification (01-04 Task 3) still deferred to /gsd-verify-work.*

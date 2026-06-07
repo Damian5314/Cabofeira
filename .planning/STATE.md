@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-04-PLAN.md (SQL applied; probe deferred to verify-work)
-last_updated: "2026-06-07T21:30:00Z"
-last_activity: 2026-06-07 -- 01-04 probe authored + all Phase-1 SQL applied; Task 3 probe deferred to /gsd-verify-work
+stopped_at: Completed 01-05 scrub + demo-account deletion (SEC-04 history-scrub DEFERRED)
+last_updated: "2026-06-07T21:45:00Z"
+last_activity: 2026-06-07 -- 01-05 working-tree scrub committed + demo Auth accounts deleted (user-confirmed); git-history rewrite deferred and tracked
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 5
-  completed_plans: 4
-  percent: 80
+  completed_plans: 5
+  percent: 100
 ---
 
 # Project State
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-06-07)
 ## Current Position
 
 Phase: 01 (security-foundation-keystones) — EXECUTING (pending verification)
-Plan: 5 of 5
-Status: 01-04 authored+applied; Task 3 direct-API probe DEFERRED to /gsd-verify-work. Phase 1 still in progress / pending verification.
-Last activity: 2026-06-07 -- 01-04 probe authored + all Phase-1 SQL applied clean (user-confirmed); probe run deferred
+Plan: 5 of 5 (all authored/executed; two outstanding gates carried forward)
+Status: 01-05 working-tree scrub committed (65fa5a4) + demo Auth accounts deleted (user-confirmed). SEC-04 git-history rewrite DEFERRED. 01-04 Task 3 direct-API probe still DEFERRED to /gsd-verify-work.
+Last activity: 2026-06-07 -- 01-05 scrub + account deletion done; history rewrite deferred/tracked
 
-Progress: [████████░░] 80%
+Progress: [██████████] 100% (plans executed; two deferred gates tracked below)
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [████████░░] 80%
 | Phase 01 P02 | 4 | 2 tasks | 1 file |
 | Phase 01 P03 | 1 | 2 tasks | 1 file |
 | Phase 01 P04 | — | 2/3 tasks (probe deferred) | 1 file |
+| Phase 01 P05 | ~10 | 1/2 tasks + account deletion (history rewrite deferred) | 4 files |
 
 ## Accumulated Context
 
@@ -81,7 +82,7 @@ Recent decisions affecting current work:
 
 [From .planning/todos/pending/ — ideas captured during sessions]
 
-None yet.
+- [SEC-04 OUTSTANDING] Scrub `admin123`/`user123` from git history + force-push. Demo Auth accounts are deleted (live risk neutralized), but the strings persist in commits 7bf50ac, 3c67242, 6849513, bfac3e5. Runbook in 01-05-SUMMARY.md "DEFERRED" section: replacements.txt (`admin123==>***REMOVED***`, `user123==>***REMOVED***`) → `git filter-repo --replace-text` or BFG → verify both `git log -S admin123`/`-S user123` empty → `git push --force origin main` → re-clone other copies. Deferred by explicit user decision (belt-and-suspenders).
 
 ### Blockers/Concerns
 
@@ -98,10 +99,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| *(none)* | | | |
+| Security (SEC-04) | Git-history rewrite to purge `admin123`/`user123` (in commits 7bf50ac, 3c67242, 6849513, bfac3e5) + `git push --force`. Live accounts already deleted; this is the belt-and-suspenders history scrub. Runbook in 01-05-SUMMARY.md. | OUTSTANDING — destructive, user-deferred | 01-05 (2026-06-07) |
 
 ## Session Continuity
 
-Last session: 2026-06-07T21:30:00Z
-Stopped at: Completed 01-04-PLAN.md (SQL applied; Task 3 probe deferred to /gsd-verify-work)
-Resume file: 01-05-PLAN.md (SEC-04 demo-credential scrub + Auth deletion + history rewrite)
+Last session: 2026-06-07T21:45:00Z
+Stopped at: 01-05 scrub committed (65fa5a4) + demo Auth accounts deleted; SEC-04 history-scrub deferred
+Resume file: /gsd-verify-work (run 01-04 Task 3 direct-API probe; SEC-04 demo-login assertion now passes). SEC-04 history rewrite tracked in Deferred Items.
