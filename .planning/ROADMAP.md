@@ -39,7 +39,7 @@ Plans:
 - [x] 01-01-PLAN.md — RLS guard triggers (SEC-01/02/03) + products.status column + SELECT policy rewrite (FND-01)
 - [x] 01-02-PLAN.md — notifications keystone: table + owner-only RLS + create_notification() + realtime (FND-02)
 - [x] 01-03-PLAN.md — admin_audit_log keystone: append-only table + log_admin_action() RPC (FND-03)
-- [ ] 01-04-PLAN.md — [BLOCKING] manual-apply SQL in Supabase + direct-API verification probe pass
+- [x] 01-04-PLAN.md — [BLOCKING] manual-apply SQL in Supabase (applied clean) + probe authored. NOTE: direct-API probe run DEFERRED to /gsd-verify-work — boundary applied but not yet probe-verified.
 - [ ] 01-05-PLAN.md — [BLOCKING] SEC-04 demo-credential scrub (files) + Auth-account deletion + git-history rewrite
 
 ### Phase 2: Missing Table-Stakes Features
@@ -96,7 +96,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Security Foundation + Keystones | 1/5 | In Progress|  |
+| 1. Security Foundation + Keystones | 4/5 | In Progress (pending probe verification) |  |
 | 2. Missing Table-Stakes Features | 0/TBD | Not started | - |
 | 3. Correctness — Manual QA + Bug Fixes | 0/TBD | Not started | - |
 | 4. Security Hardening — Full Audit + API Verification | 0/TBD | Not started | - |

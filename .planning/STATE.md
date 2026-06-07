@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-06-07T19:20:36Z"
-last_activity: 2026-06-07 -- Completed 01-03 (admin_audit_log keystone)
+stopped_at: Completed 01-04-PLAN.md (SQL applied; probe deferred to verify-work)
+last_updated: "2026-06-07T21:30:00Z"
+last_activity: 2026-06-07 -- 01-04 probe authored + all Phase-1 SQL applied; Task 3 probe deferred to /gsd-verify-work
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 5
-  completed_plans: 3
-  percent: 60
+  completed_plans: 4
+  percent: 80
 ---
 
 # Project State
@@ -27,12 +27,12 @@ See: .planning/PROJECT.md (updated 2026-06-07)
 
 ## Current Position
 
-Phase: 01 (security-foundation-keystones) — EXECUTING
-Plan: 4 of 5
-Status: Ready to execute
-Last activity: 2026-06-07 -- Completed 01-03 (admin_audit_log keystone)
+Phase: 01 (security-foundation-keystones) — EXECUTING (pending verification)
+Plan: 5 of 5
+Status: 01-04 authored+applied; Task 3 direct-API probe DEFERRED to /gsd-verify-work. Phase 1 still in progress / pending verification.
+Last activity: 2026-06-07 -- 01-04 probe authored + all Phase-1 SQL applied clean (user-confirmed); probe run deferred
 
-Progress: [██████░░░░] 60%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [██████░░░░] 60%
 | Phase 01 P01 | 12 | 3 tasks | 3 files |
 | Phase 01 P02 | 4 | 2 tasks | 1 file |
 | Phase 01 P03 | 1 | 2 tasks | 1 file |
+| Phase 01 P04 | — | 2/3 tasks (probe deferred) | 1 file |
 
 ## Accumulated Context
 
@@ -89,6 +90,7 @@ None yet.
 - [Phase 1 research flag]: notifications fan-out trigger needs a design pass to avoid an O(N*M) scan; design `saved_searches` schema with discrete indexed columns now for low-friction v1.x.
 - [Pre-Phase 1]: verify pg_cron / pg_net / pg_trgm extensions are enabled in Supabase Dashboard for this project.
 - [Pre-launch]: Resend requires a verified sender domain with DNS propagation delay — configure before launch.
+- [Phase 1 OUTSTANDING VERIFICATION GATE]: 01-04 Task 3 direct-API verification probe has NOT been run. All Phase-1 SQL is APPLIED but the security boundary is UNPROVEN until `verification-probe.mjs` runs green via /gsd-verify-work. Run after 01-05 (so SEC-04 demo-login assertions pass). Env: SUPABASE_URL, SUPABASE_ANON_KEY, TEST_EMAIL, TEST_PASSWORD, optional TEST2_*; needs a throwaway NORMAL account.
 
 ## Deferred Items
 
@@ -100,6 +102,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-07T19:20:36Z
-Stopped at: Completed 01-03-PLAN.md
-Resume file: None
+Last session: 2026-06-07T21:30:00Z
+Stopped at: Completed 01-04-PLAN.md (SQL applied; Task 3 probe deferred to /gsd-verify-work)
+Resume file: 01-05-PLAN.md (SEC-04 demo-credential scrub + Auth deletion + history rewrite)

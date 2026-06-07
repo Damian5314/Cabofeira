@@ -94,13 +94,13 @@ Explicitly excluded for this milestone, documented to prevent scope creep.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FND-01 | Phase 1 | Complete |
-| FND-02 | Phase 1 | Complete |
-| FND-03 | Phase 1 | Complete |
-| SEC-01 | Phase 1 | Complete |
-| SEC-02 | Phase 1 | Complete |
-| SEC-03 | Phase 1 | Complete |
-| SEC-04 | Phase 1 | Pending |
+| FND-01 | Phase 1 | Applied; probe-verification deferred (01-04 Task 3) |
+| FND-02 | Phase 1 | Applied; probe-verification deferred (01-04 Task 3) |
+| FND-03 | Phase 1 | Applied; probe-verification deferred (01-04 Task 3) |
+| SEC-01 | Phase 1 | Applied; probe-verification deferred (01-04 Task 3) |
+| SEC-02 | Phase 1 | Applied; probe-verification deferred (01-04 Task 3) |
+| SEC-03 | Phase 1 | Applied; probe-verification deferred (01-04 Task 3) |
+| SEC-04 | Phase 1 | Pending (Plan 01-05) |
 | FEAT-01 | Phase 2 | Pending |
 | FEAT-02 | Phase 2 | Pending |
 | FEAT-03 | Phase 2 | Pending |
@@ -138,4 +138,4 @@ Explicitly excluded for this milestone, documented to prevent scope creep.
 
 ---
 *Requirements defined: 2026-06-07*
-*Last updated: 2026-06-07 after roadmap creation (traceability mapped)*
+*Last updated: 2026-06-07 after 01-04 — Phase-1 SQL applied to live DB; direct-API probe-verification deferred to /gsd-verify-work (boundary applied but unproven). SEC-04 remains Pending (Plan 01-05).*
