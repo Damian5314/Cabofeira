@@ -55,7 +55,16 @@ Plans:
   4. A user receives an in-app bell notification when they get a new message
   5. Bulk posting is blocked by a server-side per-user rate limit and CAPTCHA on signup/post, and every admin mutation (delete ad, change role, verify, change prices) is recorded in and viewable from the audit log
 
-**Plans**: TBD
+**Plans**: 8 plans in 8 waves
+Plans:
+- [ ] 02-01-PLAN.md — Author all 6 Phase-2 SQL files + verify-turnstile Edge Function (no DB apply)
+- [ ] 02-02-PLAN.md — [BLOCKING] human gate: apply SQL in order, provision Turnstile, deploy Edge Function, install widget
+- [ ] 02-03-PLAN.md — Mark-as-sold + active-only feed/search + sold/verified card badges (FEAT-01, FEAT-04)
+- [ ] 02-04-PLAN.md — ProductDetail WhatsApp/share/structured-report + Profile verified badge (FEAT-02/03/04/06/07)
+- [ ] 02-05-PLAN.md — Block user: messaging refresh, browse filter, block/unblock UI (FEAT-05)
+- [ ] 02-06-PLAN.md — Notifications bell: NotificationsContext + navbar dropdown (FEAT-08)
+- [ ] 02-07-PLAN.md — Anti-spam: Turnstile signup+post CAPTCHA + rate-limit surfacing (ABUSE-01/02)
+- [ ] 02-08-PLAN.md — Admin audit writes + audit-log viewer tab + reports reason filter (ADMIN-01/02, FEAT-02)
 **UI hint**: yes
 
 ### Phase 3: Correctness — Manual QA + Bug Fixes
@@ -97,6 +106,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Security Foundation + Keystones | 5/5 | Complete    | 2026-06-08 |
-| 2. Missing Table-Stakes Features | 0/TBD | Not started | - |
+| 2. Missing Table-Stakes Features | 0/8 | Planned | - |
 | 3. Correctness — Manual QA + Bug Fixes | 0/TBD | Not started | - |
 | 4. Security Hardening — Full Audit + API Verification | 0/TBD | Not started | - |
