@@ -13,7 +13,7 @@ CaboFeira is a brownfield React 19 + Supabase classifieds marketplace with most 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Security Foundation + Keystones** - Patch the highest-severity RLS holes and build the listing-status, notifications, and audit-log keystones that unlock every later feature
+- [x] **Phase 1: Security Foundation + Keystones** - Patch the highest-severity RLS holes and build the listing-status, notifications, and audit-log keystones that unlock every later feature (completed 2026-06-08)
 - [ ] **Phase 2: Missing Table-Stakes Features** - Build mark-as-sold, structured reports, verified badge, block user, WhatsApp/share, message notifications, and anti-spam onto the Phase 1 keystones
 - [ ] **Phase 3: Correctness — Manual QA + Bug Fixes** - Exercise every feature end-to-end and fix the known codebase bugs (cache staleness, realtime leaks, badge race, i18n gaps)
 - [ ] **Phase 4: Security Hardening — Full Audit + API Verification** - Launch gate: storage/redirect/definer/FORCE-RLS audit, Supabase Advisors, secrets audit, and the direct-API authorization verification pass
@@ -96,7 +96,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Security Foundation + Keystones | 5/5 (01-05 SEC-04 history-scrub deferred) | In Progress (pending probe verification + SEC-04 history scrub) |  |
+| 1. Security Foundation + Keystones | 5/5 | Complete    | 2026-06-08 |
 | 2. Missing Table-Stakes Features | 0/TBD | Not started | - |
 | 3. Correctness — Manual QA + Bug Fixes | 0/TBD | Not started | - |
 | 4. Security Hardening — Full Audit + API Verification | 0/TBD | Not started | - |

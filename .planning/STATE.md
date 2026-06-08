@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-05 scrub + demo-account deletion (SEC-04 history-scrub DEFERRED)
-last_updated: "2026-06-07T21:45:00Z"
-last_activity: 2026-06-07 -- 01-05 working-tree scrub committed + demo Auth accounts deleted (user-confirmed); git-history rewrite deferred and tracked
+status: verifying
+stopped_at: 01-05 scrub committed (65fa5a4) + demo Auth accounts deleted; SEC-04 history-scrub deferred
+last_updated: "2026-06-08T09:42:07.006Z"
+last_activity: 2026-06-08
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
   completed_plans: 5
-  percent: 100
+  percent: 25
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-06-07)
 
 ## Current Position
 
-Phase: 01 (security-foundation-keystones) — EXECUTING (pending verification)
-Plan: 5 of 5 (all authored/executed; two outstanding gates carried forward)
+Phase: 2
+Plan: Not started
 Status: 01-05 working-tree scrub committed (65fa5a4) + demo Auth accounts deleted (user-confirmed). SEC-04 git-history rewrite DEFERRED. 01-04 Task 3 direct-API probe still DEFERRED to /gsd-verify-work.
-Last activity: 2026-06-07 -- 01-05 scrub + account deletion done; history rewrite deferred/tracked
+Last activity: 2026-06-08
 
 Progress: [██████████] 100% (plans executed; two deferred gates tracked below)
 
@@ -38,7 +38,7 @@ Progress: [██████████] 100% (plans executed; two deferred ga
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 5
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -46,7 +46,7 @@ Progress: [██████████] 100% (plans executed; two deferred ga
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01 | 5 | - | - |
 
 **Recent Trend:**
 
@@ -100,7 +100,7 @@ Items acknowledged and carried forward from previous milestone close:
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | Security (SEC-04) | Git-history rewrite to purge `admin123`/`user123` (in commits 7bf50ac, 3c67242, 6849513, bfac3e5) + `git push --force`. Live accounts already deleted; this is the belt-and-suspenders history scrub. Runbook in 01-05-SUMMARY.md. | OUTSTANDING — destructive, user-deferred | 01-05 (2026-06-07) |
-| Security (CR-01) | RE-APPLY `cabofeira/supabase/notifications.sql` to live Supabase. Source patched (commit 5ccd6c4) to gate `create_notification()` to self-or-admin, closing a notification-forgery hole found in code review. The fix is idempotent (`create or replace`); paste the one file in the Supabase SQL editor. Until re-applied, the live DB still has the forgeable RPC. | OUTSTANDING — user committed to re-apply | code-review (2026-06-07) |
+| Security (CR-01) | RE-APPLY `cabofeira/supabase/notifications.sql` to live Supabase (self-or-admin gate on `create_notification()`, commit 5ccd6c4). | ✅ RESOLVED — user re-applied to live DB, confirmed in 01-UAT.md Test 1 (2026-06-08) | code-review (2026-06-07) |
 
 ## Session Continuity
 
