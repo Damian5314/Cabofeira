@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 2 context gathered
-last_updated: "2026-06-08T10:21:06.809Z"
-last_activity: 2026-06-08
+stopped_at: Phase 2 UI-SPEC approved
+last_updated: "2026-06-08T13:57:47.224Z"
+last_activity: 2026-06-08 -- Phase 2 planning complete
 progress:
   total_phases: 4
   completed_phases: 1
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-06-07)
 Phase: 2
 Plan: Not started
 Status: 01-05 working-tree scrub committed (65fa5a4) + demo Auth accounts deleted (user-confirmed). SEC-04 git-history rewrite DEFERRED. 01-04 Task 3 direct-API probe still DEFERRED to /gsd-verify-work.
-Last activity: 2026-06-08
+Last activity: 2026-06-08 -- Phase 2 planning complete
 
 Progress: [██████████] 100% (plans executed; two deferred gates tracked below)
 
@@ -104,6 +104,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-08T10:21:06.798Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-missing-table-stakes-features/02-CONTEXT.md
+Last session: 2026-06-08T13:36:28.380Z
+Stopped at: Phase 2 UI-SPEC approved
+Resume file: .planning/phases/02-missing-table-stakes-features/02-UI-SPEC.md

@@ -55,16 +55,39 @@ Plans:
   4. A user receives an in-app bell notification when they get a new message
   5. Bulk posting is blocked by a server-side per-user rate limit and CAPTCHA on signup/post, and every admin mutation (delete ad, change role, verify, change prices) is recorded in and viewable from the audit log
 
-**Plans**: 8 plans in 8 waves
-Plans:
+**Plans**: 8 plans in 8 wavesPlans:
+**Wave 1**
+
 - [ ] 02-01-PLAN.md — Author all 6 Phase-2 SQL files + verify-turnstile Edge Function (no DB apply)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 02-02-PLAN.md — [BLOCKING] human gate: apply SQL in order, provision Turnstile, deploy Edge Function, install widget
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 02-03-PLAN.md — Mark-as-sold + active-only feed/search + sold/verified card badges (FEAT-01, FEAT-04)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 02-04-PLAN.md — ProductDetail WhatsApp/share/structured-report + Profile verified badge (FEAT-02/03/04/06/07)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 02-05-PLAN.md — Block user: messaging refresh, browse filter, block/unblock UI (FEAT-05)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 02-06-PLAN.md — Notifications bell: NotificationsContext + navbar dropdown (FEAT-08)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 02-07-PLAN.md — Anti-spam: Turnstile signup+post CAPTCHA + rate-limit surfacing (ABUSE-01/02)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 02-08-PLAN.md — Admin audit writes + audit-log viewer tab + reports reason filter (ADMIN-01/02, FEAT-02)
+
 **UI hint**: yes
 
 ### Phase 3: Correctness — Manual QA + Bug Fixes
