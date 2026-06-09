@@ -15,19 +15,19 @@
 
 ### Marketplace Features (missing table-stakes + market-fit)
 
-- [ ] **FEAT-01**: Seller can mark a listing as Sold; sold listings leave the default feed/search and show a "Sold" badge
-- [ ] **FEAT-02**: Reporter selects a structured reason (scam / spam / prohibited / already-sold / duplicate / other) when reporting; admin can filter reports by reason
-- [ ] **FEAT-03**: Duplicate reports by the same user on the same listing are prevented/deduped
+- [x] **FEAT-01**: Seller can mark a listing as Sold; sold listings leave the default feed/search and show a "Sold" badge
+- [x] **FEAT-02**: Reporter selects a structured reason (scam / spam / prohibited / already-sold / duplicate / other) when reporting; admin can filter reports by reason
+- [x] **FEAT-03**: Duplicate reports by the same user on the same listing are prevented/deduped
 - [ ] **FEAT-04**: A verified-seller badge is shown to buyers on product cards, product detail, and seller profile
-- [ ] **FEAT-05**: User can block another user; the blocked user's conversations and messages are hidden
+- [x] **FEAT-05**: User can block another user; the blocked user's conversations and messages are hidden
 - [ ] **FEAT-06**: Buyer can contact a seller via a WhatsApp button (wa.me deep link prefilled with the listing title)
 - [ ] **FEAT-07**: User can share a listing via native share / WhatsApp / copy-link
-- [ ] **FEAT-08**: User receives an in-app notification (bell in navbar) when they get a new message
+- [x] **FEAT-08**: User receives an in-app notification (bell in navbar) when they get a new message
 
 ### Anti-Abuse
 
-- [ ] **ABUSE-01**: Per-user ad-posting rate limit enforced server-side (blocks bulk spam posting)
-- [ ] **ABUSE-02**: CAPTCHA challenge on signup and on posting an ad
+- [x] **ABUSE-01**: Per-user ad-posting rate limit enforced server-side (blocks bulk spam posting)
+- [x] **ABUSE-02**: CAPTCHA challenge on signup and on posting an ad
 
 ### Admin & Accountability
 
@@ -101,16 +101,16 @@ Explicitly excluded for this milestone, documented to prevent scope creep.
 | SEC-02 | Phase 1 | Applied; probe-verification deferred (01-04 Task 3) |
 | SEC-03 | Phase 1 | Applied; probe-verification deferred (01-04 Task 3) |
 | SEC-04 | Phase 1 | Mitigated-with-caveat — demo accounts deleted + working-tree scrubbed (01-05); git-history rewrite DEFERRED/outstanding |
-| FEAT-01 | Phase 2 | Pending |
-| FEAT-02 | Phase 2 | Pending |
-| FEAT-03 | Phase 2 | Pending |
+| FEAT-01 | Phase 2 | Complete |
+| FEAT-02 | Phase 2 | Complete |
+| FEAT-03 | Phase 2 | Complete |
 | FEAT-04 | Phase 2 | Pending |
-| FEAT-05 | Phase 2 | Pending |
+| FEAT-05 | Phase 2 | Complete |
 | FEAT-06 | Phase 2 | Pending |
 | FEAT-07 | Phase 2 | Pending |
-| FEAT-08 | Phase 2 | Pending |
-| ABUSE-01 | Phase 2 | Pending |
-| ABUSE-02 | Phase 2 | Pending |
+| FEAT-08 | Phase 2 | Complete |
+| ABUSE-01 | Phase 2 | Complete |
+| ABUSE-02 | Phase 2 | Complete |
 | ADMIN-01 | Phase 2 | Pending |
 | ADMIN-02 | Phase 2 | Pending |
 | QA-01 | Phase 3 | Pending |

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
+status: executing
 stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-06-08T13:57:47.224Z"
-last_activity: 2026-06-08 -- Phase 2 planning complete
+last_updated: "2026-06-09T19:05:48.855Z"
+last_activity: 2026-06-09 -- Phase 02 execution started
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 13
+  completed_plans: 6
   percent: 25
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-07)
 
 **Core value:** A trustworthy marketplace where a buyer can find a listing and safely contact the seller — and no user can be harmed by a security hole.
-**Current focus:** Phase 01 — security-foundation-keystones
+**Current focus:** Phase 02 — Missing Table-Stakes Features
 
 **Repo layout:** App source lives in the `cabofeira/` subdirectory; SQL schema/RLS lives in `cabofeira/supabase/*.sql` (applied manually via Supabase SQL editor, no migration runner). Planning lives at repo-root `.planning/`.
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
-Status: 01-05 working-tree scrub committed (65fa5a4) + demo Auth accounts deleted (user-confirmed). SEC-04 git-history rewrite DEFERRED. 01-04 Task 3 direct-API probe still DEFERRED to /gsd-verify-work.
-Last activity: 2026-06-08 -- Phase 2 planning complete
+Phase: 02 (Missing Table-Stakes Features) — EXECUTING
+Plan: 2 of 8
+Status: Ready to execute
+Last activity: 2026-06-09 -- Phase 02 execution started
 
 Progress: [██████████] 100% (plans executed; two deferred gates tracked below)
 
@@ -59,6 +59,7 @@ Progress: [██████████] 100% (plans executed; two deferred ga
 | Phase 01 P03 | 1 | 2 tasks | 1 file |
 | Phase 01 P04 | — | 2/3 tasks (probe deferred) | 1 file |
 | Phase 01 P05 | ~10 | 1/2 tasks + account deletion (history rewrite deferred) | 4 files |
+| Phase 02 P01 | 12 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,10 @@ Recent decisions affecting current work:
 - [Phase ?]: [01-02]: realtime relies on RLS-filtered postgres_changes INSERT events — no replica identity full, no create publication (D-10)
 - [Phase ?]: [01-03]: admin_audit_log is append-only via RLS default-deny + revoked client grants, not a raise-on-update trigger (D-14)
 - [Phase ?]: [01-03]: log_admin_action() in-function is_admin() gate (not the execute grant) restricts writes to admins; callers serialize before/after into p_details (D-11/D-12)
+- [Phase ?]: [02-01]: rate-limit guard RAISES P0001/ad_post_rate_limit (intended divergence from Phase-1 silent-reset) for D-06 friendly block message
+- [Phase ?]: [02-01]: product_post_log.user_id has no cascading FK to products so rate-limit count survives hard removeProduct DELETE (D-05)
+- [Phase ?]: [02-01]: products SELECT relaxed to active+sold only; expired/hidden stay owner/admin (D-14); MUST pair with ProductsContext .eq(status,active) feed filter in 02-03
+- [Phase ?]: [02-01]: blocked_users not published to realtime; is_blocked_pair() SECURITY DEFINER composed into messaging RLS + new-message trigger
 
 ### Pending Todos
 
@@ -104,6 +109,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-08T13:36:28.380Z
+Last session: 2026-06-09T19:05:22.340Z
 Stopped at: Phase 2 UI-SPEC approved
 Resume file: .planning/phases/02-missing-table-stakes-features/02-UI-SPEC.md

@@ -58,7 +58,7 @@ Plans:
 **Plans**: 8 plans in 8 wavesPlans:
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — Author all 6 Phase-2 SQL files + verify-turnstile Edge Function (no DB apply)
+- [x] 02-01-PLAN.md — Author all 6 Phase-2 SQL files + verify-turnstile Edge Function (no DB apply)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -129,6 +129,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Security Foundation + Keystones | 5/5 | Complete    | 2026-06-08 |
-| 2. Missing Table-Stakes Features | 0/8 | Planned | - |
+| 2. Missing Table-Stakes Features | 1/8 | In Progress|  |
 | 3. Correctness — Manual QA + Bug Fixes | 0/TBD | Not started | - |
 | 4. Security Hardening — Full Audit + API Verification | 0/TBD | Not started | - |
