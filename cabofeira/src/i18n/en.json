@@ -20,7 +20,8 @@
     "submit": "Submit",
     "close": "Close",
     "loadMore": "Load more",
-    "loadMoreLeft": "Load more ({count} left)"
+    "loadMoreLeft": "Load more ({count} left)",
+    "error": "Something went wrong. Please try again."
   },
   "nav": {
     "home": "Home",
@@ -325,7 +326,13 @@
     "postNew": "+ Post a new ad",
     "deleteTitle": "Delete this ad?",
     "deleteMessage": "\"{title}\" will be permanently removed. This cannot be undone.",
-    "deleteConfirm": "🗑 Delete ad"
+    "deleteConfirm": "🗑 Delete ad",
+    "markSold": "Mark as sold",
+    "markActive": "Mark as active",
+    "markSoldTitle": "Mark this listing as sold?",
+    "markSoldBody": "It will leave the main feed and search, but stay visible with a 'Sold' badge on your profile. You can mark it active again anytime.",
+    "markActiveTitle": "Make this listing active again?",
+    "markActiveBody": "It will return to the main feed and search."
   },
   "favorites": {
     "title": "Favorites",

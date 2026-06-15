@@ -20,7 +20,8 @@
     "submit": "Enviar",
     "close": "Fechar",
     "loadMore": "Ver mais",
-    "loadMoreLeft": "Ver mais ({count} restantes)"
+    "loadMoreLeft": "Ver mais ({count} restantes)",
+    "error": "Algo correu mal. Por favor tenta novamente."
   },
   "nav": {
     "home": "Início",
@@ -325,7 +326,13 @@
     "postNew": "+ Publicar novo anúncio",
     "deleteTitle": "Apagar este anúncio?",
     "deleteMessage": "\"{title}\" será removido permanentemente. Não há volta atrás.",
-    "deleteConfirm": "🗑 Apagar anúncio"
+    "deleteConfirm": "🗑 Apagar anúncio",
+    "markSold": "Marcar como vendido",
+    "markActive": "Marcar como activo",
+    "markSoldTitle": "Marcar este anúncio como vendido?",
+    "markSoldBody": "Vai sair do feed principal e da pesquisa, mas continua visível com uma etiqueta 'Vendido' no teu perfil. Podes voltar a marcá-lo como activo a qualquer momento.",
+    "markActiveTitle": "Tornar este anúncio activo de novo?",
+    "markActiveBody": "Vai voltar ao feed principal e à pesquisa."
   },
   "favorites": {
     "title": "Favoritos",
