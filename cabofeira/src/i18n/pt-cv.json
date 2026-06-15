@@ -144,6 +144,9 @@
       "thanks": "Obrigado. A nossa equipa irá rever este anúncio."
     }
   },
+  "badge": {
+    "sold": "Vendido"
+  },
   "postAd": {
     "titleNew": "Publicar novo anúncio",
     "titleEdit": "Editar anúncio",

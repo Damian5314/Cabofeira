@@ -144,6 +144,9 @@
       "thanks": "Thanks. Our team will review this listing."
     }
   },
+  "badge": {
+    "sold": "Sold"
+  },
   "postAd": {
     "titleNew": "Post a new ad",
     "titleEdit": "Edit your ad",

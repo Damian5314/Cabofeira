@@ -14,8 +14,15 @@ function ProductCard({ product }) {
     <article className={`product-card ${product.featured ? "is-featured" : ""}`}>
       <Link to={`/product/${product.id}`} className="card-image-wrap">
         <img src={product.images[0]} alt={product.title} loading="lazy" />
-        {product.featured && (
-          <span className="badge badge-featured">{t("product.featuredBadge")}</span>
+        {(product.status === "sold" || product.featured) && (
+          <div className="card-badges">
+            {product.status === "sold" && (
+              <span className="badge badge-sold">{t("badge.sold")}</span>
+            )}
+            {product.featured && (
+              <span className="badge badge-featured">{t("product.featuredBadge")}</span>
+            )}
+          </div>
         )}
         <button
           className={`fav-btn ${fav ? "is-fav" : ""}`}
@@ -35,6 +42,11 @@ function ProductCard({ product }) {
         <div className="card-price">{formatPrice(product.price, product.currency)}</div>
         <div className="card-meta">
           <span>📍 {product.location.city}, {product.location.island}</span>
+          {product.seller.verified && (
+            <span className="badge badge-verified" title={t("product.verified")}>
+              {t("product.verified")}
+            </span>
+          )}
         </div>
         <div className="card-footer">
           <span className="muted small">{timeAgo(product.createdAt)}</span>

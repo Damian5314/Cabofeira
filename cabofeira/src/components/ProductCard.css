@@ -43,6 +43,22 @@
   left: 10px;
 }
 
+/* Badge stack: when sold + featured co-occur, stack them 8px apart in the
+   same slot with sold on top (it signals unavailability — UI-SPEC §1). */
+.card-badges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.card-badges .badge {
+  position: static;
+}
+
 .fav-btn {
   position: absolute;
   top: 8px;
