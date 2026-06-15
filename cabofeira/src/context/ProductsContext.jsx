@@ -79,9 +79,13 @@ export function ProductsProvider({ children }) {
     // ads — pages that need broader access (Search, Admin) use fetchProducts
     // for server-side paginated queries instead.
     setProductsLoading(true);
+    // Active-only: pairs with the products_sold_visibility.sql SELECT relax
+    // (D-14). RLS now permits 'sold' publicly, so the feed MUST filter it out
+    // here or sold ads leak into Home (Pitfall 1).
     const { data, error } = await supabase
       .from("products")
       .select(PRODUCT_SELECT)
+      .eq("status", "active")
       .order("created_at", { ascending: false })
       .range(0, 199);
     if (!error && data) setProducts(data.map(fromRow));
@@ -117,6 +121,7 @@ export function ProductsProvider({ children }) {
       featured = null,
       minPrice = null,
       maxPrice = null,
+      status = "active",
       sort = "newest",
       range = [0, 23],
     } = opts;
@@ -124,6 +129,12 @@ export function ProductsProvider({ children }) {
     let q = supabase
       .from("products")
       .select(PRODUCT_SELECT, { count: "exact" });
+
+    // Active-only by default (Search). The seller's PUBLIC profile/ad list
+    // (Plan 02-04) passes status:["active","sold"] to surface sold ads with a
+    // badge (D-13). Pass an explicit array/string to override.
+    if (Array.isArray(status)) q = q.in("status", status);
+    else if (status) q = q.eq("status", status);
 
     if (search.trim()) {
       const pat = `%${search.trim()}%`;
@@ -207,6 +218,9 @@ export function ProductsProvider({ children }) {
     }
     if ("images" in patch) dbPatch.images = patch.images;
     if ("featured" in patch) dbPatch.featured = patch.featured;
+    // status round-trips for mark-as-sold (D-11/D-12). The Phase-1
+    // guard_products_update does NOT pin status, so owner updates are allowed.
+    if ("status" in patch) dbPatch.status = patch.status;
     const { data, error } = await supabase
       .from("products")
       .update(dbPatch)
