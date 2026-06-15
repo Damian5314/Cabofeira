@@ -62,7 +62,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02-02-PLAN.md — [BLOCKING] human gate: apply SQL in order, provision Turnstile, deploy Edge Function, install widget
+- [x] 02-02-PLAN.md — [BLOCKING] human gate: apply SQL in order, provision Turnstile, deploy Edge Function, install widget
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -129,6 +129,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Security Foundation + Keystones | 5/5 | Complete    | 2026-06-08 |
-| 2. Missing Table-Stakes Features | 1/8 | In Progress|  |
+| 2. Missing Table-Stakes Features | 2/8 | In Progress|  |
 | 3. Correctness — Manual QA + Bug Fixes | 0/TBD | Not started | - |
 | 4. Security Hardening — Full Audit + API Verification | 0/TBD | Not started | - |
