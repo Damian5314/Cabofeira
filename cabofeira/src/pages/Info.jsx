@@ -1,6 +1,76 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useI18n } from "../i18n/I18nContext";
 import "./Info.css";
+
+const CONTACT_EMAIL = "hello@cabofeira.cv";
+const LEGAL_LAST_UPDATED = new Date("2026-09-01");
+
+function LegalSection({ title, body }) {
+  return (
+    <>
+      <h2>{title}</h2>
+      {body.split("\n\n").map((para, i) => (
+        <p key={i}>{para}</p>
+      ))}
+    </>
+  );
+}
+
+function legalSections(t, page) {
+  const sections = [];
+  for (let i = 1; i <= 10; i++) {
+    sections.push({
+      title: t(`${page}.s${i}Title`),
+      body: t(`${page}.s${i}Body`, { email: CONTACT_EMAIL }),
+    });
+  }
+  return sections;
+}
+
+function formatLegalDate(locale) {
+  return new Intl.DateTimeFormat(locale === "pt-cv" ? "pt-PT" : "en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(LEGAL_LAST_UPDATED);
+}
+
+export function Privacy() {
+  const { t, locale } = useI18n();
+  return (
+    <div className="page info-page">
+      <div className="container narrow">
+        <h1 className="page-title">{t("privacyPage.title")}</h1>
+        <p className="muted legal-updated">
+          {t("privacyPage.lastUpdated", { date: formatLegalDate(locale) })}
+        </p>
+        <p className="lead">{t("privacyPage.intro")}</p>
+        {legalSections(t, "privacyPage").map((s, i) => (
+          <LegalSection key={i} title={s.title} body={s.body} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function Terms() {
+  const { t, locale } = useI18n();
+  return (
+    <div className="page info-page">
+      <div className="container narrow">
+        <h1 className="page-title">{t("termsPage.title")}</h1>
+        <p className="muted legal-updated">
+          {t("termsPage.lastUpdated", { date: formatLegalDate(locale) })}
+        </p>
+        <p className="lead">{t("termsPage.intro")}</p>
+        {legalSections(t, "termsPage").map((s, i) => (
+          <LegalSection key={i} title={s.title} body={s.body} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function About() {
   return (

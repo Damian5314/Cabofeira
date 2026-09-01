@@ -24,7 +24,7 @@ import MyAds from "./pages/MyAds";
 import Favorites from "./pages/Favorites";
 import Messages from "./pages/Messages";
 import Admin from "./pages/Admin";
-import { About, Contact, FAQ, NotFound } from "./pages/Info";
+import { About, Contact, FAQ, Privacy, Terms, NotFound } from "./pages/Info";
 
 function App() {
   return (
@@ -62,6 +62,8 @@ function App() {
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/faq" element={<FAQ />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/terms" element={<Terms />} />
 
                     <Route path="*" element={<NotFound />} />
                   </Routes>
