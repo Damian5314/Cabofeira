@@ -1,70 +1,46 @@
-# Getting Started with Create React App
+# CaboFeira
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Tweetalige advertentiemarktplaats voor de negen bewoonde eilanden van Kaapverdië. React 19 + Create React App, Supabase Auth/Postgres/Storage/Realtime. Kopers en verkopers regelen hun transactie rechtstreeks; CaboFeira verwerkt geen betalingen.
 
-## Available Scripts
+## Productafspraken
 
-In the project directory, you can run:
+- De site is al live op https://cabofeira.vercel.app; cabofeira.com verwijst daarheen.
+- Het eerste jaar vanaf lancering is gratis voor iedereen. Geen automatische betaalactivatie, geen betalingsprovider. De exacte lanceringsdatum moet nog vastgelegd worden.
+- Er is nog geen supportmailbox. De contactpagina zegt dit eerlijk; stel REACT_APP_SUPPORT_EMAIL in zodra er een echte mailbox is.
+- De eigenaar heeft Nederland bevestigd als land van juridische exploitatie. Er is nog geen KVK-registratie; definitieve exploitantgegevens en een privacycontact moeten nog worden vastgelegd.
+- Nieuwe tekst bestaat in Engels en Portugees (pt-CV).
+- Geen destructieve databasewijzigingen zonder expliciete toestemming van de eigenaar.
 
-### `npm start`
+## Lokaal ontwikkelen
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Gebruik Node 22 en npm. In deze map:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```sh
+npm ci
+cp .env.example .env.local
+npm start
+npm run build
+```
 
-### `npm test`
+Vul de Supabase URL en publieke anon/publishable key in. Gebruik bij voorkeur een apart testproject. REACT_APP_ variabelen zijn openbaar in de browser: zet daar nooit een service-role key of geheim in. Een service-role key is niet nodig om de frontend te bouwen of te draaien.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Code
 
-### `npm run build`
+- src/pages: advertenties, zoeken, eigen advertenties, favorieten, verkopers, berichten, account, beheer en informatie.
+- src/context: authenticatie, producten, prijzen en ongelezen berichten.
+- src/i18n: alle vertalingen.
+- supabase: handmatig te beoordelen SQL; geen automatische migraties.
+- docs/RELEASE-AUDIT.md: bevindingen, resterende releasevoorwaarden en QA.
+- [Volledige audit 8 september 2026](docs/FULL-AUDIT-2026-09-08.md): feature-inventaris, fixes, security/WCAG/responsive-bevindingen, testresultaten en productbacklog. Bevat ook instructies voor een volledig lokale synthetische testomgeving.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Database en uitrollen
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Voer schema.sql alleen op een leeg testproject uit. Voer nooit blind alle SQL-bestanden uit: oude bestanden bevatten kolomverwijderingen, backfills en vervanging van policies. Er bestaat nog geen betrouwbare automatisch geteste migratieketen.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+De bestanden live_hardening_review.sql en admin_audit_capture_review.sql zijn voorstellen en zijn NIET uitgevoerd. Test ze eerst op staging, vergelijk met de daadwerkelijk toegepaste schema-/policydefinities en maak een herstelplan. Frontendwijzigingen zijn lokaal voorbereid; geen deployment of push uitgevoerd.
 
-### `npm run eject`
+Voor Vercel: project-root cabofeira, build npm run build, output build. Controleer bij deployment dat diepe routes zoals /product/:id, /terms en /reset-password naar de SPA gaan. Supabase Auth moet de echte site-URL en toegestane reset-/bevestigingsredirects kennen.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Marktwaardigheid
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Een geslaagde build bewijst geen werkende RLS, notificatietrigger, e-mailbezorging of herstelbaarheid. Lees de releaseaudit voordat je de aangepaste versie publiceert.

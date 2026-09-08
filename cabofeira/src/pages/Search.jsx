@@ -35,6 +35,15 @@ function Search() {
   const [error, setError] = useState("");
 
   const requestIdRef = useRef(0);
+  const writtenParams = useRef(params.toString());
+  useEffect(() => {
+    if (params.toString() === writtenParams.current) return;
+    writtenParams.current = params.toString();
+    setSearchInput(params.get("q") || ""); setSearch(params.get("q") || "");
+    setCategory(params.get("category") || ""); setSubcategory(params.get("subcategory") || "");
+    setLocation(params.get("location") || ""); setMinPrice(params.get("min") || "");
+    setMaxPrice(params.get("max") || ""); setSort(params.get("sort") || "newest");
+  }, [params]);
 
   useEffect(() => {
     const tm = setTimeout(() => setSearch(searchInput), SEARCH_DEBOUNCE_MS);
@@ -50,6 +59,7 @@ function Search() {
     if (minPrice) next.set("min", minPrice);
     if (maxPrice) next.set("max", maxPrice);
     if (sort && sort !== "newest") next.set("sort", sort);
+    writtenParams.current = next.toString();
     setParams(next, { replace: true });
   }, [search, category, subcategory, location, minPrice, maxPrice, sort, setParams]);
 
@@ -57,7 +67,7 @@ function Search() {
     async (offset, append) => {
       const myId = ++requestIdRef.current;
       if (append) setLoadingMore(true);
-      else setLoading(true);
+      else { setLoading(true); setItems([]); setTotal(0); }
       setError("");
       try {
         const { items: page, total: tt } = await fetchProducts({
@@ -75,14 +85,14 @@ function Search() {
         setItems((prev) => (append ? [...prev, ...page] : page));
       } catch (e) {
         if (myId !== requestIdRef.current) return;
-        setError(e.message || "Could not load results.");
+        setError(t("common.error"));
       } finally {
         if (myId !== requestIdRef.current) return;
         setLoading(false);
         setLoadingMore(false);
       }
     },
-    [fetchProducts, search, category, subcategory, location, minPrice, maxPrice, sort]
+    [fetchProducts, search, category, subcategory, location, minPrice, maxPrice, sort, t]
   );
 
   useEffect(() => {
@@ -117,9 +127,10 @@ function Search() {
           </div>
 
           <div className="filter-group">
-            <label>{t("search.keyword")}</label>
+            <label htmlFor="search-keyword">{t("search.keyword")}</label>
             <input
               type="text"
+              id="search-keyword"
               placeholder={t("search.keywordPlaceholder")}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
@@ -127,8 +138,9 @@ function Search() {
           </div>
 
           <div className="filter-group">
-            <label>{t("search.category")}</label>
+            <label htmlFor="search-category">{t("search.category")}</label>
             <select
+              id="search-category"
               value={category}
               onChange={(e) => {
                 setCategory(e.target.value);
@@ -144,8 +156,9 @@ function Search() {
 
           {categoryObj && (
             <div className="filter-group">
-              <label>{t("search.subcategory")}</label>
+              <label htmlFor="search-subcategory">{t("search.subcategory")}</label>
               <select
+                id="search-subcategory"
                 value={subcategory}
                 onChange={(e) => setSubcategory(e.target.value)}
               >
@@ -158,8 +171,8 @@ function Search() {
           )}
 
           <div className="filter-group">
-            <label>{t("search.island")}</label>
-            <select value={location} onChange={(e) => setLocation(e.target.value)}>
+            <label htmlFor="search-island">{t("search.island")}</label>
+            <select id="search-island" value={location} onChange={(e) => setLocation(e.target.value)}>
               <option value="">{t("search.allIslands")}</option>
               {islands.map((i) => (
                 <option key={i.name} value={i.name}>{i.name}</option>
@@ -173,12 +186,16 @@ function Search() {
               <input
                 type="number"
                 placeholder={t("search.min")}
+                aria-label={t("search.min")}
+                min="0"
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
               />
               <input
                 type="number"
                 placeholder={t("search.max")}
+                aria-label={t("search.max")}
+                min="0"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
               />
@@ -186,27 +203,29 @@ function Search() {
           </div>
         </aside>
 
-        <main className="results">
+        <section className="results">
           <div className="results-head">
             <div>
-              <h2 className="page-title">
-                {loading
+              <h1 className="page-title" aria-live="polite">
+                {error ? t("common.error") : loading
                   ? t("search.searching")
                   : total === 1
                   ? t("search.result", { count: total })
                   : t("search.results", { count: total })}
                 {search ? ` ${t("search.resultsFor", { q: search })}` : ""}
-              </h2>
+              </h1>
             </div>
             <div className="results-controls">
               <button
                 className="btn btn-outline filter-toggle"
+                aria-expanded={showFilters}
                 onClick={() => setShowFilters((v) => !v)}
               >
                 {showFilters ? t("search.hideFilters") : t("search.showFilters")}
               </button>
               <select
                 className="sort-select"
+                aria-label={t("accessibility.sort")}
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
               >
@@ -220,6 +239,7 @@ function Search() {
 
           {error && (
             <div
+              role="alert"
               style={{
                 color: "#b00020",
                 background: "#fdecea",
@@ -229,12 +249,13 @@ function Search() {
               }}
             >
               {error}
+              <button className="btn btn-outline" onClick={() => runQuery(0, false)}>{t("accessibility.retry")}</button>
             </div>
           )}
 
           {loading && items.length === 0 ? (
             <ProductCardSkeletonGrid count={PAGE_SIZE} />
-          ) : !loading && items.length === 0 ? (
+          ) : !loading && !error && items.length === 0 ? (
             <div className="empty">
               <h3>{t("search.noResults")}</h3>
               <p className="muted">{t("search.noResultsHint")}</p>
@@ -252,7 +273,7 @@ function Search() {
                   ))}
               </div>
 
-              {hasMore && !loadingMore && (
+              {hasMore && !loadingMore && !error && (
                 <div style={{ display: "flex", justifyContent: "center", marginTop: 24 }}>
                   <button className="btn btn-outline" onClick={loadMore}>
                     {t("common.loadMoreLeft", { count: total - items.length })}
@@ -261,7 +282,7 @@ function Search() {
               )}
             </>
           )}
-        </main>
+        </section>
       </div>
     </div>
   );

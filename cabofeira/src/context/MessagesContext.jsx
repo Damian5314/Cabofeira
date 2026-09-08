@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { supabase } from "../lib/supabase";
@@ -13,10 +14,15 @@ const MessagesContext = createContext(null);
 export function MessagesProvider({ children }) {
   const { user } = useAuth();
   const [unreadByConv, setUnreadByConv] = useState({});
+  const requestRef = useRef(0);
+  const accountRef = useRef(user?.id);
+  accountRef.current = user?.id;
 
   const refresh = useCallback(async () => {
+    const request = ++requestRef.current;
+    const current = () => request === requestRef.current && accountRef.current === user?.id;
     if (!user) {
-      setUnreadByConv({});
+      if (current()) setUnreadByConv({});
       return;
     }
 
@@ -26,7 +32,7 @@ export function MessagesProvider({ children }) {
       .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
 
     if (convErr || !convs || convs.length === 0) {
-      setUnreadByConv({});
+      if (current()) setUnreadByConv({});
       return;
     }
 
@@ -58,11 +64,13 @@ export function MessagesProvider({ children }) {
         counts[m.conversation_id] = (counts[m.conversation_id] || 0) + 1;
       }
     }
-    setUnreadByConv(counts);
+    if (current()) setUnreadByConv(counts);
   }, [user]);
 
   useEffect(() => {
+    setUnreadByConv({});
     refresh();
+    return () => { requestRef.current += 1; };
   }, [refresh]);
 
   // Refresh when new messages arrive or conversations are touched (incl. last_read_at updates).
@@ -94,6 +102,7 @@ export function MessagesProvider({ children }) {
   const markRead = useCallback(
     async (conversationId) => {
       if (!conversationId) return;
+      requestRef.current += 1;
       // Optimistically clear locally so badges disappear instantly.
       setUnreadByConv((prev) => {
         if (!prev[conversationId]) return prev;
@@ -108,8 +117,9 @@ export function MessagesProvider({ children }) {
         // eslint-disable-next-line no-console
         console.error("[messages-unread] mark_read:", error);
       }
+      await refresh();
     },
-    []
+    [refresh]
   );
 
   const unreadTotal = Object.values(unreadByConv).reduce((s, n) => s + n, 0);

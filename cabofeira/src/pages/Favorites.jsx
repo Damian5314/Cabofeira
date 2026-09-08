@@ -1,13 +1,18 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, Navigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { useProducts } from "../context/ProductsContext";
 import { useT } from "../i18n/I18nContext";
+import { useAuth } from "../context/AuthContext";
+import useListingPage from "../hooks/useListingPage";
 
 function Favorites() {
-  const { products, favorites } = useProducts();
+  const { favorites } = useProducts();
+  const { user } = useAuth();
+  const [page, setPage] = useState(0);
   const t = useT();
-  const favProducts = products.filter((p) => favorites.includes(p.id));
+  const { items: favProducts, loading, error } = useListingPage({ ids: favorites.slice(page * 24, page * 24 + 24), status: ["active", "sold"] }, !!user && favorites.length > 0);
+  if (!user) return <Navigate to="/login?redirect=/favorites" replace />;
 
   return (
     <div className="page">
@@ -19,7 +24,7 @@ function Favorites() {
             : t("myAds.activeListings", { count: favProducts.length })}
         </p>
 
-        {favProducts.length === 0 ? (
+        {loading ? <p role="status">{t("common.loading")}</p> : error ? <p role="alert">{t("common.error")}</p> : favProducts.length === 0 ? (
           <div className="empty" style={{ marginTop: 30 }}>
             <h3>{t("favorites.empty")}</h3>
             <p className="muted">{t("favorites.emptyHint")}</p>
@@ -32,6 +37,10 @@ function Favorites() {
             ))}
           </div>
         )}
+        <div className="form-actions">
+          {page > 0 && <button className="btn btn-outline" onClick={() => setPage(page - 1)}>{t("common.back")}</button>}
+          {(page + 1) * 24 < favorites.length && <button className="btn btn-outline" onClick={() => setPage(page + 1)}>{t("common.continue")}</button>}
+        </div>
       </div>
     </div>
   );

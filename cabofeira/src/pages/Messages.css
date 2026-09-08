@@ -140,11 +140,12 @@
 }
 
 .thread-input input {
+  min-width: 0;
   flex: 1;
   padding: 10px 14px;
   border: 1px solid var(--cf-border);
   border-radius: 22px;
-  font-size: 0.95rem;
+  font-size: 1rem;
   outline: none;
 }
 
@@ -173,3 +174,4 @@
     max-height: 280px;
   }
 }
+.bubble { overflow-wrap: anywhere; }

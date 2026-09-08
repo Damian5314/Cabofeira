@@ -10,6 +10,8 @@
 
 # production
 /build
+/.build-tmp
+/build-audit
 
 # misc
 .DS_Store

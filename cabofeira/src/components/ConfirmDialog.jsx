@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useId, useState } from "react";
 import "./ConfirmDialog.css";
+import useDialogFocus from "../hooks/useDialogFocus";
+import { useT } from "../i18n/I18nContext";
 
 export default function ConfirmDialog({
   open,
-  title = "Are you sure?",
+  title,
   message,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel,
+  cancelLabel,
   danger = false,
   busy = false,
   requireText,
@@ -14,6 +16,10 @@ export default function ConfirmDialog({
   onCancel,
 }) {
   const [typed, setTyped] = useState("");
+  const t = useT();
+  const dialog = useRef(null);
+  const titleId = useId();
+  useDialogFocus(dialog, open);
 
   useEffect(() => {
     if (open) setTyped("");
@@ -41,17 +47,19 @@ export default function ConfirmDialog({
     >
       <div
         className="confirm-dialog"
+        ref={dialog}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="confirm-title"
+        aria-labelledby={titleId}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 id="confirm-title" className="confirm-title">{title}</h3>
+        <h3 id={titleId} className="confirm-title">{title || t("dialog.title")}</h3>
         {message && <div className="confirm-message">{message}</div>}
         {requireText && (
           <div className="confirm-require">
             <label className="confirm-require-label">
-              Type <code>{requireText}</code> to confirm:
+              {t("dialog.type", { text: requireText })}
             </label>
             <input
               type="text"
@@ -71,7 +79,7 @@ export default function ConfirmDialog({
             onClick={onCancel}
             disabled={busy}
           >
-            {cancelLabel}
+            {cancelLabel || t("dialog.cancel")}
           </button>
           <button
             type="button"
@@ -80,7 +88,7 @@ export default function ConfirmDialog({
             disabled={busy || !textOk}
             autoFocus={!requireText}
           >
-            {busy ? "Working..." : confirmLabel}
+            {busy ? t("common.loading") : confirmLabel || t("dialog.confirm")}
           </button>
         </div>
       </div>

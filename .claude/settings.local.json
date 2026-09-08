@@ -1,4 +1,31 @@
 {
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(git add *)",
+      "Bash(git commit -m 'docs\\(01-04\\): SQL applied; probe deferred to verify-work \\(SUMMARY + tracking\\) *)",
+      "Skill(gsd:plan-phase)",
+      "Skill(gsd:ui-phase)",
+      "Skill(gsd:execute-phase)",
+      "Bash(git check-ignore *)",
+      "Bash(git commit -m 'feat\\(02-03\\): status passthrough + active-only feed/search in ProductsContext *)",
+      "Bash(set CI=true)",
+      "Bash(npm run *)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('src/i18n/en.json'\\)\\); JSON.parse\\(require\\('fs'\\).readFileSync\\('src/i18n/pt-cv.json'\\)\\); console.log\\('JSON OK'\\)\")",
+      "Bash(git commit -m 'feat\\(02-03\\): mark-as-sold toggle in My Ads via ConfirmDialog *)",
+      "Bash(git commit -m 'feat\\(02-03\\): sold + verified badges on product cards *)",
+      "Bash(gsd-tools query *)",
+      "Bash(node .claude/gsd-core/bin/gsd-tools.cjs query state.advance-plan)",
+      "Bash(node .claude/gsd-core/bin/gsd-tools.cjs query state.update-progress)",
+      "Bash(node .claude/gsd-core/bin/gsd-tools.cjs query state.record-metric \"02\" \"03\" \"13\" \"3\" \"7\")",
+      "Bash(node .claude/gsd-core/bin/gsd-tools.cjs query state.record-session \"\" \"Completed 02-03-PLAN.md\" \"None\")",
+      "Bash(node .claude/gsd-core/bin/gsd-tools.cjs query state.record-metric --phase 02 --plan 03 --duration 13 --tasks 3 --files 7)",
+      "Bash(node .claude/gsd-core/bin/gsd-tools.cjs query state.add-decision \"[02-03]: ProductsContext feed/search now filter status='active' \\(refreshProducts + fetchProducts default\\), closing the D-14 sold-leak window opened by the 02-02 SELECT relax \\(Pitfall 1/T-02-04\\)\")",
+      "Bash(node .claude/gsd-core/bin/gsd-tools.cjs query state.add-decision \"[02-03]: card verified badge reuses existing product.verified key \\(not a new badge.verified\\) for consistency with ProductDetail; added common.error key \\(UI-SPEC referenced it but it was absent\\)\")",
+      "Bash(node .claude/gsd-core/bin/gsd-tools.cjs query state.add-decision --summary \"[02-03]: ProductsContext feed/search now filter status=active \\(refreshProducts + fetchProducts default\\), closing the D-14 sold-leak window from the 02-02 SELECT relax \\(Pitfall 1/T-02-04\\)\")",
+      "Bash(node .claude/gsd-core/bin/gsd-tools.cjs query state.add-decision --summary \"[02-03]: card verified badge reuses existing product.verified key \\(not a new badge.verified\\) for consistency with ProductDetail; added common.error key \\(UI-SPEC referenced it but it was absent\\)\")"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {

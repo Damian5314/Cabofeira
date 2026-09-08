@@ -8,7 +8,8 @@ import React, {
 import en from "./en.json";
 import ptCV from "./pt-cv.json";
 
-const DICTS = { en, "pt-cv": ptCV };
+const DICTS = { "pt-cv": ptCV, en };
+const DEFAULT_LOCALE = "pt-cv";
 const STORAGE_KEY = "cabofeira_locale";
 
 const getNested = (obj, key) =>
@@ -28,10 +29,9 @@ const detectLocale = () => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored && DICTS[stored]) return stored;
-    const lang = (navigator.language || "").toLowerCase();
-    return lang.startsWith("pt") ? "pt-cv" : "en";
+    return DEFAULT_LOCALE;
   } catch {
-    return "en";
+    return DEFAULT_LOCALE;
   }
 };
 
@@ -46,11 +46,11 @@ export function I18nProvider({ children }) {
     } catch {
       /* ignored */
     }
-    document.documentElement.lang = locale === "pt-cv" ? "pt" : "en";
+    document.documentElement.lang = locale === "pt-cv" ? "pt-CV" : "en";
   }, [locale]);
 
   const t = useMemo(() => {
-    const dict = DICTS[locale] || DICTS.en;
+    const dict = DICTS[locale] || DICTS[DEFAULT_LOCALE];
     return (key, vars) => {
       const val = getNested(dict, key) ?? getNested(DICTS.en, key) ?? key;
       // Safety: if a key accidentally points to a nested object (eg. "product.report"

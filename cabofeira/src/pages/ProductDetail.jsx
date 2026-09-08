@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import ListingImage from "../components/ListingImage";
+import React, { useEffect, useRef, useId, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useProducts } from "../context/ProductsContext";
 import { useAuth } from "../context/AuthContext";
-import { useT } from "../i18n/I18nContext";
+import { useT, useI18n } from "../i18n/I18nContext";
 import { getCategoryById, CategoryIcon } from "../data/categories";
 import { supabase } from "../lib/supabase";
 import Skeleton from "../components/Skeleton";
@@ -10,6 +11,9 @@ import { useToast } from "../components/Toast";
 import { formatPrice, timeAgo } from "../utils/format";
 import ProductCard from "../components/ProductCard";
 import "./ProductDetail.css";
+import { whatsappNumber } from "../utils/links";
+import BlockUserButton from "../components/BlockUserButton";
+import useDialogFocus from "../hooks/useDialogFocus";
 
 function ProductDetail() {
   const { id } = useParams();
@@ -19,6 +23,7 @@ function ProductDetail() {
   const { user } = useAuth();
   const toast = useToast();
   const t = useT();
+  const { locale } = useI18n();
 
   const cached = getProduct(id);
   const [product, setProduct] = useState(cached || null);
@@ -28,6 +33,7 @@ function ProductDetail() {
   const [messageOpen, setMessageOpen] = useState(false);
   const [messageText, setMessageText] = useState("");
   const [messageSent, setMessageSent] = useState(false);
+  const [messageSending, setMessageSending] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
@@ -37,13 +43,11 @@ function ProductDetail() {
 
   useEffect(() => {
     let alive = true;
-    const fromCache = getProduct(id);
-    if (fromCache) {
-      setProduct(fromCache);
-      setLoadingProduct(false);
-      incrementViews(fromCache.id);
-      return;
-    }
+    setActiveImage(0);
+    setShowPhone(false);
+    setMessageOpen(false);
+    setMessageText("");
+    setReportOpen(false);
     setLoadingProduct(true);
     fetchProduct(id).then((p) => {
       if (!alive) return;
@@ -104,7 +108,7 @@ function ProductDetail() {
   const category = getCategoryById(product.category);
 
   const similar = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
+    .filter((p) => p.status === "active" && p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
   const sendMessage = async () => {
@@ -113,7 +117,9 @@ function ProductDetail() {
       return;
     }
     const text = messageText.trim();
-    if (!text) return;
+    if (!text || messageSending) return;
+    setMessageSending(true);
+    try {
 
     let convId;
     const { data: existing, error: findErr } = await supabase
@@ -125,7 +131,7 @@ function ProductDetail() {
       .maybeSingle();
 
     if (findErr) {
-      toast.error("Could not open conversation: " + findErr.message);
+      toast.error(t("messages.sendFailed"));
       return;
     }
 
@@ -142,7 +148,7 @@ function ProductDetail() {
         .select("id")
         .single();
       if (insertErr) {
-        toast.error("Could not start conversation: " + insertErr.message);
+        toast.error(t("messages.sendFailed"));
         return;
       }
       convId = created.id;
@@ -152,7 +158,7 @@ function ProductDetail() {
       .from("messages")
       .insert({ conversation_id: convId, sender_id: user.id, body: text });
     if (msgErr) {
-      toast.error("Could not send message: " + msgErr.message);
+      toast.error(t("messages.sendFailed"));
       return;
     }
 
@@ -162,6 +168,8 @@ function ProductDetail() {
       setMessageOpen(false);
       setMessageSent(false);
     }, 1500);
+    } catch { toast.error(t("messages.sendFailed")); }
+    finally { setMessageSending(false); }
   };
 
   const share = async () => {
@@ -173,8 +181,10 @@ function ProductDetail() {
         /* user cancelled */
       }
     } else {
-      navigator.clipboard.writeText(url);
-      toast.success(t("product.linkCopied"));
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success(t("product.linkCopied"));
+      } catch { toast.error(t("common.error")); }
     }
   };
 
@@ -194,7 +204,7 @@ function ProductDetail() {
         <div className="detail-grid">
           <div className="gallery">
             <div className="gallery-main">
-              <img src={product.images[activeImage]} alt={product.title} />
+              <ListingImage src={product.images[activeImage]} alt={product.title} />
               {product.featured && (
                 <span className="badge badge-featured gallery-badge">{t("product.featuredBadge")}</span>
               )}
@@ -207,7 +217,7 @@ function ProductDetail() {
                     className={`thumb ${activeImage === i ? "is-active" : ""}`}
                     onClick={() => setActiveImage(i)}
                   >
-                    <img src={src} alt={`${product.title} ${i + 1}`} />
+                    <ListingImage src={src} alt={`${product.title} ${i + 1}`} />
                   </button>
                 ))}
               </div>
@@ -218,16 +228,17 @@ function ProductDetail() {
             <div className="detail-card">
               <h1 className="detail-title">{product.title}</h1>
               <div className="detail-price">
-                {formatPrice(product.price, product.currency)}
+                {formatPrice(product.price, product.currency, locale)}
               </div>
               <div className="detail-meta">
                 <span>📍 {product.location.city}, {product.location.island}</span>
                 <span>•</span>
-                <span>🗓 {timeAgo(product.createdAt)}</span>
+                <span>🗓 {timeAgo(product.createdAt, locale)}</span>
                 <span>•</span>
                 <span>👁 {product.views} {t("product.viewsLabel")}</span>
               </div>
               <div className="detail-tags">
+                {product.status === "sold" && <span className="badge badge-sold">{t("badge.sold")}</span>}
                 <span className="badge"><CategoryIcon category={category} size={14} style={{ verticalAlign: "middle", marginRight: 4 }} />{t(`categories.${product.category}`)}</span>
                 <span className="badge">{t(`subcategories.${product.subcategory}`)}</span>
                 <span className={`badge ${product.condition === "New" ? "badge-new" : ""}`}>
@@ -258,6 +269,9 @@ function ProductDetail() {
                       >
                         📞 {showPhone ? product.seller.phone : t("product.showPhone")}
                       </button>
+                    )}
+                    {whatsappNumber(product.seller.phone) && (
+                      <a className="btn btn-outline btn-block" target="_blank" rel="noopener noreferrer" href={`https://wa.me/${whatsappNumber(product.seller.phone)}?text=${encodeURIComponent(t("product.message.about", { title: product.title }) + " " + window.location.origin + "/product/" + product.id)}`}>WhatsApp</a>
                     )}
                     {product.seller.email && (
                       <a
@@ -299,14 +313,15 @@ function ProductDetail() {
             </div>
 
             <div className="detail-card seller-card">
+              <BlockUserButton userId={product.seller.id} />
               <h3>{t("product.seller")}</h3>
               <div className="seller-row">
                 <div className="seller-avatar">
-                  {product.seller.name[0].toUpperCase()}
+                  {(product.seller.name?.[0] || "?").toUpperCase()}
                 </div>
                 <div>
                   <div className="seller-name">
-                    {product.seller.name}
+                    <Link to={`/seller/${product.seller.id}`}>{product.seller.name}</Link>
                     {product.seller.verified && (
                       <span className="badge badge-verified" title={t("product.verified")}>
                         {t("product.verified")}
@@ -362,6 +377,7 @@ function ProductDetail() {
               </p>
               <textarea
                 rows={5}
+                maxLength={4000}
                 placeholder={t("product.message.placeholder")}
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
@@ -369,7 +385,7 @@ function ProductDetail() {
               <button
                 className="btn btn-primary btn-block"
                 onClick={sendMessage}
-                disabled={!messageText.trim()}
+                disabled={messageSending || !messageText.trim()}
               >
                 {t("product.message.send")}
               </button>
@@ -419,12 +435,7 @@ function ProductDetail() {
                 onChange={(e) => setReportReason(e.target.value)}
               >
                 <option value="" disabled>{t("product.report.reasonPlaceholder")}</option>
-                <option>{t("product.report.reason1")}</option>
-                <option>{t("product.report.reason2")}</option>
-                <option>{t("product.report.reason3")}</option>
-                <option>{t("product.report.reason4")}</option>
-                <option>{t("product.report.reason5")}</option>
-                <option>{t("product.report.reason6")}</option>
+                {["scam", "spam", "prohibited", "already_sold", "duplicate", "other"].map((reason) => <option key={reason} value={reason}>{t(`report.reasons.${reason}`)}</option>)}
               </select>
               <textarea
                 rows={3}
@@ -449,7 +460,7 @@ function ProductDetail() {
                     details: reportDetails.trim() || null,
                   });
                   setReportSending(false);
-                  if (error) {
+                  if (error && error.code !== "23505") {
                     setReportError(error.message || "Could not submit report.");
                     return;
                   }
@@ -473,6 +484,10 @@ function ProductDetail() {
 }
 
 function Modal({ title, children, onClose }) {
+  const ref = useRef(null);
+  const titleId = useId();
+  const t = useT();
+  useDialogFocus(ref, true);
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
@@ -481,10 +496,10 @@ function Modal({ title, children, onClose }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal" ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(e) => e.stopPropagation()}>
         <header className="modal-head">
-          <h3>{title}</h3>
-          <button className="modal-close" onClick={onClose} aria-label="Close">✕</button>
+          <h3 id={titleId}>{title}</h3>
+          <button className="modal-close" onClick={onClose} aria-label={t("common.close")}>✕</button>
         </header>
         <div className="modal-body">{children}</div>
       </div>

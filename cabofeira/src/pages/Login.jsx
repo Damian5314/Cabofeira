@@ -5,6 +5,7 @@ import { useT } from "../i18n/I18nContext";
 import { useToast } from "../components/Toast";
 import { LogoMark } from "../assets/logo";
 import "./Auth.css";
+import { safeRedirect } from "../utils/links";
 
 function Login() {
   const { login, resendConfirmation } = useAuth();
@@ -12,12 +13,13 @@ function Login() {
   const toast = useToast();
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const redirect = params.get("redirect") || "/";
+  const redirect = safeRedirect(params.get("redirect"));
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const [needsConfirm, setNeedsConfirm] = useState(false);
   const [resending, setResending] = useState(false);
 
@@ -25,7 +27,11 @@ function Login() {
     e.preventDefault();
     setError("");
     setNeedsConfirm(false);
-    const result = await login({ email, password });
+    setBusy(true);
+    let result;
+    try { result = await login({ email, password }); }
+    catch { result = { ok: false, error: t("common.error") }; }
+    finally { setBusy(false); }
     if (!result.ok) {
       setError(result.error);
       if (/email.*(not\s+confirmed|not\s+verified)/i.test(result.error || "")) {
@@ -111,7 +117,7 @@ function Login() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                tabIndex={-1}
+                aria-label={t(showPassword ? "accessibility.hidePassword" : "accessibility.showPassword")} aria-pressed={showPassword}
               >
                 {showPassword ? "🙈" : "👁️"}
               </button>
@@ -119,27 +125,14 @@ function Login() {
           </label>
 
           <div className="auth-row">
-            <label className="checkbox">
-              <input type="checkbox" /> {t("auth.rememberMe")}
-            </label>
             <Link to="/forgot" className="small">{t("auth.forgotPassword")}</Link>
           </div>
 
-          <button type="submit" className="btn btn-primary btn-block">
+          <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
             {t("auth.signIn")}
           </button>
         </form>
 
-        <div className="divider"><span>{t("common.or")}</span></div>
-
-        <div className="social-row">
-          <button className="btn btn-outline btn-block" onClick={(e) => e.preventDefault()}>
-            {t("auth.continueGoogle")}
-          </button>
-          <button className="btn btn-outline btn-block" onClick={(e) => e.preventDefault()}>
-            {t("auth.continueFacebook")}
-          </button>
-        </div>
 
         <p className="auth-footer">
           {t("auth.noAccount")} <Link to="/register">{t("auth.signUp")}</Link>

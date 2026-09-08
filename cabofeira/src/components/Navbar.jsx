@@ -7,6 +7,7 @@ import { useT } from "../i18n/I18nContext";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { LogoMark } from "../assets/logo";
 import "./Navbar.css";
+import useDialogFocus from "../hooks/useDialogFocus";
 
 function Navbar() {
   const { user, isAdmin, logout } = useAuth();
@@ -17,6 +18,16 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const menuRef = useRef(null);
+  const drawerRef = useRef(null);
+  useDialogFocus(drawerRef, mobileOpen);
+
+  useEffect(() => {
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") { setMobileOpen(false); setMenuOpen(false); }
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, []);
 
   useEffect(() => {
     const onClick = (e) => {
@@ -41,6 +52,13 @@ function Navbar() {
 
   const closeMobile = () => setMobileOpen(false);
 
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 901px)");
+    const closeOnDesktop = () => { if (media.matches) setMobileOpen(false); };
+    media.addEventListener("change", closeOnDesktop);
+    return () => media.removeEventListener("change", closeOnDesktop);
+  }, []);
+
   const handleSearch = (e) => {
     e.preventDefault();
     const q = search.trim();
@@ -48,10 +66,11 @@ function Navbar() {
     closeMobile();
   };
 
-  const SearchForm = ({ className = "" }) => (
+  const renderSearchForm = (className = "") => (
     <form className={`navbar-search ${className}`} onSubmit={handleSearch}>
       <input
         type="text"
+        aria-label={t("nav.searchPlaceholder")}
         placeholder={t("nav.searchPlaceholder")}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -73,12 +92,13 @@ function Navbar() {
           </div>
         </Link>
 
-        <SearchForm className="desktop-only" />
+        {renderSearchForm("desktop-only")}
 
         <button
           className="mobile-toggle"
           onClick={() => setMobileOpen((v) => !v)}
-          aria-label={mobileOpen ? t("common.close") : t("nav.home")}
+          aria-label={mobileOpen ? t("common.close") : t("accessibility.menu")}
+          aria-controls="navigation-links"
           aria-expanded={mobileOpen}
         >
           {mobileOpen ? <HiX size={24} /> : <HiMenu size={24} />}
@@ -90,12 +110,14 @@ function Navbar() {
           aria-hidden="true"
         />
 
-        <div className={`navbar-links ${mobileOpen ? "open" : ""}`}>
-          <SearchForm className="mobile-only" />
+        <div id="navigation-links" ref={drawerRef} tabIndex={-1} className={`navbar-links ${mobileOpen ? "open" : ""}`}>
+          <button className="btn btn-outline mobile-only" onClick={closeMobile}>{t("common.close")}</button>
+          {renderSearchForm("mobile-only")}
 
           <NavLink to="/" end onClick={closeMobile}>{t("nav.home")}</NavLink>
           <NavLink to="/categories" onClick={closeMobile}>{t("nav.categories")}</NavLink>
           <NavLink to="/search" onClick={closeMobile}>{t("nav.browse")}</NavLink>
+          {user && <NavLink to="/notifications" onClick={closeMobile} aria-label={t("notifications.title")}>🔔</NavLink>}
 
           <Link
             to="/postad"

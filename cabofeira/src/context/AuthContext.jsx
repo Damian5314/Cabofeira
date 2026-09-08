@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { supabase } from "../lib/supabase";
@@ -29,29 +30,46 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const profileRequest = useRef(0);
+  const pendingProfile = useRef(null);
+  const activeUser = useRef(null);
+  activeUser.current = user;
   const [isRecovering, setIsRecovering] = useState(
     () => sessionStorage.getItem(RECOVERY_FLAG) === "1"
   );
 
-  const loadProfile = useCallback(async (id) => {
+  const loadProfile = useCallback((id) => {
+    if (pendingProfile.current?.id === id && pendingProfile.current.request === profileRequest.current) return pendingProfile.current.promise;
+    const request = ++profileRequest.current;
+    const promise = (async () => {
+    try {
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", id)
       .single();
+    if (request !== profileRequest.current) return;
     if (error || !data) {
       setUser(null);
       return;
     }
     setUser(fromProfile(data));
+    } finally {
+      if (pendingProfile.current?.request === request) pendingProfile.current = null;
+    }
+    })();
+    pendingProfile.current = { id, request, promise };
+    return promise;
   }, []);
 
   const refreshUsers = useCallback(async () => {
+    const adminId = activeUser.current?.role === "admin" ? activeUser.current.id : null;
+    if (!adminId) return;
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .order("created_at", { ascending: true });
-    if (!error && data) setUsers(data.map(fromProfile));
+    if (!error && data && activeUser.current?.id === adminId && activeUser.current?.role === "admin") setUsers(data.map(fromProfile));
   }, []);
 
   useEffect(() => {
@@ -74,7 +92,7 @@ export function AuthProvider({ children }) {
         await loadProfile(session.user.id);
       }
       setLoading(false);
-    })();
+    })().catch(() => { if (mounted) { setUser(null); setLoading(false); } });
 
     const {
       data: { subscription },
@@ -85,6 +103,7 @@ export function AuthProvider({ children }) {
       // page so they actually choose a new password instead of silently
       // landing on the home screen "logged in".
       if (event === "PASSWORD_RECOVERY") {
+        profileRequest.current += 1;
         sessionStorage.setItem(RECOVERY_FLAG, "1");
         setIsRecovering(true);
         setUser(null);
@@ -98,18 +117,22 @@ export function AuthProvider({ children }) {
         setUser(null);
         return;
       }
-      if (session?.user) loadProfile(session.user.id);
-      else setUser(null);
+      if (session?.user) {
+        // Run outside the auth callback lock; Supabase queries need the session.
+        setTimeout(() => { if (mounted) loadProfile(session.user.id).catch(() => { if (mounted) setLoading(false); }); }, 0);
+      } else { profileRequest.current += 1; setUser(null); }
     });
 
     return () => {
       mounted = false;
+      profileRequest.current += 1;
       subscription.unsubscribe();
     };
   }, [loadProfile]);
 
   useEffect(() => {
-    refreshUsers();
+    if (user?.role === "admin") refreshUsers();
+    else setUsers([]);
   }, [user, refreshUsers]);
 
   const login = async ({ email, password }) => {
@@ -120,13 +143,14 @@ export function AuthProvider({ children }) {
     // session listener doesn't silently mark the new session as "anonymous".
     sessionStorage.removeItem(RECOVERY_FLAG);
     setIsRecovering(false);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     if (error) return { ok: false, error: error.message };
+    await loadProfile(data.user.id);
     return { ok: true };
   };
 
   const register = async ({ name, email, phone, password, confirmPassword }) => {
-    if (!name || !email || !password) {
+    if (!name?.trim() || !email?.trim() || !password) {
       return { ok: false, error: t("auth.errors.missingFields") };
     }
     if (password.length < 6) {
@@ -138,7 +162,7 @@ export function AuthProvider({ children }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name, phone: phone || "" } },
+      options: { data: { name: name.trim(), phone: phone || "" }, emailRedirectTo: window.location.origin + "/profile" },
     });
     if (error) return { ok: false, error: error.message };
     // If email confirmation is enabled in Supabase, signUp returns no session
@@ -204,7 +228,7 @@ export function AuthProvider({ children }) {
       .single();
     if (error) return { ok: false, error: error.message };
     setUser(fromProfile(data));
-    refreshUsers();
+    if (user.role === "admin") refreshUsers();
     return { ok: true };
   };
 
@@ -240,7 +264,7 @@ export function AuthProvider({ children }) {
     return { ok: true };
   };
 
-  if (loading) return null;
+  if (loading) return <div className="page container" role="status">{t("common.loading")}</div>;
 
   return (
     <AuthContext.Provider

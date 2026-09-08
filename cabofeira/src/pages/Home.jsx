@@ -17,8 +17,9 @@ function Home() {
   const [location, setLocation] = useState("");
   const [category, setCategory] = useState("");
 
-  const featured = products.filter((p) => p.featured).slice(0, 4);
-  const recent = [...products]
+  const activeProducts = products.filter((p) => p.status === "active");
+  const featured = activeProducts.filter((p) => p.featured).slice(0, 4);
+  const recent = [...activeProducts]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 8);
 
@@ -46,7 +47,7 @@ function Home() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <select aria-label={t("search.category")} value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="">{t("home.allCategories")}</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -54,7 +55,7 @@ function Home() {
                 </option>
               ))}
             </select>
-            <select value={location} onChange={(e) => setLocation(e.target.value)}>
+            <select aria-label={t("search.island")} value={location} onChange={(e) => setLocation(e.target.value)}>
               <option value="">{t("home.allIslands")}</option>
               {islands.map((i) => (
                 <option key={i.name} value={i.name}>{i.name}</option>

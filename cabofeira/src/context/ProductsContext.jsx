@@ -3,10 +3,13 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "./AuthContext";
+import { useToast } from "../components/Toast";
+import { useT } from "../i18n/I18nContext";
 
 const ProductsContext = createContext(null);
 
@@ -25,7 +28,8 @@ const storagePathFromUrl = (url) => {
   if (typeof url !== "string") return null;
   const idx = url.indexOf(STORAGE_PUBLIC_MARKER);
   if (idx === -1) return null;
-  return decodeURIComponent(url.slice(idx + STORAGE_PUBLIC_MARKER.length));
+  try { return decodeURIComponent(url.slice(idx + STORAGE_PUBLIC_MARKER.length)); }
+  catch { return null; }
 };
 
 const fromRow = (r) => ({
@@ -42,7 +46,7 @@ const fromRow = (r) => ({
   featured: r.featured,
   views: r.views || 0,
   status: r.status,
-  createdAt: (r.created_at || "").slice(0, 10),
+  createdAt: r.created_at || "",
   seller: {
     id: r.seller?.id || r.seller_id,
     name: r.seller?.name || "",
@@ -70,6 +74,12 @@ const toRow = (p, sellerId) => ({
 
 export function ProductsProvider({ children }) {
   const { user } = useAuth();
+  const toast = useToast();
+  const t = useT();
+  const favoritePending = useRef(new Set());
+  const viewed = useRef(new Set());
+  const userIdRef = useRef(user?.id);
+  userIdRef.current = user?.id;
   const [products, setProducts] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
@@ -118,6 +128,7 @@ export function ProductsProvider({ children }) {
       subcategory = "",
       island = "",
       sellerId = "",
+      ids = null,
       featured = null,
       minPrice = null,
       maxPrice = null,
@@ -137,13 +148,15 @@ export function ProductsProvider({ children }) {
     else if (status) q = q.eq("status", status);
 
     if (search.trim()) {
-      const pat = `%${search.trim()}%`;
+      const literal = search.trim().replace(/[\\%_]/g, "\\$&");
+      const pat = JSON.stringify(`%${literal}%`);
       q = q.or(`title.ilike.${pat},description.ilike.${pat}`);
     }
     if (category) q = q.eq("category", category);
     if (subcategory) q = q.eq("subcategory", subcategory);
     if (island) q = q.eq("location_island", island);
     if (sellerId) q = q.eq("seller_id", sellerId);
+    if (ids) q = q.in("id", ids);
     if (featured !== null) q = q.eq("featured", featured);
     if (minPrice !== null && minPrice !== "") q = q.gte("price", Number(minPrice));
     if (maxPrice !== null && maxPrice !== "") q = q.lte("price", Number(maxPrice));
@@ -163,7 +176,7 @@ export function ProductsProvider({ children }) {
         q = q.order("created_at", { ascending: false });
     }
 
-    q = q.range(range[0], range[1]);
+    q = q.order("id", { ascending: false }).range(range[0], range[1]);
 
     const { data, error, count } = await q;
     if (error) throw error;
@@ -179,7 +192,7 @@ export function ProductsProvider({ children }) {
       .from("favorites")
       .select("product_id")
       .eq("user_id", user.id);
-    if (!error && data) setFavorites(data.map((f) => f.product_id));
+    if (!error && data && userIdRef.current === user.id) setFavorites(data.map((f) => f.product_id));
   }, [user]);
 
   useEffect(() => {
@@ -187,6 +200,7 @@ export function ProductsProvider({ children }) {
   }, [refreshProducts]);
 
   useEffect(() => {
+    setFavorites([]);
     refreshFavorites();
   }, [refreshFavorites]);
 
@@ -255,27 +269,32 @@ export function ProductsProvider({ children }) {
   const getProduct = (id) => products.find((p) => p.id === id);
 
   const incrementViews = async (id) => {
+    if (viewed.current.has(id)) return;
+    const key = `cf_viewed_${id}`;
+    try { if (sessionStorage.getItem(key)) return; } catch { /* storage unavailable */ }
+    viewed.current.add(id);
+    const { error } = await supabase.rpc("increment_product_views", { p_id: id });
+    if (error) { viewed.current.delete(id); return; }
+    try { sessionStorage.setItem(key, "1"); } catch { /* memory fallback */ }
     setProducts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, views: (p.views || 0) + 1 } : p))
     );
-    await supabase.rpc("increment_product_views", { p_id: id });
   };
 
   const toggleFavorite = async (id) => {
-    if (!user) return;
+    if (!user) { toast.info(t("auth.signInIntro")); return; }
+    if (favoritePending.current.has(id)) return;
+    favoritePending.current.add(id);
+    const accountId = user.id;
     const isFav = favorites.includes(id);
-    if (isFav) {
-      setFavorites((prev) => prev.filter((x) => x !== id));
-      await supabase
-        .from("favorites")
-        .delete()
-        .match({ user_id: user.id, product_id: id });
-    } else {
-      setFavorites((prev) => [...prev, id]);
-      await supabase
-        .from("favorites")
-        .insert({ user_id: user.id, product_id: id });
-    }
+    try {
+      const { error } = isFav
+        ? await supabase.from("favorites").delete().match({ user_id: accountId, product_id: id })
+        : await supabase.from("favorites").upsert({ user_id: accountId, product_id: id }, { onConflict: "user_id,product_id", ignoreDuplicates: true });
+      if (error) throw error;
+      if (userIdRef.current === accountId) setFavorites((prev) => isFav ? prev.filter((x) => x !== id) : [...new Set([...prev, id])]);
+    } catch { toast.error(t("common.error")); }
+    finally { favoritePending.current.delete(id); }
   };
 
   const isFavorite = (id) => favorites.includes(id);

@@ -20,6 +20,7 @@ function Register() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const [sentEmail, setSentEmail] = useState("");
 
   const handleChange = (e) => {
@@ -29,12 +30,17 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (busy) return;
     setError("");
     if (!form.agree) {
       setError(t("auth.errors.agreeRequired"));
       return;
     }
-    const result = await register(form);
+    setBusy(true);
+    let result;
+    try { result = await register(form); }
+    catch { result = { ok: false, error: t("common.error") }; }
+    finally { setBusy(false); }
     if (!result.ok) {
       setError(result.error);
       return;
@@ -56,7 +62,7 @@ function Register() {
         <h2>{t("auth.createAccount")}</h2>
         <p className="muted">{t("auth.joinIntro")}</p>
 
-        {error && <div className="auth-error">{error}</div>}
+        {error && <div className="auth-error" role="alert">{error}</div>}
 
         {sentEmail && (
           <div style={{ textAlign: "center", padding: "20px 0" }}>
@@ -80,6 +86,8 @@ function Register() {
               <input
                 type="text"
                 name="name"
+                autoComplete="nickname"
+                maxLength={100}
                 placeholder={t("auth.fullNamePlaceholder")}
                 value={form.name}
                 onChange={handleChange}
@@ -92,6 +100,7 @@ function Register() {
               <input
                 type="email"
                 name="email"
+                autoComplete="email"
                 placeholder={t("auth.emailPlaceholder")}
                 value={form.email}
                 onChange={handleChange}
@@ -104,18 +113,22 @@ function Register() {
               <input
                 type="tel"
                 name="phone"
+                autoComplete="tel"
+                aria-describedby="signup-phone-hint"
                 placeholder={t("auth.phonePlaceholder")}
                 value={form.phone}
                 onChange={handleChange}
               />
             </label>
 
+            <p className="muted small" id="signup-phone-hint">{t("policy.phoneHint")}</p>
             <label>
               <span>{t("auth.password")}</span>
               <div className="password-input">
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
+                  autoComplete="new-password"
                   placeholder={t("auth.passwordHint")}
                   value={form.password}
                   onChange={handleChange}
@@ -124,7 +137,7 @@ function Register() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  tabIndex={-1}
+                  aria-label={t(showPassword ? "accessibility.hidePassword" : "accessibility.showPassword")} aria-pressed={showPassword}
                 >
                   {showPassword ? "🙈" : "👁️"}
                 </button>
@@ -136,6 +149,7 @@ function Register() {
               <input
                 type={showPassword ? "text" : "password"}
                 name="confirmPassword"
+                autoComplete="new-password"
                 placeholder={t("auth.confirmPasswordPlaceholder")}
                 value={form.confirmPassword}
                 onChange={handleChange}
@@ -147,17 +161,17 @@ function Register() {
               <input
                 type="checkbox"
                 name="agree"
+                required
                 checked={form.agree}
                 onChange={handleChange}
               />
               <span>
-                {t("auth.agreeTerms", { terms: "", privacy: "" })}{" "}
-                <Link to="/terms">{t("auth.terms")}</Link>{" & "}
-                <Link to="/privacy">{t("auth.privacy")}</Link>.
+                {t("policy.acceptTerms")}{" "}<Link to="/terms">{t("auth.terms")}</Link>.
               </span>
             </label>
 
-            <button type="submit" className="btn btn-primary btn-block">
+            <p className="muted small">{t("policy.privacyNotice")}{" "}<Link to="/privacy">{t("auth.privacy")}</Link>.</p>
+            <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
               {t("auth.createAccountBtn")}
             </button>
           </form>

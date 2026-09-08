@@ -72,12 +72,12 @@
   border-color: var(--cf-accent);
 }
 
-.price-row {
+.search-page .price-row {
   display: flex;
   gap: 6px;
 }
 
-.price-row input {
+.search-page .price-row input {
   flex: 1;
   min-width: 0;
 }
@@ -98,10 +98,13 @@
 
 .results-controls {
   display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   gap: 8px;
 }
 
 .sort-select {
+  max-width: 100%;
   padding: 9px 12px;
   border: 1px solid var(--cf-border);
   border-radius: 8px;
@@ -147,3 +150,4 @@
     display: inline-flex;
   }
 }
+.results { min-width: 0; overflow-wrap: anywhere; }

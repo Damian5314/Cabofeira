@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useProducts } from "../context/ProductsContext";
-import { usePricing } from "../context/PricingContext";
-import { useT } from "../i18n/I18nContext";
+import { useT, useI18n } from "../i18n/I18nContext";
 import { categories, getCategoryById, CategoryIcon } from "../data/categories";
 import { islands } from "../data/locations";
 import { formatPrice } from "../utils/format";
@@ -13,12 +12,7 @@ import "./PostAd.css";
 const PRODUCT_IMAGES_BUCKET = "product-images";
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
-const extFromFile = (file) => {
-  const fromName = file.name?.split(".").pop()?.toLowerCase();
-  if (fromName && /^[a-z0-9]{1,5}$/.test(fromName)) return fromName;
-  const fromType = file.type?.split("/")[1]?.toLowerCase();
-  return fromType && /^[a-z0-9]{1,5}$/.test(fromType) ? fromType : "jpg";
-};
+const extFromFile = (file) => ({ "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" }[file.type] || "jpg");
 
 const randomId = () =>
   (window.crypto?.randomUUID?.() ||
@@ -43,22 +37,25 @@ function PostAd() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { addProduct, getProduct, fetchProduct, updateProduct } = useProducts();
-  const { getPrice, featuredPrice } = usePricing();
+  // Launch year is free. Paid promotions require a real fulfillment flow.
+  const featuredPrice = 0;
   const t = useT();
+  const { locale } = useI18n();
   const isEdit = Boolean(id);
   const [existing, setExisting] = useState(() => (isEdit ? getProduct(id) : null));
+  const [loadingExisting, setLoadingExisting] = useState(isEdit);
 
   useEffect(() => {
     if (!isEdit) return;
-    if (existing) return;
     let alive = true;
+    setLoadingExisting(true);
     fetchProduct(id).then((p) => {
-      if (alive) setExisting(p || null);
+      if (alive) { setExisting(p || null); setLoadingExisting(false); }
     });
     return () => {
       alive = false;
     };
-  }, [isEdit, id, existing, fetchProduct]);
+  }, [isEdit, id, fetchProduct]);
 
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(blank);
@@ -68,6 +65,7 @@ function PostAd() {
   const [uploadError, setUploadError] = useState("");
 
   useEffect(() => {
+    if (!isEdit) { setForm(blank); setStep(1); setErrors({}); }
     if (isEdit && existing) {
       setForm({
         category: existing.category,
@@ -92,6 +90,8 @@ function PostAd() {
   if (isEdit && existing && existing.seller.id !== user.id) {
     return <Navigate to="/profile/ads" replace />;
   }
+  if (isEdit && loadingExisting) return <div className="page container" role="status">{t("common.loading")}</div>;
+  if (isEdit && !existing) return <div className="page container"><h1>{t("product.notFound")}</h1><Link to="/profile/ads">{t("product.manageAds")}</Link></div>;
 
   const update = (patch) => setForm((f) => ({ ...f, ...patch }));
 
@@ -99,14 +99,19 @@ function PostAd() {
   const islandObj = islands.find((i) => i.name === form.island);
   const categoryName = form.category ? t(`categories.${form.category}`) : "";
 
-  const postingCost = form.category ? getPrice(form.category) : 0;
+  const postingCost = 0;
   const totalCost = postingCost + (form.featured ? featuredPrice : 0);
 
   const handleFiles = async (files) => {
+    if (uploading > 0) return;
     setUploadError("");
     const slotsLeft = Math.max(0, 6 - form.images.length);
     const arr = Array.from(files).slice(0, slotsLeft);
     if (arr.length === 0) return;
+    if (arr.some((f) => !["image/jpeg", "image/png", "image/webp"].includes(f.type))) {
+      setUploadError(t("postAd.errors.imageType"));
+      return;
+    }
 
     const tooBig = arr.find((f) => f.size > MAX_IMAGE_BYTES);
     if (tooBig) {
@@ -116,7 +121,7 @@ function PostAd() {
 
     setUploading((n) => n + arr.length);
     try {
-      const uploaded = await Promise.all(
+      const results = await Promise.allSettled(
         arr.map(async (file) => {
           const path = `${user.id}/${randomId()}.${extFromFile(file)}`;
           const { error } = await supabase.storage
@@ -133,7 +138,9 @@ function PostAd() {
           return data.publicUrl;
         })
       );
-      update({ images: [...form.images, ...uploaded].slice(0, 6) });
+      const uploaded = results.filter((r) => r.status === "fulfilled").map((r) => r.value);
+      setForm((current) => ({ ...current, images: [...current.images, ...uploaded].slice(0, 6) }));
+      if (results.some((r) => r.status === "rejected")) setUploadError(t("postAd.errors.uploadFailed"));
     } catch (err) {
       setUploadError(err.message || t("postAd.errors.uploadFailed"));
     } finally {
@@ -151,9 +158,9 @@ function PostAd() {
       if (!form.subcategory) e.subcategory = t("postAd.errors.chooseSubcategory");
     }
     if (s >= 2) {
-      if (!form.title || form.title.length < 5) e.title = t("postAd.errors.titleShort");
-      if (form.price === "" || Number(form.price) < 0) e.price = t("postAd.errors.priceInvalid");
-      if (!form.description || form.description.length < 20) e.description = t("postAd.errors.descriptionShort");
+      if (form.title.trim().length < 5 || form.title.trim().length > 80) e.title = t("postAd.errors.titleShort");
+      if (form.price === "" || !Number.isFinite(Number(form.price)) || Number(form.price) < 0) e.price = t("postAd.errors.priceInvalid");
+      if (form.description.trim().length < 20 || form.description.trim().length > 2000) e.description = t("postAd.errors.descriptionShort");
     }
     if (s >= 3) {
       if (!form.island) e.island = t("postAd.errors.chooseIsland");
@@ -171,7 +178,7 @@ function PostAd() {
   const prev = () => setStep(step - 1);
 
   const submit = async () => {
-    if (submitting) return;
+    if (submitting || uploading > 0) return;
     const e = validate(4);
     setErrors(e);
     if (Object.keys(e).length > 0) return;
@@ -185,8 +192,7 @@ function PostAd() {
       subcategory: form.subcategory,
       condition: form.condition,
       location: { city: form.city, island: form.island },
-      images: form.images.length ? form.images : [`https://picsum.photos/seed/${Date.now()}/600/450`],
-      featured: form.featured,
+      images: form.images,
     };
 
     setSubmitting(true);
@@ -214,6 +220,7 @@ function PostAd() {
     <div className="page postad-page">
       <div className="container postad-container">
         <h1 className="page-title">{isEdit ? t("postAd.titleEdit") : t("postAd.titleNew")}</h1>
+        <p className="cost-banner">{t("launch.freeYear")}</p>
 
         {step < 5 && (
           <div className="progress">
@@ -252,9 +259,9 @@ function PostAd() {
 
               {categoryObj && (
                 <>
-                  <label className="form-label">{t("postAd.subcategoryLabel")}</label>
+                  <label className="form-label" htmlFor="ad-subcategory">{t("postAd.subcategoryLabel")}</label>
                   <select
-                    value={form.subcategory}
+                    id="ad-subcategory" aria-invalid={!!errors.subcategory} aria-describedby={errors.subcategory ? "ad-subcategory-error" : undefined} value={form.subcategory}
                     onChange={(e) => update({ subcategory: e.target.value })}
                   >
                     <option value="">{t("postAd.chooseSubcategory")}</option>
@@ -262,7 +269,7 @@ function PostAd() {
                       <option key={s} value={s}>{t(`subcategories.${s}`)}</option>
                     ))}
                   </select>
-                  {errors.subcategory && <span className="error">{errors.subcategory}</span>}
+                  {errors.subcategory && <span className="error" id="ad-subcategory-error">{errors.subcategory}</span>}
 
                   <div className="cost-banner">
                     <span>{t("postAd.postingCost", { category: categoryName })}</span>
@@ -277,24 +284,24 @@ function PostAd() {
             <>
               <h2>{t("postAd.step2Title")}</h2>
 
-              <label className="form-label">{t("postAd.titleLabel")}</label>
+              <label className="form-label" htmlFor="ad-title">{t("postAd.titleLabel")}</label>
               <input
                 type="text"
-                value={form.title}
+                id="ad-title" aria-invalid={!!errors.title} aria-describedby={errors.title ? "ad-title-error" : undefined} value={form.title}
                 onChange={(e) => update({ title: e.target.value })}
                 placeholder={t("postAd.titlePlaceholder")}
                 maxLength={80}
               />
               <div className="hint">{form.title.length}/80</div>
-              {errors.title && <span className="error">{errors.title}</span>}
+              {errors.title && <span className="error" id="ad-title-error">{errors.title}</span>}
 
               <div className="grid-2">
                 <div>
-                  <label className="form-label">{t("postAd.priceLabel")}</label>
+                  <label className="form-label" htmlFor="ad-price">{t("postAd.priceLabel")}</label>
                   <div className="price-input">
                     <input
                       type="number"
-                      value={form.price}
+                      id="ad-price" aria-invalid={!!errors.price} aria-describedby={errors.price ? "ad-price-error" : undefined} value={form.price}
                       onChange={(e) => update({ price: e.target.value })}
                       placeholder="0"
                       min="0"
@@ -302,12 +309,12 @@ function PostAd() {
                     <span>{t("common.currency")}</span>
                   </div>
                   <div className="hint">{t("postAd.priceHint")}</div>
-                  {errors.price && <span className="error">{errors.price}</span>}
+                  {errors.price && <span className="error" id="ad-price-error">{errors.price}</span>}
                 </div>
                 <div>
-                  <label className="form-label">{t("postAd.conditionLabel")}</label>
+                  <label className="form-label" htmlFor="ad-condition">{t("postAd.conditionLabel")}</label>
                   <select
-                    value={form.condition}
+                    id="ad-condition" aria-invalid={!!errors.condition} aria-describedby={errors.condition ? "ad-condition-error" : undefined} value={form.condition}
                     onChange={(e) => update({ condition: e.target.value })}
                   >
                     <option value="New">{t("postAd.conditionNew")}</option>
@@ -317,23 +324,23 @@ function PostAd() {
                 </div>
               </div>
 
-              <label className="form-label">{t("postAd.descriptionLabel")}</label>
+              <label className="form-label" htmlFor="ad-description">{t("postAd.descriptionLabel")}</label>
               <textarea
                 rows={6}
-                value={form.description}
+                id="ad-description" aria-invalid={!!errors.description} aria-describedby={errors.description ? "ad-description-error" : undefined} value={form.description}
                 onChange={(e) => update({ description: e.target.value })}
                 placeholder={t("postAd.descriptionPlaceholder")}
                 maxLength={2000}
               />
               <div className="hint">{form.description.length}/2000</div>
-              {errors.description && <span className="error">{errors.description}</span>}
+              {errors.description && <span className="error" id="ad-description-error">{errors.description}</span>}
 
               <label className="form-label">{t("postAd.photosLabel")}</label>
               <div className="image-grid">
                 {form.images.map((src, i) => (
                   <div key={i} className="image-thumb">
-                    <img src={src} alt={`upload ${i + 1}`} />
-                    <button type="button" onClick={() => removeImage(i)} aria-label={t("postAd.removePhoto")}>✕</button>
+                    <img src={src} alt={t("policy.photoAlt", { count: i + 1 })} />
+                    <button type="button" onClick={() => removeImage(i)} aria-label={`${t("postAd.removePhoto")} ${i + 1}`}>✕</button>
                     {i === 0 && <span className="image-main-badge">{t("postAd.mainBadge")}</span>}
                   </div>
                 ))}
@@ -347,7 +354,7 @@ function PostAd() {
                   <label className={`image-upload ${uploading > 0 ? "is-disabled" : ""}`}>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/png,image/webp"
                       multiple
                       disabled={uploading > 0}
                       onChange={(e) => {
@@ -371,9 +378,9 @@ function PostAd() {
 
               <div className="grid-2">
                 <div>
-                  <label className="form-label">{t("postAd.islandLabel")}</label>
+                  <label className="form-label" htmlFor="ad-island">{t("postAd.islandLabel")}</label>
                   <select
-                    value={form.island}
+                    id="ad-island" aria-invalid={!!errors.island} aria-describedby={errors.island ? "ad-island-error" : undefined} value={form.island}
                     onChange={(e) => update({ island: e.target.value, city: "" })}
                   >
                     <option value="">{t("postAd.selectIsland")}</option>
@@ -381,12 +388,12 @@ function PostAd() {
                       <option key={i.name} value={i.name}>{i.name}</option>
                     ))}
                   </select>
-                  {errors.island && <span className="error">{errors.island}</span>}
+                  {errors.island && <span className="error" id="ad-island-error">{errors.island}</span>}
                 </div>
                 <div>
-                  <label className="form-label">{t("postAd.cityLabel")}</label>
+                  <label className="form-label" htmlFor="ad-city">{t("postAd.cityLabel")}</label>
                   <select
-                    value={form.city}
+                    id="ad-city" aria-invalid={!!errors.city} aria-describedby={errors.city ? "ad-city-error" : undefined} value={form.city}
                     onChange={(e) => update({ city: e.target.value })}
                     disabled={!islandObj}
                   >
@@ -395,7 +402,7 @@ function PostAd() {
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
-                  {errors.city && <span className="error">{errors.city}</span>}
+                  {errors.city && <span className="error" id="ad-city-error">{errors.city}</span>}
                 </div>
               </div>
 
@@ -428,20 +435,7 @@ function PostAd() {
                 </div>
               </div>
 
-              <label className="checkbox-row">
-                <input
-                  type="checkbox"
-                  checked={form.featured}
-                  onChange={(e) => update({ featured: e.target.checked })}
-                />
-                <span>
-                  <strong>{t("postAd.featuredTitle")}</strong>
-                  <br />
-                  <span className="muted small">
-                    {t("postAd.featuredHint")}
-                  </span>
-                </span>
-              </label>
+
             </>
           )}
 
@@ -452,11 +446,11 @@ function PostAd() {
 
               <div className="preview-card">
                 {form.images[0] && (
-                  <img src={form.images[0]} alt="preview" />
+                  <img src={form.images[0]} alt={form.title || t("postAd.photosLabel")} />
                 )}
                 <div className="preview-body">
                   <h3>{form.title}</h3>
-                  <div className="preview-price">{formatPrice(form.price, "CVE")}</div>
+                  <div className="preview-price">{formatPrice(form.price, "CVE", locale)}</div>
                   <p className="muted small">
                     📍 {form.city}, {form.island} • {categoryName} / {form.subcategory ? t(`subcategories.${form.subcategory}`) : ""}
                   </p>

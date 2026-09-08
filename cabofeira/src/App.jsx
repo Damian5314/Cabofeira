@@ -8,7 +8,7 @@ import { ProductsProvider } from "./context/ProductsContext";
 import { PricingProvider } from "./context/PricingContext";
 import { MessagesProvider } from "./context/MessagesContext";
 import { ToastProvider } from "./components/Toast";
-import { I18nProvider } from "./i18n/I18nContext";
+import { I18nProvider, useT } from "./i18n/I18nContext";
 
 import Home from "./pages/Home";
 import Categories from "./pages/Categories";
@@ -24,7 +24,15 @@ import MyAds from "./pages/MyAds";
 import Favorites from "./pages/Favorites";
 import Messages from "./pages/Messages";
 import Admin from "./pages/Admin";
-import { About, Contact, FAQ, NotFound } from "./pages/Info";
+import { About, Contact, FAQ, Terms, Privacy, Cookies, Returns, NotFound } from "./pages/ProductInfo";
+import Seller from "./pages/Seller";
+import Notifications from "./pages/Notifications";
+import BlockedUsers from "./pages/BlockedUsers";
+
+function SkipLink() {
+  const t = useT();
+  return <a className="skip-link" href="#main-content">{t("accessibility.skip")}</a>;
+}
 
 function App() {
   return (
@@ -36,12 +44,15 @@ function App() {
               <MessagesProvider>
                 <Router>
                   <ScrollToTop />
+                  <SkipLink />
                   <Navbar />
+                  <main id="main-content" tabIndex={-1}>
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/categories" element={<Categories />} />
                     <Route path="/search" element={<Search />} />
                     <Route path="/product/:id" element={<ProductDetail />} />
+                    <Route path="/seller/:id" element={<Seller />} />
 
                     <Route path="/postad" element={<PostAd />} />
                     <Route path="/edit/:id" element={<PostAd />} />
@@ -56,15 +67,22 @@ function App() {
                     <Route path="/profile/settings" element={<Profile />} />
                     <Route path="/favorites" element={<Favorites />} />
                     <Route path="/messages" element={<Messages />} />
+                    <Route path="/notifications" element={<Notifications />} />
+                    <Route path="/profile/blocked" element={<BlockedUsers />} />
 
                     <Route path="/admin" element={<Admin />} />
 
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/faq" element={<FAQ />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/cookies" element={<Cookies />} />
+                    <Route path="/returns" element={<Returns />} />
 
                     <Route path="*" element={<NotFound />} />
                   </Routes>
+                  </main>
                   <Footer />
                 </Router>
               </MessagesProvider>

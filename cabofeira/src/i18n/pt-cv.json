@@ -1,4 +1,14 @@
 {
+  "accessibility": {
+    "skip": "Saltar para o conteúdo principal",
+    "menu": "Abrir navegação",
+    "showPassword": "Mostrar palavra-passe",
+    "hidePassword": "Ocultar palavra-passe",
+    "retry": "Tentar novamente",
+    "sort": "Ordenar resultados",
+    "accessDenied": "Acesso negado",
+    "adminRequired": "É necessária uma conta de administrador para ver esta página."
+  },
   "common": {
     "search": "Procurar",
     "cancel": "Cancelar",
@@ -178,7 +188,7 @@
     "mainBadge": "Principal",
     "removePhoto": "Remover",
     "step3Title": "Passo 3: Localização",
-    "step3Hint": "Compradores próximos vêem primeiro.",
+    "step3Hint": "Escolha a ilha e a cidade onde o artigo se encontra.",
     "islandLabel": "Ilha",
     "selectIsland": "Escolhe ilha",
     "cityLabel": "Cidade",
@@ -216,7 +226,8 @@
       "chooseCity": "Escolhe uma cidade",
       "submitFailed": "Não foi possível guardar o anúncio. Tenta de novo.",
       "imageTooLarge": "Uma das imagens é demasiado grande (máx. 5 MB).",
-      "uploadFailed": "Não foi possível carregar a imagem. Tenta de novo."
+      "uploadFailed": "Não foi possível carregar a imagem. Tenta de novo.",
+      "imageType": "Escolha imagens JPEG, PNG ou WebP."
     }
   },
   "auth": {
@@ -235,8 +246,8 @@
     "signUp": "Regista-te",
     "createAccount": "Cria a tua conta",
     "joinIntro": "Junta-te ao mercado e começa a vender hoje.",
-    "fullName": "Nome completo",
-    "fullNamePlaceholder": "João Silva",
+    "fullName": "Nome de apresentação",
+    "fullNamePlaceholder": "O nome que os outros utilizadores vão ver",
     "phoneOptional": "Telemóvel (opcional)",
     "phonePlaceholder": "+238 991 1234",
     "passwordHint": "Pelo menos 6 caracteres",
@@ -320,6 +331,7 @@
     "deleteFailed": "Não foi possível apagar a conta."
   },
   "myAds": {
+    "totalListings": "{count} anúncios no total",
     "title": "Os meus anúncios",
     "activeListing": "{count} anúncio activo",
     "activeListings": "{count} anúncios activos",
@@ -460,5 +472,108 @@
     "Free Stuff": "Grátis",
     "Lost & Found": "Perdidos e Achados",
     "Miscellaneous": "Diversos"
+  },
+  "launch": {
+    "freeYear": "Publicar anúncios é grátis para todos durante o primeiro ano após o lançamento. Não cobramos pagamentos nem ativamos subscrições automaticamente."
+  },
+  "report": {
+    "reasons": {
+      "scam": "Burla",
+      "spam": "Spam",
+      "prohibited": "Artigo proibido",
+      "already_sold": "Já vendido",
+      "duplicate": "Duplicado",
+      "other": "Outro"
+    }
+  },
+  "info": {
+    "about": "CaboFeira é um mercado de anúncios para as nove ilhas habitadas de Cabo Verde.",
+    "how": "Crie uma conta, publique um anúncio e combine os detalhes diretamente com o comprador ou vendedor.",
+    "contact": "Precisa de ajuda com o CaboFeira?",
+    "noSupport": "Ainda não temos um endereço de apoio ao cliente disponível. Estamos a preparar este canal.",
+    "report": "Para denunciar um anúncio suspeito, abra o anúncio e use o botão Denunciar.",
+    "notFound": "Esta página não existe ou foi movida.",
+    "faq": {
+      "free": {
+        "q": "É grátis?",
+        "a": "Publicar anúncios é grátis para todos durante o primeiro ano após o lançamento. Não cobramos pagamentos nem ativamos subscrições automaticamente."
+      },
+      "post": {
+        "q": "Como publico um anúncio?",
+        "a": "Crie uma conta e use Publicar anúncio. Adicione uma descrição, preço, localização e fotografias reais."
+      },
+      "contact": {
+        "q": "Como contacto um vendedor?",
+        "a": "Abra o anúncio e envie uma mensagem. Quando disponível, pode usar o telefone ou WhatsApp."
+      },
+      "safety": {
+        "q": "Como negoceio com segurança?",
+        "a": "Encontre-se num local público, verifique o artigo antes de pagar e denuncie anúncios suspeitos. O CaboFeira não garante as transações."
+      },
+      "manage": {
+        "q": "Como altero um anúncio?",
+        "a": "Em Os meus anúncios pode editar, apagar ou marcar como vendido."
+      },
+      "islands": {
+        "q": "Que ilhas estão incluídas?",
+        "a": "Santiago, São Vicente, Santo Antão, Fogo, Sal, Boa Vista, Maio, São Nicolau e Brava."
+      }
+    },
+    "terms": {
+      "marketplace": "CaboFeira disponibiliza anúncios e mensagens para aproximar compradores e vendedores.",
+      "conduct": "Publique informações verdadeiras e apenas artigos ou serviços que tem autorização para oferecer. Não publique burlas, spam, conteúdo ilegal ou dados pessoais de terceiros. Publique apenas fotografias tiradas por si ou que tem autorização para usar.",
+      "transactions": "Compradores e vendedores combinam o pagamento, entrega e eventuais devoluções diretamente. CaboFeira não recebe pagamentos, não oferece depósito de garantia nem garante os artigos.",
+      "moderation": "Denuncie anúncios suspeitos. Os administradores podem analisar denúncias e remover anúncios inadequados.",
+      "free": "Publicar anúncios é grátis para todos durante o primeiro ano após o lançamento. Não cobramos pagamentos nem ativamos subscrições automaticamente."
+    },
+    "privacy": {
+      "data": "Guardamos os dados da sua conta e perfil, anúncios, fotografias, favoritos, mensagens e denúncias para disponibilizar estas funcionalidades.",
+      "public": "Os anúncios e fotografias são públicos. O esquema atual também permite a leitura pública dos perfis, incluindo nome, email, telefone e biografia. Evite incluir dados que não quer tornar públicos.",
+      "messages": "As mensagens são guardadas no Supabase. As regras de acesso destinam-se a limitar a leitura aos participantes; as mensagens não têm encriptação ponta a ponta.",
+      "storage": "Usamos armazenamento do navegador para manter a sessão iniciada e a preferência de idioma. Os dados e ficheiros da aplicação são alojados no Supabase.",
+      "deletion": "Pode editar o perfil ou pedir a eliminação da conta nas definições. A eliminação remove registos associados; fotografias no armazenamento e cópias de segurança exigem tratamento separado."
+    }
+  },
+  "blocking": {
+    "block": "Bloquear utilizador",
+    "unblock": "Desbloquear utilizador",
+    "hint": "O bloqueio oculta conversas e impede mensagens nos dois sentidos. Pode gerir os utilizadores bloqueados no seu perfil.",
+    "title": "Utilizadores bloqueados"
+  },
+  "audit": {
+    "title": "Atividade administrativa"
+  },
+  "notifications": {
+    "title": "Notificações",
+    "empty": "Ainda não há notificações.",
+    "read": "Marcar como lida"
+  },
+  "dialog": {
+    "title": "Tem a certeza?",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "type": "Escreva {text} para confirmar:"
+  },
+  "policy": {
+    "cookiesTitle": "Cookies e armazenamento no navegador",
+    "returnsTitle": "Devoluções e reembolsos",
+    "acceptTerms": "Aceito os",
+    "privacyNotice": "Saiba como usamos os seus dados na nossa",
+    "phoneHint": "O telefone é opcional. Adicione-o apenas se o quiser partilhar publicamente. Pode usar um nome de apresentação em vez do seu nome legal.",
+    "photoAlt": "Fotografia {count} do anúncio",
+    "cookies": {
+      "storage": "O CaboFeira usa armazenamento no navegador para iniciar sessão, guardar o idioma e registar anúncios vistos durante a sessão. Estas funções não precisam de cookies de publicidade.",
+      "session": "O Supabase guarda a sessão iniciada no armazenamento local do navegador. Terminar sessão remove essa sessão. O estado temporário de recuperação da palavra-passe é guardado durante a sessão do navegador.",
+      "language": "O idioma escolhido fica guardado neste navegador até o alterar ou limpar os dados guardados do site.",
+      "views": "Um registo no armazenamento de sessão ajuda a evitar contar repetidamente a mesma visita a um anúncio durante a sessão do navegador. O total de visualizações do anúncio também é guardado no servidor.",
+      "thirdParties": "A aplicação não inclui rastreadores de publicidade nem leitores de redes sociais incorporados. O Supabase fornece os serviços de conta e dados; o site está alojado no Vercel. Ligações externas como Facebook e WhatsApp abrem outro serviço, com as suas próprias práticas de privacidade. As imagens dos anúncios podem ser fornecidas pelo respetivo serviço de armazenamento.",
+      "controls": "Pode limpar os dados deste site nas definições do navegador; isso termina a sessão e repõe as preferências locais. Os prestadores de serviços podem tratar dados técnicos de ligação e segurança. Esta página descreve o armazenamento da aplicação e não promete que os prestadores de alojamento não guardem registos."
+    },
+    "returns": {
+      "platform": "O CaboFeira não cobra atualmente pela publicação de anúncios e não recebe pagamentos pelos artigos vendidos entre utilizadores. Assim, no serviço atual não existe um pagamento à plataforma que o CaboFeira possa reembolsar.",
+      "seller": "O pagamento, a entrega e eventuais devoluções são combinados diretamente com o vendedor. Pergunte se o vendedor é particular ou profissional e confirme o estado do artigo e a entrega antes de pagar.",
+      "rights": "Mantêm-se todos os direitos obrigatórios aplicáveis à sua compra. Estes dependem da lei aplicável, do tipo de vendedor e da transação. Esta página não exclui direitos legais de livre resolução, reparação, substituição ou reembolso.",
+      "dispute": "Se houver um problema com o artigo, contacte o vendedor e guarde o anúncio e as mensagens. Denuncie suspeitas de burla através de Denunciar no anúncio. O CaboFeira não oferece depósito de garantia nem garante um reembolso."
+    }
   }
 }

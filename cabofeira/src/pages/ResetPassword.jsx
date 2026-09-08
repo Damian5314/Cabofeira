@@ -28,7 +28,7 @@ function ResetPassword() {
     });
     supabase.auth.getSession().then(({ data }) => {
       if (alive) setHasSession(!!data.session);
-    });
+    }).catch(() => { if (alive) setHasSession(false); });
     return () => {
       alive = false;
       sub.data.subscription.unsubscribe();
@@ -37,14 +37,15 @@ function ResetPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (busy || hasSession !== true) return;
     setError("");
     if (password !== confirm) {
       setError(t("auth.errors.passwordMismatch"));
       return;
     }
     setBusy(true);
+    try {
     const result = await updatePassword(password);
-    setBusy(false);
     if (!result.ok) {
       setError(result.error);
       return;
@@ -54,6 +55,8 @@ function ResetPassword() {
       await supabase.auth.signOut();
       navigate("/login");
     }, 1800);
+    } catch { setError(t("common.error")); }
+    finally { setBusy(false); }
   };
 
   return (
@@ -69,7 +72,7 @@ function ResetPassword() {
         {hasSession === false && (
           <div className="auth-error">{t("auth.reset.invalidLink")}</div>
         )}
-        {error && <div className="auth-error">{error}</div>}
+        {error && <div className="auth-error" role="alert">{error}</div>}
 
         {done ? (
           <div style={{ textAlign: "center", padding: "20px 0" }}>
@@ -87,7 +90,7 @@ function ResetPassword() {
                 placeholder={t("auth.passwordHint")}
                 autoComplete="new-password"
                 required
-                disabled={hasSession === false}
+                disabled={hasSession !== true}
               />
             </label>
             <label>
@@ -98,13 +101,13 @@ function ResetPassword() {
                 onChange={(e) => setConfirm(e.target.value)}
                 autoComplete="new-password"
                 required
-                disabled={hasSession === false}
+                disabled={hasSession !== true}
               />
             </label>
             <button
               type="submit"
               className="btn btn-primary btn-block"
-              disabled={busy || !password || !confirm || hasSession === false}
+              disabled={busy || !password || !confirm || hasSession !== true}
             >
               {busy ? t("auth.reset.updating") : t("auth.reset.update")}
             </button>

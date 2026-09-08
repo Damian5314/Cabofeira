@@ -1,19 +1,23 @@
+import ListingImage from "../components/ListingImage";
 import React from "react";
 import { Link } from "react-router-dom";
 import { useProducts } from "../context/ProductsContext";
-import { useT } from "../i18n/I18nContext";
+import { useT, useI18n } from "../i18n/I18nContext";
 import { formatPrice, timeAgo } from "../utils/format";
 import "./ProductCard.css";
 
 function ProductCard({ product }) {
   const { isFavorite, toggleFavorite } = useProducts();
   const t = useT();
+  const { locale } = useI18n();
   const fav = isFavorite(product.id);
 
   return (
     <article className={`product-card ${product.featured ? "is-featured" : ""}`}>
-      <Link to={`/product/${product.id}`} className="card-image-wrap">
-        <img src={product.images[0]} alt={product.title} loading="lazy" />
+      <div className="card-image-wrap">
+        <Link to={`/product/${product.id}`}>
+        <ListingImage src={product.images[0]} alt={product.title} loading="lazy" />
+        </Link>
         {(product.status === "sold" || product.featured) && (
           <div className="card-badges">
             {product.status === "sold" && (
@@ -31,15 +35,16 @@ function ProductCard({ product }) {
             toggleFavorite(product.id);
           }}
           aria-label={fav ? t("product.saved") : t("product.save")}
+          aria-pressed={fav}
         >
           {fav ? "❤️" : "🤍"}
         </button>
-      </Link>
+      </div>
       <div className="card-body">
         <Link to={`/product/${product.id}`} className="card-title">
           {product.title}
         </Link>
-        <div className="card-price">{formatPrice(product.price, product.currency)}</div>
+        <div className="card-price">{formatPrice(product.price, product.currency, locale)}</div>
         <div className="card-meta">
           <span>📍 {product.location.city}, {product.location.island}</span>
           {product.seller.verified && (
@@ -49,7 +54,7 @@ function ProductCard({ product }) {
           )}
         </div>
         <div className="card-footer">
-          <span className="muted small">{timeAgo(product.createdAt)}</span>
+          <span className="muted small">{timeAgo(product.createdAt, locale)}</span>
           <span className="muted small">👁 {product.views}</span>
         </div>
       </div>

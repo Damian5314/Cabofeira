@@ -1,4 +1,14 @@
 {
+  "accessibility": {
+    "skip": "Skip to main content",
+    "menu": "Open navigation",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "retry": "Try again",
+    "sort": "Sort results",
+    "accessDenied": "Access denied",
+    "adminRequired": "You need an administrator account to view this page."
+  },
   "common": {
     "search": "Search",
     "cancel": "Cancel",
@@ -178,7 +188,7 @@
     "mainBadge": "Main",
     "removePhoto": "Remove",
     "step3Title": "Step 3: Location",
-    "step3Hint": "Buyers nearby will see your ad first.",
+    "step3Hint": "Choose the island and city where the item is located.",
     "islandLabel": "Island",
     "selectIsland": "Select island",
     "cityLabel": "City / town",
@@ -216,7 +226,8 @@
       "chooseCity": "Choose a city",
       "submitFailed": "Could not save your ad. Please try again.",
       "imageTooLarge": "One of the images is too large (max 5 MB).",
-      "uploadFailed": "Could not upload the image. Please try again."
+      "uploadFailed": "Could not upload the image. Please try again.",
+      "imageType": "Choose JPEG, PNG or WebP images."
     }
   },
   "auth": {
@@ -235,8 +246,8 @@
     "signUp": "Sign up",
     "createAccount": "Create your account",
     "joinIntro": "Join the marketplace and start selling today.",
-    "fullName": "Full name",
-    "fullNamePlaceholder": "João Silva",
+    "fullName": "Display name",
+    "fullNamePlaceholder": "The name other users will see",
     "phoneOptional": "Phone number (optional)",
     "phonePlaceholder": "+238 991 1234",
     "passwordHint": "At least 6 characters",
@@ -320,6 +331,7 @@
     "deleteFailed": "Could not delete account."
   },
   "myAds": {
+    "totalListings": "{count} listings in total",
     "title": "My ads",
     "activeListing": "{count} active listing",
     "activeListings": "{count} active listings",
@@ -460,5 +472,108 @@
     "Free Stuff": "Free Stuff",
     "Lost & Found": "Lost & Found",
     "Miscellaneous": "Miscellaneous"
+  },
+  "launch": {
+    "freeYear": "Posting is free for everyone during the first year after launch. We do not collect payments or start subscriptions automatically."
+  },
+  "report": {
+    "reasons": {
+      "scam": "Scam",
+      "spam": "Spam",
+      "prohibited": "Prohibited item",
+      "already_sold": "Already sold",
+      "duplicate": "Duplicate",
+      "other": "Other"
+    }
+  },
+  "info": {
+    "about": "CaboFeira is a classifieds marketplace for the nine inhabited islands of Cabo Verde.",
+    "how": "Create an account, post a listing and arrange the details directly with the buyer or seller.",
+    "contact": "Need help with CaboFeira?",
+    "noSupport": "We do not yet have a customer support address available. This contact channel is being set up.",
+    "report": "To report a suspicious listing, open the listing and use the Report button.",
+    "notFound": "This page does not exist or has moved.",
+    "faq": {
+      "free": {
+        "q": "Is it free?",
+        "a": "Posting is free for everyone during the first year after launch. We do not collect payments or start subscriptions automatically."
+      },
+      "post": {
+        "q": "How do I post a listing?",
+        "a": "Create an account and choose Post an ad. Add a description, price, location and genuine photos."
+      },
+      "contact": {
+        "q": "How do I contact a seller?",
+        "a": "Open the listing and send a message. Phone and WhatsApp are available when the seller provides a number."
+      },
+      "safety": {
+        "q": "How do I trade safely?",
+        "a": "Meet in public, inspect the item before paying and report suspicious listings. CaboFeira does not guarantee transactions."
+      },
+      "manage": {
+        "q": "How do I change a listing?",
+        "a": "In My Ads you can edit, delete or mark a listing as sold."
+      },
+      "islands": {
+        "q": "Which islands are included?",
+        "a": "Santiago, São Vicente, Santo Antão, Fogo, Sal, Boa Vista, Maio, São Nicolau and Brava."
+      }
+    },
+    "terms": {
+      "marketplace": "CaboFeira provides listings and messaging to connect buyers and sellers.",
+      "conduct": "Provide accurate information and only offer items or services you are entitled to sell. Do not publish scams, spam, illegal content or personal information belonging to others. Upload only photographs you took yourself or are authorised to use.",
+      "transactions": "Buyers and sellers arrange payment, delivery and any returns directly. CaboFeira does not collect payments, provide escrow or guarantee items.",
+      "moderation": "Report suspicious listings. Administrators can review reports and remove inappropriate listings.",
+      "free": "Posting is free for everyone during the first year after launch. We do not collect payments or start subscriptions automatically."
+    },
+    "privacy": {
+      "data": "We store account and profile details, listings, photos, favorites, messages and reports to provide these features.",
+      "public": "Listings and photos are public. The current database also permits public reading of profiles, including names, email addresses, phone numbers and biographies. Avoid adding information you do not want to make public.",
+      "messages": "Messages are stored in Supabase. Access rules are intended to restrict reading to participants; messages are not end-to-end encrypted.",
+      "storage": "Browser storage keeps your sign-in session and language preference. Application data and files are hosted in Supabase.",
+      "deletion": "You can edit your profile or request account deletion in settings. Deletion removes associated records; stored photos and backups require separate handling."
+    }
+  },
+  "blocking": {
+    "block": "Block user",
+    "unblock": "Unblock user",
+    "hint": "Blocking hides conversations and prevents messages in both directions. Manage blocked users in your profile.",
+    "title": "Blocked users"
+  },
+  "audit": {
+    "title": "Admin activity"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet.",
+    "read": "Mark as read"
+  },
+  "dialog": {
+    "title": "Are you sure?",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "type": "Type {text} to confirm:"
+  },
+  "policy": {
+    "cookiesTitle": "Cookies and browser storage",
+    "returnsTitle": "Returns and refunds",
+    "acceptTerms": "I agree to the",
+    "privacyNotice": "Read how we use your data in our",
+    "phoneHint": "Your phone number is optional. Add it only if you want to share it publicly. Use a display name instead of your legal name if you prefer.",
+    "photoAlt": "Listing photo {count}",
+    "cookies": {
+      "storage": "CaboFeira uses browser storage for sign-in, your language choice and a per-session record of viewed listings. These functions do not require advertising cookies.",
+      "session": "Supabase stores the sign-in session in local browser storage. Signing out removes that session. Temporary password-recovery state is stored for the current browser session.",
+      "language": "Your selected language stays on this browser until you change it or clear the website’s stored data.",
+      "views": "A record in session storage helps avoid counting repeated views of the same listing within a browser session. Listing view totals are also stored on the server.",
+      "thirdParties": "The application does not include advertising trackers or embedded social-media players. Supabase provides account and data services; the site is hosted on Vercel. External links such as Facebook and WhatsApp open another service with its own privacy practices. Listing images may be served by their storage provider.",
+      "controls": "You can clear this website’s stored data in your browser settings; this signs you out and resets local preferences. Service providers may process technical connection and security data. This page describes the application’s storage and does not promise that hosting providers keep no logs."
+    },
+    "returns": {
+      "platform": "CaboFeira currently charges no listing fees and does not collect payments for items sold between users. There is therefore no platform payment for CaboFeira to refund under the current service.",
+      "seller": "Payment, delivery and any return arrangement are made directly with the seller. Ask whether the seller is a private individual or a business and agree the condition and delivery details before paying.",
+      "rights": "Any mandatory rights that apply to your purchase remain in force. These depend on the applicable law, the seller’s status and the transaction. This page does not exclude statutory cancellation, repair, replacement or refund rights.",
+      "dispute": "For a problem with an item, contact the seller and keep the listing and messages. Report suspected fraud using Report on the listing. CaboFeira does not provide escrow or guarantee a refund."
+    }
   }
 }

@@ -39,6 +39,8 @@ function Footer() {
               <li><Link to="/faq">{t("footer.faq")}</Link></li>
               <li><Link to="/privacy">{t("footer.privacy")}</Link></li>
               <li><Link to="/terms">{t("footer.terms")}</Link></li>
+              <li><Link to="/cookies">{t("policy.cookiesTitle")}</Link></li>
+              <li><Link to="/returns">{t("policy.returnsTitle")}</Link></li>
             </ul>
           </div>
 
@@ -50,8 +52,7 @@ function Footer() {
                   Facebook
                 </a>
               </li>
-              <li><button type="button" className="link-btn" onClick={() => {}}>Instagram</button></li>
-              <li><button type="button" className="link-btn" onClick={() => {}}>WhatsApp</button></li>
+              <li><Link to="/contact">{t("footer.contact")}</Link></li>
             </ul>
           </div>
         </div>

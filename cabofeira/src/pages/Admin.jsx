@@ -10,12 +10,16 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import Skeleton from "../components/Skeleton";
 import { useToast } from "../components/Toast";
 import "./Admin.css";
+import AuditLog from "../components/AuditLog";
+import { useT, useI18n } from "../i18n/I18nContext";
 
 function Admin() {
   const { user, isAdmin, allUsers, setUserRole, setUserVerified } = useAuth();
   const { products, removeProduct, fetchProducts } = useProducts();
   const { prices, setPrice, featuredPrice, setFeaturedPrice, resetPrices } = usePricing();
   const toast = useToast();
+  const t = useT();
+  const { locale } = useI18n();
 
   const [tab, setTab] = useState("users");
   const [savedFlash, setSavedFlash] = useState(false);
@@ -35,6 +39,8 @@ function Admin() {
     setConfirmBusy(true);
     try {
       await confirmCfg.action();
+    } catch {
+      toast.error(t("common.error"));
     } finally {
       setConfirmBusy(false);
       setConfirmCfg(null);
@@ -93,16 +99,19 @@ function Admin() {
       try {
         const { items, total } = await fetchProducts({
           sort: "newest",
+          status: null,
           range: [offset, offset + ADS_PAGE_SIZE - 1],
         });
         setAdsTotal(total);
         setAds((prev) => (append ? [...prev, ...items] : items));
+      } catch {
+        toast.error("Could not load listings.");
       } finally {
         setAdsLoading(false);
         setAdsLoadingMore(false);
       }
     },
-    [fetchProducts]
+    [fetchProducts, toast]
   );
 
   useEffect(() => {
@@ -112,7 +121,7 @@ function Admin() {
   }, [isAdmin, tab, ads.length, loadAds]);
 
   const updateReportStatus = async (reportId, status) => {
-    await supabase
+    const { error } = await supabase
       .from("reports")
       .update({
         status,
@@ -120,6 +129,8 @@ function Admin() {
         reviewed_by: user.id,
       })
       .eq("id", reportId);
+    if (error) toast.error(t("common.error"));
+    else loadReports();
   };
 
   if (!user) return <Navigate to="/login?redirect=/admin" replace />;
@@ -128,8 +139,8 @@ function Admin() {
       <div className="page">
         <div className="container" style={{ maxWidth: 560 }}>
           <div className="empty">
-            <h2>🚫 Access denied</h2>
-            <p className="muted">You need an admin account to view this page.</p>
+            <h1>{t("accessibility.accessDenied")}</h1>
+            <p className="muted">{t("accessibility.adminRequired")}</p>
           </div>
         </div>
       </div>
@@ -162,7 +173,7 @@ function Admin() {
           </div>
           <div className="stat">
             <div className="stat-num">{stats.total ?? "…"}</div>
-            <div className="stat-label">Active ads</div>
+            <div className="stat-label">All ads</div>
           </div>
           <div className="stat">
             <div className="stat-num">{stats.featured ?? "…"}</div>
@@ -177,6 +188,7 @@ function Admin() {
         </div>
 
         <div className="admin-tabs">
+          <button className={tab === "audit" ? "is-active" : ""} onClick={() => setTab("audit")}>{t("audit.title")}</button>
           <button
             className={tab === "users" ? "is-active" : ""}
             onClick={() => setTab("users")}
@@ -311,8 +323,12 @@ function Admin() {
           </div>
         )}
 
+        {tab === "audit" && <AuditLog />}
+
         {tab === "pricing" && (
           <div className="admin-card">
+            <p role="status">{t("launch.freeYear")}</p>
+            <fieldset disabled style={{ border: 0, padding: 0 }}>
             <div className="row-between">
               <div>
                 <h2>Posting prices</h2>
@@ -373,8 +389,9 @@ function Admin() {
               </div>
             </div>
             <p className="muted small" style={{ marginTop: 12 }}>
-              Changes are saved automatically and apply to new ads immediately.
+              {t("launch.freeYear")}
             </p>
+            </fieldset>
           </div>
         )}
 
@@ -423,7 +440,7 @@ function Admin() {
                       <td>{p.seller.name}</td>
                       <td>{p.category}</td>
                       <td>{p.location.city}, {p.location.island}</td>
-                      <td>{formatPrice(p.price, p.currency)}</td>
+                      <td>{formatPrice(p.price, p.currency, locale)}</td>
                       <td>{p.views}</td>
                       <td>{p.featured ? "⭐" : "—"}</td>
                       <td>

@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-06-09T19:05:48.855Z"
+last_updated: "2026-06-15T00:58:50.465Z"
 last_activity: 2026-06-09 -- Phase 02 execution started
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 13
-  completed_plans: 6
+  completed_plans: 8
   percent: 25
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-06-07)
 ## Current Position
 
 Phase: 02 (Missing Table-Stakes Features) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
 Last activity: 2026-06-09 -- Phase 02 execution started
 
@@ -60,6 +60,7 @@ Progress: [██████████] 100% (plans executed; two deferred ga
 | Phase 01 P04 | — | 2/3 tasks (probe deferred) | 1 file |
 | Phase 01 P05 | ~10 | 1/2 tasks + account deletion (history rewrite deferred) | 4 files |
 | Phase 02 P01 | 12 | 3 tasks | 7 files |
+| Phase 02 P03 | 13 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [02-01]: product_post_log.user_id has no cascading FK to products so rate-limit count survives hard removeProduct DELETE (D-05)
 - [Phase ?]: [02-01]: products SELECT relaxed to active+sold only; expired/hidden stay owner/admin (D-14); MUST pair with ProductsContext .eq(status,active) feed filter in 02-03
 - [Phase ?]: [02-01]: blocked_users not published to realtime; is_blocked_pair() SECURITY DEFINER composed into messaging RLS + new-message trigger
+- [Phase ?]: [02-03]: ProductsContext feed/search now filter status=active (refreshProducts + fetchProducts default), closing the D-14 sold-leak window from the 02-02 SELECT relax (Pitfall 1/T-02-04)
+- [Phase ?]: [02-03]: card verified badge reuses existing product.verified key (not a new badge.verified) for consistency with ProductDetail; added common.error key (UI-SPEC referenced it but it was absent)
 
 ### Pending Todos
 
@@ -109,6 +112,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-09T19:05:22.340Z
+Last session: 2026-06-15T00:51:17.998Z
 Stopped at: Phase 2 UI-SPEC approved
 Resume file: .planning/phases/02-missing-table-stakes-features/02-UI-SPEC.md

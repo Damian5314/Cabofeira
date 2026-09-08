@@ -11,7 +11,7 @@
   --cf-border: #e5e7eb;
   --cf-bg: #f7f8fa;
   --cf-bg-alt: #ffffff;
-  --cf-success: #16a34a;
+  --cf-success: #15803d;
   --cf-radius: 10px;
   --cf-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   --cf-shadow-lg: 0 6px 24px rgba(0, 0, 0, 0.1);
@@ -192,4 +192,15 @@ h1, h2, h3, h4 {
 .badge-new {
   background: #dcfce7;
   color: #14532d;
+}
+/* Shared keyboard and reflow support. */
+:focus-visible { outline: 3px solid #b34f00 !important; outline-offset: 3px; }
+.skip-link { position: fixed; top: 8px; left: 8px; z-index: 1000; padding: 12px 18px; background: white; color: #003893; transform: translateY(-160%); }
+.skip-link:focus { transform: translateY(0); }
+#main-content { min-width: 0; scroll-margin-top: 90px; }
+button, input, select, textarea { min-width: 0; }
+button { min-height: 24px; }
+.auth-form input, .auth-form select, .auth-form textarea { font-size: 1rem; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }

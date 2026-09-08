@@ -343,12 +343,14 @@
     padding: 76px 18px 24px;
     overflow-y: auto;
     transform: translateX(100%);
+    visibility: hidden;
     transition: transform 0.25s ease;
     z-index: 95;
     box-shadow: -8px 0 24px rgba(0, 0, 0, 0.25);
   }
 
   .navbar-links.open {
+    visibility: visible;
     transform: translateX(0);
   }
 

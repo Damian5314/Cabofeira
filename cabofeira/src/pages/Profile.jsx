@@ -6,13 +6,18 @@ import { useMessages } from "../context/MessagesContext";
 import { useT } from "../i18n/I18nContext";
 import ConfirmDialog from "../components/ConfirmDialog";
 import "./Profile.css";
+import { useToast } from "../components/Toast";
+import useSellerStats from "../hooks/useSellerStats";
 
 function Profile() {
   const navigate = useNavigate();
   const { user, logout, updateProfile, deleteAccount } = useAuth();
-  const { userProducts, favorites } = useProducts();
+  const { favorites } = useProducts();
   const { unreadTotal } = useMessages();
   const t = useT();
+  const toast = useToast();
+  const stats = useSellerStats(user?.id);
+  const [saving, setSaving] = useState(false);
 
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
@@ -26,12 +31,18 @@ function Profile() {
 
   if (!user) return <Navigate to="/login?redirect=/profile" replace />;
 
-  const myAds = userProducts(user.id);
+  const statValue = (value) => stats.loading || stats.error ? "—" : value;
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    updateProfile(form);
-    setEditing(false);
+    if (saving || !form.name.trim()) return;
+    setSaving(true);
+    try {
+      const result = await updateProfile({ ...form, name: form.name.trim() });
+      if (!result.ok) { toast.error(result.error); return; }
+      setEditing(false);
+    } catch { toast.error(t("common.error")); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -44,8 +55,10 @@ function Profile() {
             <p className="muted small">{t("profile.memberSince", { date: user.memberSince })}</p>
           </div>
           <nav className="profile-nav">
+            <NavLink to="/profile/blocked">{t("blocking.title")}</NavLink>
+            <NavLink to="/notifications">{t("notifications.title")}</NavLink>
             <NavLink to="/profile" end>{t("profile.overview")}</NavLink>
-            <NavLink to="/profile/ads">{t("profile.myAds", { count: myAds.length })}</NavLink>
+            <NavLink to="/profile/ads">{t("profile.myAds", { count: statValue(stats.total) })}</NavLink>
             <NavLink to="/favorites">{t("profile.favorites", { count: favorites.length })}</NavLink>
             <NavLink to="/messages">
               {t("profile.messages")}
@@ -56,10 +69,10 @@ function Profile() {
           </nav>
         </aside>
 
-        <main className="profile-main">
+        <section className="profile-main">
           <div className="profile-section">
             <div className="profile-section-head">
-              <h2>{t("profile.accountOverview")}</h2>
+              <h1>{t("profile.accountOverview")}</h1>
               {!editing && (
                 <button className="btn btn-outline" onClick={() => setEditing(true)}>
                   {t("profile.editProfile")}
@@ -73,6 +86,8 @@ function Profile() {
                   <span>{t("profile.name")}</span>
                   <input
                     value={form.name}
+                    required
+                    maxLength={100}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                   />
                 </label>
@@ -97,7 +112,7 @@ function Profile() {
                   <button type="button" className="btn btn-outline" onClick={() => setEditing(false)}>
                     {t("profile.cancel")}
                   </button>
-                  <button type="submit" className="btn btn-primary">{t("profile.save")}</button>
+                  <button type="submit" className="btn btn-primary" disabled={saving}>{t("profile.save")}</button>
                 </div>
               </form>
             ) : (
@@ -112,9 +127,10 @@ function Profile() {
 
           <div className="profile-section">
             <h2>{t("profile.quickStats")}</h2>
-            <div className="stats-grid">
+            {stats.error && <p role="alert">{t("common.error")}</p>}
+            <div className="stats-grid" aria-busy={stats.loading}>
               <div className="stat">
-                <div className="stat-num">{myAds.length}</div>
+                <div className="stat-num">{statValue(stats.active)}</div>
                 <div className="stat-label">{t("profile.activeAds")}</div>
               </div>
               <div className="stat">
@@ -123,7 +139,7 @@ function Profile() {
               </div>
               <div className="stat">
                 <div className="stat-num">
-                  {myAds.reduce((s, p) => s + (p.views || 0), 0)}
+                  {statValue(stats.views)}
                 </div>
                 <div className="stat-label">{t("profile.totalViews")}</div>
               </div>
@@ -168,7 +184,7 @@ function Profile() {
               {t("profile.deleteAccount")}
             </button>
           </div>
-        </main>
+        </section>
       </div>
 
       <ConfirmDialog

@@ -10,8 +10,8 @@ export default function LanguageSwitcher({ className = "" }) {
       onChange={(e) => setLocale(e.target.value)}
       aria-label={t("language.label")}
     >
-      <option value="en">🇬🇧 EN</option>
       <option value="pt-cv">🇨🇻 PT</option>
+      <option value="en">🇬🇧 EN</option>
     </select>
   );
 }

@@ -15,15 +15,18 @@ function ForgotPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (sending) return;
     setError("");
     setSending(true);
+    try {
     const result = await requestPasswordReset(email);
-    setSending(false);
     if (!result.ok) {
       setError(result.error);
       return;
     }
     setSent(true);
+    } catch { setError(t("common.error")); }
+    finally { setSending(false); }
   };
 
   return (
@@ -36,7 +39,7 @@ function ForgotPassword() {
         <h2>{t("auth.forgot.title")}</h2>
         <p className="muted">{t("auth.forgot.intro")}</p>
 
-        {error && <div className="auth-error">{error}</div>}
+        {error && <div className="auth-error" role="alert">{error}</div>}
 
         {sent ? (
           <div style={{ textAlign: "center", padding: "20px 0" }}>
